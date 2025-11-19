@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <title>Testa a Testa: Premium Fixed</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* === 1. CORE & RESET (Sem Fundo Branco) === */
+        :root {
+            --bg-dark: #0f172a;
+            --primary: #6366f1;   /* Indigo Neon */
+            --secondary: #ec4899; /* Pink Neon */
+            --accent: #fbbf24;    /* Gold */
+            --glass: rgba(255, 255, 255, 0.08);
+            --border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        html {
+            background-color: var(--bg-dark); /* Cor de fundo base */
+            width: 100%; height: 100%;
+        }
+
+        body {
+            width: 100vw; height: 100vh; overflow: hidden;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
+            font-family: 'Poppins', sans-serif; color: white;
+            position: fixed; top: 0; left: 0; /* Trava scroll elástico */
+            user-select: none; -webkit-user-select: none;
+        }
+
+        /* === 2. ESTRUTURA DE TELAS === */
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; opacity: 0; z-index: 1; padding: 2vmin;
+            transition: opacity 0.3s ease;
+        }
+        .screen.active { display: flex; opacity: 1; z-index: 10; }
+
+        /* Utilitários de Flexbox */
+        .col-center { flex-direction: column; align-items: center; justify-content: center; }
+        .row-center { flex-direction: row; align-items: center; justify-content: center; }
+
+        /* === 3. UI COMPONENTS (Estilo Premium) === */
+        h1 {
+            font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 6vmin;
+            text-transform: uppercase; margin-bottom: 1vmin;
+            background: linear-gradient(to right, #818cf8, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 10px rgba(99,102,241,0.3));
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; border: none; border-radius: 100px;
+            padding: 1.5vmin 4vmin; font-size: 2.5vmin; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+            font-family: 'Montserrat', sans-serif; transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.96); }
+
+        .glass-box {
+            background: var(--glass); border: var(--border);
+            border-radius: 20px; padding: 2.5vmin; backdrop-filter: blur(10px);
+        }
+
+        input {
+            background: rgba(0,0,0,0.3); border: var(--border); color: white;
+            padding: 1vmin 2vmin; border-radius: 10px; font-size: 2vmin;
+            width: 100%; outline: none; margin-bottom: 1.5vmin;
+            font-family: 'Poppins', sans-serif;
+        }
+        label { font-size: 1.5vmin; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 0.5vmin; }
+
+        /* === 4. TELA SETUP (Grid Layout Restaurado) === */
+        #screen-setup { flex-direction: column; align-items: center; justify-content: center; }
+        
+        .setup-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 3vmin;
+            width: 80%; max-width: 900px; align-items: start;
+        }
+
+        /* Sensor Status */
+        #sensor-status-box {
+            margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.4);
+            border-radius: 10px; font-size: 1.5vmin; text-align: center;
+            border: 1px solid #fbbf24; color: #fbbf24;
+        }
+
+        /* === 5. ROLETA (Split View Fix) === */
+        #screen-wheel { flex-direction: row; align-items: center; justify-content: center; gap: 5vmin; }
+        
+        #wheel-container {
+            width: 70vmin; height: 70vmin; position: relative; flex-shrink: 0;
+            filter: drop-shadow(0 0 30px rgba(0,0,0,0.5));
+        }
+        
+        #wheel-spinner {
+            width: 100%; height: 100%; border-radius: 50%; position: relative;
+            border: 4px solid white; overflow: hidden; background: #1e1b4b;
+            transition: transform 0.05s linear;
+        }
+
+        /* Texto Roleta (Com Respiro) */
+        .slice-wrapper {
+            position: absolute; top: 50%; left: 50%; width: 100%; height: 100%;
+            transform-origin: 0 0; pointer-events: none;
+        }
+        .slice-text {
+            position: absolute; left: 50%; top: -1.5vmin;
+            transform-origin: 0 0; 
+            padding-left: 8vmin; /* MARGEM DO CENTRO */
+            font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 3vmin;
+            color: white; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        #pointer {
+            position: absolute; top: -2%; left: 50%; transform: translateX(-50%); z-index: 5;
+            border-left: 3vmin solid transparent; border-right: 3vmin solid transparent;
+            border-top: 5vmin solid white;
+        }
+
+        .wheel-info {
+            width: 30vmin; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; text-align: center;
+        }
+
+        /* === 6. GAME SCREEN === */
+        #screen-game { background: black; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .card {
+            background: #f8fafc; color: #0f172a; width: 75vw; height: 60vh;
+            border-radius: 30px; display: flex; align-items: center; justify-content: center;
+            position: relative; box-shadow: 0 0 60px rgba(255,255,255,0.15);
+        }
+        #word-disp {
+            font-family: 'Montserrat'; font-weight: 900; font-size: 12vmin;
+            text-transform: uppercase; text-align: center; line-height: 0.9;
+        }
+        .timer {
+            position: absolute; top: 2vmin; right: 2vmin;
+            background: #0f172a; color: white; font-weight: 800; font-size: 3vmin;
+            padding: 0.5vmin 2vmin; border-radius: 20px;
+        }
+        .hud {
+            display: flex; justify-content: space-between; width: 75vw; margin-top: 2vmin;
+            font-weight: 700; font-size: 2vmin; text-transform: uppercase;
+        }
+
+        /* Toques de Emergência */
+        .touch-zone { position: absolute; top:0; bottom:0; width: 25%; z-index: 5; }
+        .tz-left { left:0; } .tz-right { right:0; }
+
+        /* Feedback */
+        .feedback {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15vmin; font-weight: 900; color: white; z-index: 20;
+            opacity: 0; pointer-events: none; transition: opacity 0.1s; font-family: 'Montserrat';
+        }
+
+        /* Debug Sensor */
+        #debug-z { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-size: 10px; color: lime; }
+
+        /* === LOCK SCREEN === */
+        #lock {
+            position: fixed; top:0; left:0; width:100%; height:100%; background: #020617; z-index:9999;
+            display:none; flex-direction:column; align-items:center; justify-content:center;
+        }
+        @media screen and (orientation: portrait) {
+            #lock { display: flex; }
+            .screen { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Audio -->
+    <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
+    <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
+    <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+    <audio id="snd-ok" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
+    <audio id="snd-pass" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+
+    <!-- Lock -->
+    <div id="lock">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="white"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+        <h2 style="margin-top:20px; color:white">GIRE O CELULAR</h2>
+    </div>
+
+    <!-- Home -->
+    <div style="position:absolute; top:2vmin; left:2vmin; z-index:100; cursor:pointer; opacity:0.6" onclick="if(confirm('Voltar?')) location.reload()">
+        <svg width="4vmin" height="4vmin" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </div>
+
+    <!-- 1. SETUP -->
+    <div id="screen-setup" class="screen active">
+        <h1>TESTA A TESTA</h1>
+        
+        <div class="setup-grid">
+            <!-- Coluna Esquerda -->
+            <div class="glass-box">
+                <label>Time Azul</label>
+                <input type="text" id="t1" value="Time Azul" style="border-left: 4px solid var(--primary)">
+                <label>Time Rosa</label>
+                <input type="text" id="t2" value="Time Rosa" style="border-left: 4px solid var(--secondary)">
+            </div>
+            
+            <!-- Coluna Direita -->
+            <div class="glass-box" style="display:flex; flex-direction:column;">
+                <div style="display:flex; gap:2vmin; width:100%">
+                    <div style="flex:1"><label>Tempo (s)</label><input type="number" id="time" value="60"></div>
+                    <div style="flex:1"><label>Rodadas</label><input type="number" id="rounds" value="3"></div>
+                </div>
+                
+                <!-- CHECK-IN DO SENSOR -->
+                <div id="sensor-status-box">
+                    <div style="font-weight:bold">STATUS SENSOR</div>
+                    <div id="sensor-val">Z: 0 (Parado)</div>
+                </div>
+
+                <button class="btn" style="width:100%; margin-top:2vmin" onclick="app.start()">JOGAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. INTRO -->
+    <div id="screen-intro" class="screen col-center">
+        <h2 style="opacity:0.6">RODADA <span id="lbl-rd">1</span></h2>
+        <h1 id="lbl-tm" style="font-size:8vmin; margin:2vmin 0">TIME</h1>
+        <p style="font-size:2.5vmin">Coloque o celular na testa (horizontal)</p>
+        <button class="btn" style="width:auto" onclick="app.toWheel()">GIRAR ROLETA</button>
+    </div>
+
+    <!-- 3. ROLETA -->
+    <div id="screen-wheel" class="screen">
+        <div id="wheel-container">
+            <div id="pointer"></div>
+            <div id="wheel-spinner"></div>
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:15%; height:15%; background:white; border-radius:50%; box-shadow:0 0 20px rgba(0,0,0,0.5); z-index:2"></div>
+        </div>
+        <div class="wheel-info">
+            <h2 style="color:var(--accent); font-size:3vmin">CATEGORIA</h2>
+            <div id="res-cat" style="font-size:5vmin; font-weight:900; margin:2vmin 0; opacity:0; transition:opacity 0.3s">...</div>
+            <button id="btn-go" class="btn" style="display:none" onclick="game.pre()">COMEÇAR</button>
+            <p style="font-size:1.5vmin; margin-top:2vmin; opacity:0.7">Arraste para girar</p>
+        </div>
+    </div>
+
+    <!-- 4. GAME -->
+    <div id="screen-game" class="screen">
+        <div class="card">
+            <div class="timer" id="tmr">60</div>
+            <div id="word-disp">...</div>
+        </div>
+        
+        <div class="hud">
+            <span style="color:var(--secondary)">▼ BAIXO: PULAR</span>
+            <span style="color:var(--primary)">▲ CIMA: ACERTOU</span>
+        </div>
+
+        <div class="touch-zone tz-left" onclick="game.act(false)"></div>
+        <div class="touch-zone tz-right" onclick="game.act(true)"></div>
+        
+        <div id="fb-ok" class="feedback" style="background:var(--primary)">ACERTOU!</div>
+        <div id="fb-no" class="feedback" style="background:var(--secondary)">PULOU</div>
+        
+        <div id="debug-z">Z: 0</div>
+    </div>
+
+    <!-- 5. RESULT -->
+    <div id="screen-res" class="screen col-center">
+        <h2 style="color:var(--success)">FIM DA RODADA</h2>
+        <div id="res-score" style="font-size:12vmin; font-weight:900">0</div>
+        <div id="res-list" style="height:25vh; overflow-y:auto; width:60%; background:rgba(255,255,255,0.1); padding:2vmin; border-radius:15px; margin:2vmin 0"></div>
+        <button class="btn" style="width:auto" onclick="app.next()">PRÓXIMO</button>
+    </div>
+
+    <!-- 6. FINAL -->
+    <div id="screen-final" class="screen col-center">
+        <h1>FIM DE JOGO</h1>
+        <div style="display:flex; gap:4vmin; margin:4vmin 0; width:80%; justify-content:center">
+            <div class="glass-box" style="text-align:center; flex:1">
+                <div id="fn-1">Azul</div>
+                <div id="fs-1" style="font-size:6vmin; font-weight:900">0</div>
+            </div>
+            <div class="glass-box" style="text-align:center; flex:1">
+                <div id="fn-2">Rosa</div>
+                <div id="fs-2" style="font-size:6vmin; font-weight:900">0</div>
+            </div>
+        </div>
+        <h2 id="win-msg" style="color:var(--accent); font-size:4vmin">VENCEDOR</h2>
+        <button class="btn" style="width:auto; margin-top:2vmin" onclick="location.reload()">MENU</button>
+    </div>
+
+    <script>
+        const CATS = [
+            {n:"ANIMAIS", c:"#ef4444", w:["Girafa","Elefante","Leão","Gato","Cachorro","Tubarão","Panda","Urso","Zebra"]},
+            {n:"FILMES", c:"#f97316", w:["Titanic","Avatar","Shrek","Matrix","Barbie","Batman","Frozen","Vingadores","Coringa"]},
+            {n:"OBJETOS", c:"#eab308", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Lápis","Copo","Janela","Relógio"]},
+            {n:"AÇÕES", c:"#22c55e", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
+            {n:"FAMOSOS", c:"#3b82f6", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
+            {n:"LUGARES", c:"#a855f7", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Padaria"]}
+        ];
+
+        const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], h:[], pts:0, active:false };
+        const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
+
+        /* --- SENSOR ENGINE (ANDROID/S25 FIX) --- */
+        const sensor = {
+            z: 0,
+            active: false,
+            wait: false,
+
+            // Inicia imediatamente para verificar se o browser aceita
+            init: () => {
+                if (window.DeviceMotionEvent) {
+                    // Android / Chrome padrão
+                    window.addEventListener('devicemotion', sensor.handle);
+                    
+                    // iOS Request (Opcional mas necessário para iPhone)
+                    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                        // Cria um botão invisível ou usa interação do usuário depois
+                    }
+                } else {
+                    document.getElementById('sensor-val').innerText = "Sensor não suportado :(";
+                }
+            },
+
+            handle: (e) => {
+                // Pega a gravidade bruta (Z-axis)
+                const acc = e.accelerationIncludingGravity;
+                if (!acc) return;
+
+                sensor.z = acc.z || 0;
+
+                // ATUALIZA DEBUG NO MENU
+                const dbg = document.getElementById('sensor-val');
+                if (document.getElementById('screen-setup').classList.contains('active')) {
+                    if (Math.abs(sensor.z) > 0.5) {
+                        dbg.innerText = `OK! Z: ${sensor.z.toFixed(1)}`;
+                        dbg.style.color = "#22c55e";
+                        document.getElementById('sensor-status-box').style.borderColor = "#22c55e";
+                    }
+                }
+
+                // ATUALIZA DEBUG NO JOGO
+                const gameDbg = document.getElementById('debug-z');
+                if (gameDbg) gameDbg.innerText = `Z: ${sensor.z.toFixed(1)}`;
+
+                // LÓGICA DE DETECÇÃO (Só ativa se o jogo estiver rodando)
+                if (st.active && !sensor.wait) {
+                    // Thresholds de gravidade
+                    // Teto: > 7
+                    // Chão: < -7
+                    if (sensor.z > 7.0) {
+                        game.act(true);
+                        sensor.pause();
+                    } else if (sensor.z < -7.0) {
+                        game.act(false);
+                        sensor.pause();
+                    }
+                }
+            },
+
+            pause: () => {
+                sensor.wait = true;
+                setTimeout(() => sensor.wait = false, 1500);
+            }
+        };
+
+        // Tenta iniciar o listener imediatamente
+        sensor.init();
+
+        /* --- APP NAV --- */
+        const app = {
+            to: (id) => {
+                document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+                document.getElementById('screen-'+id).classList.add('active');
+            },
+            start: () => {
+                aud.p('click');
+                
+                // Tenta Fullscreen (Requer toque do usuário)
+                if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+
+                // Solicita Permissão iOS se necessário
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission().then(r=>{
+                        if(r!=='granted') alert('Permissão negada. Use o toque.');
+                    }).catch(e=>{});
+                }
+
+                st.t[0].n = document.getElementById('t1').value;
+                st.t[1].n = document.getElementById('t2').value;
+                st.cfg.t = parseInt(document.getElementById('time').value);
+                st.cfg.r = parseInt(document.getElementById('rounds').value);
+                app.prep();
+            },
+            prep: () => {
+                if(st.rd > st.cfg.r) { app.end(); return; }
+                const t = st.t[st.trn];
+                document.getElementById('lbl-rd').innerText = st.rd;
+                document.getElementById('lbl-tm').innerText = t.n;
+                document.getElementById('lbl-tm').style.color = t.c;
+                app.to('intro');
+            },
+            toWheel: () => { aud.p('click'); wheel.rst(); app.to('wheel'); },
+            next: () => { aud.p('click'); st.trn++; if(st.trn>1){st.trn=0; st.rd++} app.prep(); },
+            end: () => {
+                const t1=st.t[0], t2=st.t[1];
+                document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s;
+                document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s;
+                const w = document.getElementById('win-msg');
+                if(t1.s>t2.s) {w.innerText="VENCEDOR: "+t1.n; w.style.color=t1.c;}
+                else if(t2.s>t1.s) {w.innerText="VENCEDOR: "+t2.n; w.style.color=t2.c;}
+                else {w.innerText="EMPATE!"; w.style.color="white";}
+                aud.p('win'); app.to('final');
+            }
+        };
+
+        /* --- WHEEL --- */
+        const wheel = {
+            el: document.getElementById('wheel-spinner'),
+            ang: 0, spin: false,
+            rst: () => {
+                wheel.spin=false;
+                document.getElementById('btn-go').style.display='none';
+                document.getElementById('res-cat').style.opacity=0;
+                
+                let g="conic-gradient(", h="";
+                const sl=360/CATS.length;
+                CATS.forEach((c,i)=>{
+                    g+=`${c.c} ${i*sl}deg ${(i+1)*sl}deg,`;
+                    const m = i*sl + sl/2;
+                    h+=`<div class="slice-wrapper" style="transform: rotate(${m}deg);"><span class="slice-text">${c.n}</span></div>`;
+                });
+                wheel.el.style.background = g.slice(0,-1)+")";
+                wheel.el.innerHTML = h;
+
+                const w = document.getElementById('wheel-container');
+                let ly=0;
+                const mv=(e)=>{
+                    if(wheel.spin) return;
+                    e.preventDefault();
+                    const y=e.touches?e.touches[0].clientY:e.clientY;
+                    wheel.ang += (y-ly)*0.5; ly=y;
+                    wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                };
+                w.ontouchstart=e=>ly=e.touches[0].clientY; w.ontouchmove=mv;
+                w.ontouchend=()=>!wheel.spin && wheel.go();
+                w.onmousedown=e=>{ly=e.clientY; document.onmousemove=mv};
+                document.onmouseup=()=>{document.onmousemove=null; if(!wheel.spin && ly!=0) wheel.go()};
+            },
+            go: () => {
+                wheel.spin=true; aud.l('spin',true);
+                let v=20+Math.random()*20;
+                const loop=()=>{
+                    if(!wheel.spin) return;
+                    v*=0.97; wheel.ang+=v;
+                    wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                    if(v<0.1){
+                        wheel.spin=false; aud.l('spin',false);
+                        const idx = Math.floor(((360-(wheel.ang%360+360)%360)%360)/(360/CATS.length));
+                        st.cat=CATS[idx];
+                        const r=document.getElementById('res-cat');
+                        r.innerText=st.cat.n; r.style.color=st.cat.c; r.style.opacity=1;
+                        aud.p('win');
+                        document.getElementById('btn-go').style.display='inline-block';
+                    } else requestAnimationFrame(loop);
+                }
+                loop();
+            }
+        };
+
+        /* --- GAME --- */
+        const game = {
+            tmr: null,
+            pre: () => {
+                app.to('game');
+                const d=document.getElementById('word-disp');
+                let c=3; d.innerText=c; d.style.fontSize="20vmin";
+                const i=setInterval(()=>{
+                    c--; if(c>0) d.innerText=c;
+                    else {
+                        clearInterval(i);
+                        d.innerText="VAI!"; d.style.fontSize="12vmin";
+                        setTimeout(game.run, 500);
+                    }
+                },1000);
+            },
+            run: () => {
+                st.active=true; st.pts=0; st.h=[];
+                st.q=[...st.cat.w].sort(()=>Math.random()-0.5);
+                game.next();
+                let t=st.cfg.t;
+                const td=document.getElementById('tmr'); td.innerText=t;
+                game.tmr=setInterval(()=>{
+                    t--; td.innerText=t;
+                    if(t<=0) game.end();
+                },1000);
+            },
+            next: () => {
+                if(st.q.length==0){game.end(); return;}
+                st.cw=st.q.pop();
+                document.getElementById('word-disp').innerText=st.cw;
+            },
+            act: (win) => {
+                if(!st.active) return;
+                if(win) { aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); }
+                else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); }
+                game.next();
+            },
+            flash: (id) => {
+                const e=document.getElementById(id); e.style.opacity=1;
+                setTimeout(()=>e.style.opacity=0,600);
+            },
+            end: () => {
+                st.active=false; clearInterval(game.tmr);
+                st.t[st.trn].s += st.pts;
+                document.getElementById('res-score').innerText=st.pts;
+                const l=document.getElementById('res-list'); l.innerHTML="";
+                st.h.forEach(i=>{
+                    const d=document.createElement('div');
+                    d.innerHTML=`<b style="color:${i.ok?'var(--success)':'var(--danger)'}">${i.ok?'✓':'✗'}</b> ${i.w}`;
+                    d.style.padding="5px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
+                    l.appendChild(d);
+                });
+                app.to('res');
+            }
+        };
+
+        wheel.rst();
+    </script>
+</body>
+</html>
