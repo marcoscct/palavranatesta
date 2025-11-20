@@ -47,6 +47,7 @@
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
+        .hidden { display: none !important; }
 
         /* === TYPOGRAPHY === */
         h1 {
@@ -72,6 +73,7 @@
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
+        .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
 
         .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; position: relative; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
@@ -88,6 +90,7 @@
         #editor-container { width: 100%; }
         .editor-view { display: none; width: 100%; }
         .editor-view.active { display: block; }
+        
         .table-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .table-input-cat { width: 30%; font-weight: bold; color: var(--accent); }
         .table-input-words { width: 60%; font-size: 0.9rem; }
@@ -141,21 +144,13 @@
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
         /* === SELETOR: LAYOUT DUAL === */
-        #screen-wheel { flex-direction: row; gap: 5vw; justify-content: center; align-items: center; }
-        
-        /* Coluna DIREITA (Info) - Tamanho FIXO para não empurrar */
-        .wheel-info { 
-            display: flex; flex-direction: column; 
-            align-items: flex-start; justify-content: center; 
-            width: 40vw; max-width: 450px; /* Largura controlada */
-            flex-shrink: 0; /* Não encolhe */
-            text-align: left;
-        }
+        #screen-wheel { flex-direction: row; gap: 5vw; }
+        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
         
         #res-cat {
             font-size: 5vh; font-weight: 900; margin-bottom: 2vh; 
             color: #22c55e; text-transform: uppercase; line-height:1.1;
-            word-wrap: break-word; width: 100%;
+            word-wrap: break-word;
         }
 
         /* 1. ESTILO ROLETA */
@@ -170,7 +165,7 @@
         #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
-        /* 2. ESTILO JACKPOT (CORRIGIDO) */
+        /* 2. ESTILO JACKPOT */
         #jackpot-container { 
             display:none; width: 50vmin; height: 50vmin; 
             position: relative; flex-shrink: 0;
@@ -181,7 +176,7 @@
         }
         #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
-            height: 12vmin; /* Altura Fixa */
+            height: 12vmin; 
             display: flex; align-items: center; justify-content: center;
             font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin;
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
@@ -232,7 +227,7 @@
 
     <div id="lock"><h2 style="margin-top:20px">GIRE A TELA</h2></div>
     
-    <!-- HOME ICON (Só aparece dentro das telas, não na home) -->
+    <!-- HOME ICON (CUSTOM ACTION) -->
     <div id="home-btn" style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     </div>
@@ -270,14 +265,16 @@
                 </div>
 
                 <div id="editor-container">
-                    <div id="view-json" class="editor-view active">
-                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite o JSON diretamente.</p>
-                        <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
-                    </div>
-                    <div id="view-table" class="editor-view">
+                    <!-- TABLE VIEW (DEFAULT NOW) -->
+                    <div id="view-table" class="editor-view active">
                         <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite como tabela. Palavras separadas por vírgula.</p>
                         <div id="table-rows"></div>
                         <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Nova Categoria</button>
+                    </div>
+                    <!-- JSON VIEW -->
+                    <div id="view-json" class="editor-view">
+                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite o JSON diretamente.</p>
+                        <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
                     </div>
                 </div>
 
@@ -376,7 +373,8 @@
         ];
         
         let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
-        
+        let SOURCE_TYPE = 'default';
+
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
@@ -417,16 +415,17 @@
         const storage = {
             save: () => {
                 const data = {
-                    cats: CURRENT_CATS,
+                    cats: CURRENT_CATS, source: SOURCE_TYPE,
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v10', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v12', JSON.stringify(data));
             },
             load: () => {
-                const data = JSON.parse(localStorage.getItem('pnt_data_v10'));
+                const data = JSON.parse(localStorage.getItem('pnt_data_v12'));
                 if(data) {
                     if(data.cats) CURRENT_CATS = data.cats;
+                    if(data.source) SOURCE_TYPE = data.source;
                     if(data.t1) document.getElementById('t1').value = data.t1;
                     if(data.t2) document.getElementById('t2').value = data.t2;
                     if(data.time) document.getElementById('opt-time').value = data.time;
@@ -436,7 +435,7 @@
         };
 
         const dataMgr = {
-            isTableMode: false,
+            isTableMode: true, // Default True
             init: () => { 
                 document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); 
                 dataMgr.renderTable();
@@ -472,9 +471,9 @@
             },
             save: () => {
                 if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
-                storage.save(); ui.alert("Salvo com sucesso!");
+                SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
             },
-            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); dataMgr.init(); storage.save(); }); },
+            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
             copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
             loadSheet: () => {
                 const url = document.getElementById('sheet-input').value;
@@ -488,7 +487,7 @@
                         const w = []; for(let r=1; r<rows.length; r++) { if(rows[r] && rows[r][c]) { const word = rows[r][c].replace(/"/g,'').trim(); if(word) w.push(word); } }
                         if(w.length) newCats.push({n:name, w:w});
                     }
-                    if(newCats.length){ CURRENT_CATS=newCats; dataMgr.init(); storage.save(); ui.alert("Planilha carregada!"); }
+                    if(newCats.length){ CURRENT_CATS=newCats; SOURCE_TYPE='sheets'; dataMgr.init(); storage.save(); ui.alert("Planilha carregada!"); }
                 }).catch(e=>ui.alert("Erro! A planilha precisa ser pública na web."));
             }
         };
@@ -512,9 +511,9 @@
         /* NAV */
         const app = {
             to: (id) => {
-                // Se estiver saindo do jogo, limpa o timer imediatamente
+                // If exiting game, ensure timer is cleared
                 if(document.querySelector('#screen-game.active')) game.stop();
-                
+
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
                 document.getElementById('screen-'+id).classList.add('active');
                 if(id === 'options') dataMgr.init();
@@ -530,11 +529,11 @@
             },
             start: () => {
                 aud.p('click');
-                storage.save();
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') { DeviceMotionEvent.requestPermission().catch(()=>{}); }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('opt-time').value); st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
+                storage.save();
                 app.prep();
             },
             prep: () => {
@@ -623,7 +622,6 @@
 
                 if (wheel.mode === 'wheel') {
                     const sliceDeg = 360 / CURRENT_CATS.length;
-                    // Target Rotation to land winner at 0deg
                     const targetAngle = 360 * 5 + (360 - (winnerIdx * sliceDeg) - (sliceDeg/2)); 
                     wheel.el.style.transition = "transform 4s cubic-bezier(0.25, 1, 0.5, 1)";
                     wheel.el.style.transform = `rotate(${targetAngle}deg)`;
@@ -634,7 +632,6 @@
                     const containerH = 50 * vmin; 
                     const centerLine = containerH / 2;
                     
-                    // Target item in the middle batch
                     const targetItemIndex = winnerIdx + CURRENT_CATS.length;
                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
                     
@@ -661,6 +658,11 @@
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
             pre: () => {
                 app.to('game'); 
+                
+                // RESET TIMER VISUALS INSTANTLY
+                document.getElementById('timer-num').innerText = st.cfg.t;
+                document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
+                
                 const d=document.getElementById('word-disp'); 
                 let c=3; d.innerText=c; 
                 const i=setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(i); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
