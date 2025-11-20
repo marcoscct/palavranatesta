@@ -37,7 +37,6 @@
             font-family: 'Poppins', sans-serif; color: white;
             background: transparent;
             position: fixed; top: 0; left: 0;
-            /* Safe Area para S25 Ultra e iPhones */
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
         }
@@ -56,7 +55,7 @@
         /* === TYPOGRAPHY === */
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2rem, 7vh, 4rem); text-transform: uppercase; 
+            font-size: clamp(2rem, 6vw, 4rem); text-transform: uppercase; 
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-align: center; letter-spacing: -1px; margin-bottom: 2vh;
@@ -69,7 +68,7 @@
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             color: white; border: none; border-radius: 50px;
-            padding: 1.5vh 4vw; font-size: clamp(1rem, 2.5vh, 2rem); font-weight: 900;
+            padding: 1.5vh 4vw; font-size: clamp(1.2rem, 2.5vh, 1.5rem); font-weight: 900;
             text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
             transition: transform 0.1s; width: 100%; max-width: 400px; margin: 1vh 0;
@@ -87,7 +86,7 @@
         input, textarea {
             width: 100%; padding: 1.5vh; background: rgba(255,255,255,0.1); 
             border: var(--border); color: white; border-radius: 12px; 
-            font-size: clamp(1rem, 2.5vh, 1.5rem); font-family: 'Poppins'; font-weight: 600;
+            font-size: clamp(1rem, 2.5vh, 1.2rem); font-family: 'Poppins'; font-weight: 600;
         }
         textarea { min-height: 150px; resize: vertical; font-size: 0.9rem; font-family: monospace; }
 
@@ -96,9 +95,9 @@
         .editor-view { display: none; width: 100%; }
         .editor-view.active { display: block; }
         .table-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .table-input-cat { width: 30%; font-weight: bold; color: var(--accent); }
-        .table-input-words { width: 60%; font-size: 0.9rem; }
-        .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; }
+        .table-input-cat { flex: 0 0 140px; font-weight: bold; color: var(--accent); }
+        .table-input-words { flex: 1; font-size: 0.9rem; }
+        .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; }
         
         /* === MODAL (CUSTOM POPUP) === */
         #modal-overlay {
@@ -110,10 +109,13 @@
             background: #1e1b4b; border: 1px solid rgba(255,255,255,0.2);
             padding: 30px; border-radius: 20px; text-align: center;
             width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: popIn 0.3s ease-out;
         }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
-        .modal-msg { margin-bottom: 20px; font-size: 1rem; line-height: 1.5; }
-        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        .modal-msg { margin-bottom: 20px; font-size: 1.2rem; line-height: 1.5; color: white; }
+        .modal-actions { display: flex; gap: 10px; justify-content: center; width: 100%; }
+        
         #result-cat-display {
             font-size: 3rem; font-weight: 900; color: white; 
             margin: 10px 0 30px 0; text-transform: uppercase;
@@ -121,13 +123,13 @@
         }
 
         /* === TELA INICIAL === */
-        #screen-home { gap: 20px; }
+        #screen-home { gap: 2vh; }
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
         .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
         
         /* === TELA TIMES (OTIMIZADA) === */
         .teams-container { 
-            display: flex; flex-direction: column; gap: 1vh; 
+            display: flex; flex-direction: column; gap: 1.5vh; 
             width: 100%; max-width: 600px; justify-content: center;
             margin-bottom: 2vh;
         }
@@ -255,10 +257,10 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v20.1</div>
+        <div class="version-tag">v21.0</div>
     </div>
     
-    <!-- HOME ICON (CUSTOM ACTION) -->
+    <!-- HOME ICON -->
     <div id="home-btn" style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     </div>
@@ -266,7 +268,7 @@
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
         <h1>PALAVRA NA TESTA</h1>
-        <button class="btn" onclick="app.to('teams')">INICIAR JOGO</button>
+        <button class="btn" onclick="app.start()">INICIAR JOGO</button>
         <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
     </div>
 
@@ -292,7 +294,7 @@
             <div class="section-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                     <h2 style="margin:0">Editor</h2>
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.toggleView()">Alternar Tabela/JSON</button>
+                    <button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Alternar Tabela/JSON</button>
                 </div>
 
                 <div id="editor-container">
@@ -317,7 +319,7 @@
         </div>
     </div>
 
-    <!-- TELA 1: TIMES (SEM VOLTAR) -->
+    <!-- TELA 1: TIMES -->
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
@@ -450,11 +452,11 @@
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v20', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v21', JSON.stringify(data));
             },
             load: () => {
                 try {
-                    const data = JSON.parse(localStorage.getItem('pnt_data_v20'));
+                    const data = JSON.parse(localStorage.getItem('pnt_data_v21'));
                     if(data) {
                         if(data.cats && Array.isArray(data.cats) && data.cats.length > 0) GLOBAL_SHEETS_DATA = [data.cats];
                         if(data.source) SOURCE_TYPE = data.source;
@@ -463,7 +465,7 @@
                         if(data.time) document.getElementById('opt-time').value = data.time;
                         if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
                     }
-                } catch(e) { localStorage.removeItem('pnt_data_v20'); }
+                } catch(e) { localStorage.removeItem('pnt_data_v21'); }
             }
         };
 
@@ -475,6 +477,7 @@
             },
             toggleView: () => {
                 dataMgr.isTableMode = !dataMgr.isTableMode;
+                document.getElementById('btn-toggle-view').innerText = dataMgr.isTableMode ? "Ver JSON" : "Ver Tabela";
                 document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode);
                 document.getElementById('view-table').classList.toggle('active', dataMgr.isTableMode);
                 if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable();
@@ -629,8 +632,8 @@
                     storage.save();
                     app.to('teams');
                 } catch(e) {
-                    ui.alert("Erro. Resetando...");
-                    localStorage.removeItem('pnt_data_v20');
+                    // Fallback
+                    localStorage.removeItem('pnt_data_v21');
                     location.reload();
                 }
             },
