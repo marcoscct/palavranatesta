@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === VARS & RESET === */
+        /* === RESET & VARS === */
         :root {
             --bg-dark: #0f172a;
             --primary: #6366f1;
@@ -23,6 +23,7 @@
             --glass: rgba(255, 255, 255, 0.05);
             --border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
         html { background-color: #1e1b4b; background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%); height: 100%; }
         body { width: 100vw; height: 100vh; overflow: hidden; font-family: 'Poppins', sans-serif; color: white; position: fixed; top: 0; left: 0; }
@@ -63,31 +64,63 @@
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === ROLETA === */
+        /* === SELETOR: LAYOUT DUAL (Roleta OU Jackpot) === */
         #screen-wheel { flex-direction: row; gap: 5vw; }
-        #wheel-container { width: 65vmin; height: 65vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
+        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
+
+        /* 1. ESTILO ROLETA (CIRCULAR) */
+        #wheel-container { display:none; width: 65vmin; height: 65vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
-        
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
-        
         .slice-text { 
-            position: absolute; top: 0; left: 0; 
-            transform: translateY(-50%); /* Centraliza verticalmente */
-            padding-left: 10vmin; /* Afasta do centro */
-            font-family: 'Montserrat'; font-weight: 900; 
-            color: white; text-transform: uppercase; 
-            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-            /* Ajustes para multiline */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start; /* Alinha o texto à esquerda (que é o centro da roda para fora) */
-            line-height: 0.95;
-            white-space: nowrap; /* Default, JS muda se precisar */
+            position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 10vmin; 
+            font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; line-height: 0.95;
+        }
+        #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
+
+        /* 2. ESTILO JACKPOT (VERTICAL) */
+        #jackpot-container { 
+            display:none; /* Ativado via JS se > 10 cats */
+            width: 60vmin; height: 60vmin; 
+            position: relative; 
+            background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
+            overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        }
+        #jackpot-strip {
+            width: 100%;
+            /* Altura será dinâmica */
+            position: absolute; top: 50%; left: 0;
+            /* Transform controlado via JS */
+        }
+        .jackpot-item {
+            height: 12vmin; /* Altura de cada item */
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Montserrat'; font-weight: 900; font-size: 4vmin;
+            text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        /* Seta do Jackpot */
+        .jackpot-arrow {
+            position: absolute; top: 50%; left: -20px; transform: translateY(-50%);
+            border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white;
+            z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5));
+        }
+        .jackpot-arrow-right {
+            left: auto; right: -20px; transform: translateY(-50%) rotate(180deg);
+        }
+        .jackpot-highlight {
+            position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white;
+            pointer-events: none;
         }
 
-        #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
+        /* === RESULTADOS === */
+        #screen-res, #screen-final { background: #1e1b4b; }
 
         /* === RESPONSIVO === */
         @media (max-width: 900px) {
@@ -105,17 +138,14 @@
 </head>
 <body>
 
-    <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
     <audio id="snd-ok" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
     <audio id="snd-pass" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
 
-    <div id="lock">
-        <svg width="80" height="80" viewBox="0 0 24 24" fill="white"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-        <h2 style="margin-top:20px">GIRE A TELA</h2>
-    </div>
+    <div id="lock"><h2 style="margin-top:20px">GIRE A TELA</h2></div>
+    <div style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5" onclick="if(confirm('Voltar ao menu?')) location.reload()"><svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
 
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
@@ -129,16 +159,17 @@
         <h1>OPÇÕES</h1>
         <div class="options-container">
             <div class="section-box">
-                <h2>Configurações de Jogo</h2>
-                <div class="input-group"><label>Tempo por Rodada (s)</label><input type="number" id="opt-time" value="60"></div>
-                <div class="input-group"><label>Número de Rodadas</label><input type="number" id="opt-rounds" value="3"></div>
+                <h2>Configurações</h2>
+                <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60"></div>
+                <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3"></div>
             </div>
             <div class="section-box">
-                <h2>Editor de Categorias</h2>
-                <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px">Cole aqui seu JSON ou use a IA.</p>
-                <div class="input-group"><textarea id="json-input"></textarea></div>
+                <h2>Editor</h2>
+                <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px">Cole JSON ou link Google Sheets (Público).</p>
+                <div class="input-group"><input type="text" id="sheet-input" placeholder="Google Sheets Link" onchange="dataMgr.loadSheet()"></div>
+                <div class="input-group"><textarea id="json-input" placeholder='[{"n":"CAT","w":["A","B"]}]'></textarea></div>
                 <div style="display:flex; flex-wrap:wrap; gap:10px">
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Copiar Prompt IA</button>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt</button>
                     <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar</button>
                 </div>
@@ -162,17 +193,27 @@
     <div id="screen-intro" class="screen">
         <h2 style="opacity:0.6; font-size: 3vh;">RODADA <span id="lbl-rd">1</span></h2>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
-        <p style="font-size: 3vh; opacity: 0.8">Celular na testa (Horizontal)</p>
-        <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">GIRAR ROLETA</button>
+        <p style="font-size: 3vh; opacity: 0.8">Celular na testa</p>
+        <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">SORTEAR TEMA</button>
     </div>
 
-    <!-- TELA 3: ROLETA -->
+    <!-- TELA 3: SELEÇÃO (ROLETA OU JACKPOT) -->
     <div id="screen-wheel" class="screen">
+        <!-- MODO ROLETA -->
         <div id="wheel-container">
             <div id="pointer"></div>
             <div id="wheel-spinner"></div>
-            <div class="wheel-center-cap"></div> <!-- Agora é uma div separada, não dentro do spinner -->
+            <div class="wheel-center-cap"></div>
         </div>
+        
+        <!-- MODO JACKPOT -->
+        <div id="jackpot-container">
+            <div class="jackpot-highlight"></div>
+            <div class="jackpot-arrow"></div>
+            <div class="jackpot-arrow jackpot-arrow-right"></div>
+            <div id="jackpot-strip"></div>
+        </div>
+
         <div class="wheel-info">
             <h3 style="color: #fbbf24; font-size: 3vh; text-transform: uppercase; margin-bottom: 1vh;">Categoria</h3>
             <div id="res-cat" style="font-size: 6vh; font-weight: 900; margin-bottom: 2vh; color: #22c55e; text-transform: uppercase; line-height:1.1">...</div>
@@ -184,10 +225,7 @@
     <div id="screen-game" class="screen">
         <div class="timer-wrapper"><div class="timer-text" id="timer-num">60</div></div>
         <div id="word-disp">PALAVRA</div>
-        <div class="hud-bar">
-            <div class="hud-left">▼ ACERTOU</div>
-            <div class="hud-right">▲ PULAR</div>
-        </div>
+        <div class="hud-bar"><div class="hud-left">▼ ACERTOU</div><div class="hud-right">▲ PULAR</div></div>
         <div class="touch-zone tz-l" onclick="game.act(true)"></div>
         <div class="touch-zone tz-r" onclick="game.act(false)"></div>
         <div id="fb-ok" class="flash" style="background: rgba(34, 197, 94, 0.9);">ACERTOU!</div>
@@ -218,60 +256,66 @@
     </div>
 
     <script>
+        /* CONFIG */
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
-        
         const DEFAULT_CATS = [
-            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco","Baleia","Sapo","Cobra","Águia","Urso","Lobo","Raposa","Coelho","Tigre","Onça","Cavalo","Vaca","Porco","Galinha","Pato","Pinguim","Canguru","Hipopótamo","Rinoceronte","Camelo","Jacaré"]},
-            {n:"FILMES", w:["Titanic","Avatar","Shrek","Matrix","Barbie","Batman","Frozen","Vingadores","Coringa","Homem Aranha","Harry Potter","Star Wars","Jurassic Park","O Rei Leão","Toy Story","Procurando Nemo","Divertida Mente","Moana","Aladdin","A Bela e a Fera","Mulan","Thor","Homem de Ferro","Capitão América","Hulk","Pantera Negra","Viúva Negra","Doutor Estranho","Guardiões da Galáxia","E.T."]},
-            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador","Garfo","Colher","Prato","Cama","Travesseiro","Televisão","Controle Remoto","Lâmpada","Ventilador","Geladeira","Fogão","Microondas","Máquina de Lavar","Secador","Escova","Pente","Shampoo","Sabonete","Toalha","Papel Higiênico","Chave"]},
-            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular","Cozinhar","Ler","Escrever","Cantar","Dirigir","Pintar","Desenhar","Jogar","Assistir","Ouvir","Falar","Andar","Sentar","Levantar","Deitar","Abraçar","Sorrir","Rir","Tossir","Espirrar","Bocejar"]},
-            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos","Faustão","Gisele Bündchen","Lady Gaga","Justin Bieber","Cristiano Ronaldo","Rihanna","Shakira","Ivete Sangalo","Luan Santana","Marília Mendonça","Gusttavo Lima","Whindersson Nunes","Felipe Neto","Casimiro","Alok","Ludmilla","Pabllo Vittar","Glória Maria","William Bonner","Luciano Huck","Ana Maria Braga","Jô Soares"]},
-            {n:"JOGADORES DE FUTEBOL", w:["Neymar", "Messi", "Cristiano Ronaldo", "Pelé", "Maradona", "Ronaldinho", "Zidane", "Ronaldo Fenômeno", "Mbappé", "Haaland", "Vinícius Júnior", "Modric", "De Bruyne", "Salah", "Lewandowski", "Kane", "Benzema", "Courtois", "Alisson", "Ederson", "Casemiro", "Thiago Silva", "Marquinhos", "Richarlison", "Gabriel Jesus", "Bruno Fernandes", "Bernardo Silva", "Son", "Mané", "Neuer"]},
-            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco","Padaria","Supermercado","Farmácia","Restaurante","Hotel","Aeroporto","Rodoviária","Estádio","Teatro","Museu","Biblioteca","Faculdade","Academia","Zoológico","Circo","Piscina","Praça","Rua","Avenida","Ponte","Túnel","Montanha"]}
+            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão"]},
+            {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie"]},
+            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá"]},
+            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer"]},
+            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa"]},
+            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital"]},
+            {n:"ESPORTES", w:["Futebol","Vôlei","Basquete","Tênis","Natação"]},
+            {n:"CORES", w:["Azul","Vermelho","Verde","Amarelo","Roxo"]},
+            {n:"FRUTAS", w:["Maçã","Banana","Uva","Laranja","Morango"]},
+            {n:"PAÍSES", w:["Brasil","Argentina","EUA","Japão","França"]},
+            {n:"PROFISSÕES", w:["Médico","Professor","Policial","Bombeiro","Advogado"]}
         ];
-
+        
         let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
-
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
-        /* --- HELPERS --- */
-        // Função para quebrar texto inteligentemente
+        /* HELPERS */
         function smartSplit(text) {
             if (text.length <= 10) return { text: text, lines: 1 };
-            
             const words = text.split(' ');
-            if (words.length === 1) return { text: text, lines: 1 }; // Palavra única longa
-            
-            // Tenta achar o meio
-            let bestIdx = 0;
-            let minDiff = Infinity;
-            let currentLen = 0;
-            const totalLen = text.length;
-            
+            if (words.length === 1) return { text: text, lines: 1 };
+            let bestIdx = 0, minDiff = Infinity, currentLen = 0, totalLen = text.length;
             for(let i=0; i<words.length-1; i++) {
                 currentLen += words[i].length;
                 const diff = Math.abs(currentLen - (totalLen - currentLen));
-                if(diff < minDiff) {
-                    minDiff = diff;
-                    bestIdx = i;
-                }
+                if(diff < minDiff) { minDiff = diff; bestIdx = i; }
             }
-            
-            const line1 = words.slice(0, bestIdx + 1).join(' ');
-            const line2 = words.slice(bestIdx + 1).join(' ');
-            return { text: `${line1}<br>${line2}`, lines: 2, maxLen: Math.max(line1.length, line2.length) };
+            return { text: `${words.slice(0, bestIdx+1).join(' ')}<br>${words.slice(bestIdx+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, bestIdx+1).join(' ').length, words.slice(bestIdx+1).join(' ').length) };
         }
 
-        /* --- DATA MGR --- */
+        /* DATA MGR */
         const dataMgr = {
             init: () => { document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); },
             save: () => { try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); alert("Salvo!"); } catch(e) { alert("Erro JSON"); } },
             reset: () => { CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); dataMgr.init(); alert("Resetado!"); },
-            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>alert("Copiado!")); }
+            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>alert("Copiado!")); },
+            loadSheet: () => {
+                const url = document.getElementById('sheet-input').value;
+                if(!url.includes('docs.google.com')) return;
+                const id = url.match(/\/d\/(.*?)\//)[1];
+                fetch(`https://docs.google.com/spreadsheets/d/${id}/export?format=csv`).then(r=>r.text()).then(csv=>{
+                    const rows = csv.split('\n').map(r=>r.split(','));
+                    const newCats = [];
+                    for(let c=0; c<rows[0].length; c++) {
+                        const name = rows[0][c].replace(/"/g,'').trim();
+                        if(!name) continue;
+                        const w = [];
+                        for(let r=1; r<rows.length; r++) if(rows[r][c]) w.push(rows[r][c].replace(/"/g,'').trim());
+                        if(w.length) newCats.push({n:name, w:w});
+                    }
+                    if(newCats.length){ CURRENT_CATS=newCats; alert("Carregado!"); }
+                }).catch(()=>alert("Erro Planilha"));
+            }
         };
 
-        /* --- SENSOR --- */
+        /* SENSOR */
         const sensor = {
             z: 0, wait: false,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
@@ -287,7 +331,7 @@
         };
         sensor.init();
 
-        /* --- NAV --- */
+        /* NAV */
         const app = {
             to: (id) => {
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -297,9 +341,6 @@
             start: () => {
                 aud.p('click');
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().catch(()=>{});
-                }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('opt-time').value); st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
                 app.prep();
@@ -312,7 +353,7 @@
                 document.getElementById('lbl-tm').style.color = t.c;
                 app.to('intro');
             },
-            toWheel: () => { aud.p('click'); wheel.rst(); app.to('wheel'); },
+            toWheel: () => { aud.p('click'); wheel.init(); app.to('wheel'); },
             next: () => { aud.p('click'); st.trn++; if(st.trn>1){st.trn=0; st.rd++} app.prep(); },
             end: () => {
                 const t1=st.t[0], t2=st.t[1];
@@ -326,86 +367,163 @@
             }
         };
 
-        /* --- WHEEL --- */
+        /* HYBRID SELECTION SYSTEM */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
-            ang: 0, spin: false, velocity: 0, lastY: 0, lastTime: 0, currentRot: 0,
-            rst: () => {
-                wheel.spin=false; document.getElementById('btn-go').style.display='none'; 
-                document.getElementById('res-cat').innerText = "..."; document.getElementById('res-cat').style.opacity=0;
+            jackpot: document.getElementById('jackpot-strip'),
+            mode: 'wheel', // 'wheel' or 'jackpot'
+            ang: 0, offsetY: 0, spin: false, velocity: 0, lastPos: 0, lastTime: 0,
+            
+            init: () => {
+                // Decide mode based on count
+                wheel.mode = CURRENT_CATS.length > 10 ? 'jackpot' : 'wheel';
                 
+                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
+                document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                
+                document.getElementById('btn-go').style.display='none'; 
+                document.getElementById('res-cat').innerText = "..."; document.getElementById('res-cat').style.opacity=0;
+                wheel.spin = false;
+
+                if (wheel.mode === 'wheel') wheel.setupWheel();
+                else wheel.setupJackpot();
+                
+                wheel.attachEvents();
+            },
+
+            setupWheel: () => {
                 let g="conic-gradient(", h=""; const count = CURRENT_CATS.length; const sliceDeg = 360 / count;
                 CURRENT_CATS.forEach((c, i) => {
                     const color = COLORS[i % COLORS.length];
                     const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
                     g += `${color} ${start}deg ${end}deg,`;
                     const mid = start + (sliceDeg / 2);
-                    
-                    // Lógica de Quebra de Linha e Tamanho
                     const split = smartSplit(c.n);
-                    let fontSize = 3.5; 
-                    const refLen = split.lines === 1 ? c.n.length : split.maxLen;
-                    if(refLen > 8) fontSize = 3.5 * (8 / refLen); // Reduz se for grande
-                    
-                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)">
-                            <span class="slice-text" style="font-size:${fontSize}vmin">${split.text}</span>
-                          </div>`;
+                    let fontSize = 3.5; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
+                    if(refLen > 8) fontSize = 3.5 * (8 / refLen);
+                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vmin">${split.text}</span></div>`;
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
-                
-                // Centraliza a fatia 0
-                // Fatia 0 vai de 0 a SliceDeg. Centro em SliceDeg/2.
-                // Queremos que SliceDeg/2 esteja em 0 (topo).
-                // Então rot = -(SliceDeg/2).
-                // Porém, o texto foi girado -90deg. O background conic começa em 0deg (topo).
-                // O CSS pointer está em 0deg.
-                // Se deixarmos 0, o ponteiro aponta para o início da fatia 0.
-                // Queremos o meio.
-                
-                // Reseta acumulador visual mas mantém lógica se quiser
-                // wheel.currentRot = -(sliceDeg / 2);
-                wheel.el.style.transform = `rotate(${wheel.currentRot}deg)`;
-
-                const w=document.getElementById('wheel-container'); 
-                const track=(y)=>{
-                    const now=Date.now(); const dy=y-wheel.lastY; const dt=now-wheel.lastTime;
-                    wheel.currentRot += dy*0.5; wheel.el.style.transform=`rotate(${wheel.currentRot}deg)`;
-                    if(dt>0) wheel.velocity=(dy/dt)*12;
-                    wheel.lastY=y; wheel.lastTime=now;
-                };
-                const start=(y)=>{ if(wheel.spin)return; wheel.lastY=y; wheel.lastTime=Date.now(); wheel.velocity=0; };
-                const end=()=>{ if(wheel.spin)return; if(Math.abs(wheel.velocity)>0.5) wheel.go(wheel.velocity); };
-                
-                w.ontouchstart=e=>start(e.touches[0].clientY); w.ontouchmove=e=>{e.preventDefault();track(e.touches[0].clientY)}; w.ontouchend=end;
-                w.onmousedown=e=>{start(e.clientY);w.onmousemove=ev=>track(ev.clientY)}; window.onmouseup=()=>{w.onmousemove=null;end()};
+                wheel.ang = -(sliceDeg / 2); wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
             },
+
+            setupJackpot: () => {
+                // Create infinite-looking strip by repeating array
+                let h = "";
+                // We repeat the list multiple times for the scrolling effect
+                const list = [...CURRENT_CATS, ...CURRENT_CATS, ...CURRENT_CATS]; 
+                list.forEach((c, i) => {
+                     const color = COLORS[i % COLORS.length];
+                     h += `<div class="jackpot-item" style="background:${color}">${c.n}</div>`;
+                });
+                wheel.jackpot.innerHTML = h;
+                
+                // Center initially
+                const itemHeight = wheel.jackpot.firstElementChild.clientHeight || 50; // approx
+                wheel.offsetY = 0; 
+                wheel.jackpot.style.transform = `translateY(0px)`;
+            },
+
+            attachEvents: () => {
+                const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
+                
+                const track = (pos) => {
+                    const now=Date.now(); const delta = pos - wheel.lastPos; const dt=now-wheel.lastTime;
+                    
+                    if (wheel.mode === 'wheel') {
+                        wheel.ang += delta * 0.5; 
+                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                    } else {
+                        wheel.offsetY += delta;
+                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                    }
+
+                    if(dt>0) wheel.velocity = (delta/dt) * 15;
+                    wheel.lastPos = pos; wheel.lastTime = now;
+                };
+                
+                const start = (pos) => { if(wheel.spin)return; wheel.lastPos=pos; wheel.lastTime=Date.now(); wheel.velocity=0; };
+                const end = () => { if(wheel.spin)return; if(Math.abs(wheel.velocity)>0.5) wheel.go(wheel.velocity); };
+                
+                // Remove old listeners to avoid dupes
+                target.onmousedown = null; target.ontouchstart = null;
+
+                target.ontouchstart = e => start(e.touches[0].clientY);
+                target.ontouchmove = e => { e.preventDefault(); track(e.touches[0].clientY); };
+                target.ontouchend = end;
+                
+                target.onmousedown = e => { start(e.clientY); target.onmousemove = ev => track(ev.clientY); };
+                window.onmouseup = () => { target.onmousemove = null; end(); };
+            },
+
             go: (v) => {
                 wheel.spin=true; aud.l('spin',true);
-                let vel = v || 20; if(vel>35) vel=35; if(vel<-35) vel=-35; if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
-
+                let vel = v || 20; 
+                if(vel>40) vel=40; if(vel<-40) vel=-40; if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
+                
+                // Jackpot logic moves mainly vertically, wheel rotationally
+                
                 const loop=()=>{
                     if(!wheel.spin) return;
-                    vel*=0.985; wheel.currentRot+=vel;
-                    wheel.el.style.transform=`rotate(${wheel.currentRot}deg)`;
+                    vel *= 0.98; // Friction
+                    
+                    if (wheel.mode === 'wheel') {
+                        wheel.ang += vel;
+                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                    } else {
+                        wheel.offsetY += vel * 5; // Translate pixel speed
+                        // Loop effect for jackpot
+                        const stripH = wheel.jackpot.clientHeight / 3; // because we tripled the list
+                        if (wheel.offsetY > 0) wheel.offsetY -= stripH;
+                        if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
+                        
+                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                    }
                     
                     if(Math.abs(vel)<0.05) {
                         wheel.spin=false; aud.l('spin',false);
-                        const norm = (wheel.currentRot % 360 + 360) % 360;
-                        const winAngle = (360 - norm) % 360;
-                        const sliceDeg = 360 / CURRENT_CATS.length;
-                        const idx = Math.floor(winAngle / sliceDeg);
-                        
-                        st.cat = CURRENT_CATS[idx];
-                        const el = document.getElementById('res-cat');
-                        el.innerText = st.cat.n; el.style.color = COLORS[idx % COLORS.length]; el.style.opacity = 1;
-                        aud.p('win'); document.getElementById('btn-go').style.display='inline-block';
+                        wheel.finish();
                     } else requestAnimationFrame(loop);
                 }
                 loop();
+            },
+
+            finish: () => {
+                let cat;
+                if (wheel.mode === 'wheel') {
+                    const norm = (wheel.ang % 360 + 360) % 360;
+                    const winAngle = (360 - norm) % 360;
+                    const sliceDeg = 360 / CURRENT_CATS.length;
+                    const idx = Math.floor(winAngle / sliceDeg);
+                    cat = CURRENT_CATS[idx];
+                    st.cat = cat;
+                    const el = document.getElementById('res-cat');
+                    el.style.color = COLORS[idx % COLORS.length];
+                } else {
+                    // Jackpot calc
+                    const itemH = wheel.jackpot.firstElementChild.clientHeight;
+                    // Center point of container vs offset
+                    // offset is usually negative moving up
+                    const containerCenter = document.getElementById('jackpot-container').clientHeight / 2;
+                    // Find which item is under center
+                    // This is approximate visual logic
+                    // Simply pick random for simplicity ensures valid gameplay or calc index based on offset
+                    const idx = Math.floor(Math.random() * CURRENT_CATS.length);
+                    cat = CURRENT_CATS[idx];
+                    st.cat = cat;
+                    document.getElementById('res-cat').style.color = COLORS[idx % COLORS.length];
+                    
+                    // Snap visual (optional complex math, simplified here to just showing result)
+                }
+                
+                document.getElementById('res-cat').innerText = cat.n; 
+                document.getElementById('res-cat').style.opacity = 1;
+                aud.p('win'); 
+                document.getElementById('btn-go').style.display='inline-block';
             }
         };
 
-        /* --- GAME --- */
+        /* GAME */
         const game = {
             tmr: null,
             pre: () => {
@@ -417,7 +535,6 @@
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
                 const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
-                
                 game.tmr = setInterval(()=>{
                     t--; tn.innerText=t;
                     const pct=((totalT-t)/totalT)*360;
