@@ -251,12 +251,6 @@
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
     <audio id="snd-ok" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
     <audio id="snd-pass" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
-
-    <div id="lock">
-        <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-        <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v23.0</div>
-    </div>
     
     <!-- HOME ICON -->
     <div id="home-btn" style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
@@ -395,6 +389,13 @@
         <button class="btn" style="width:auto; margin-top: 3vh;" onclick="location.reload()">MENU PRINCIPAL</button>
     </div>
 
+    <!-- LOCK SCREEN (MOVIDO PARA O FINAL DO BODY PARA CORRIGIR CLIQUE) -->
+    <div id="lock">
+        <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+        <h2 style="margin-top:20px">GIRE A TELA</h2>
+        <div class="version-tag">v23.1</div>
+    </div>
+
     <!-- SHEET JS -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
@@ -415,7 +416,6 @@
 
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         
-        // st.cfg agora tem 'mode' (mixed, wheel, jackpot) e 'th' (threshold)
         const st = { 
             t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], 
             cfg:{t:60,r:3, mode:'mixed', th:10}, 
@@ -806,14 +806,6 @@
                     document.addEventListener('touchend', onEnd);
                     document.addEventListener('mouseup', onEnd);
                 };
-                const onMove = (e) => { e.preventDefault(); track(e); };
-                const onEnd = () => {
-                    document.removeEventListener('touchmove', onMove);
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('touchend', onEnd);
-                    document.removeEventListener('mouseup', onEnd);
-                    if(Math.abs(wheel.velocity) > 0.5) wheel.go(wheel.velocity);
-                };
                 target.onmousedown = start; target.ontouchstart = start;
             },
 
@@ -914,4 +906,23 @@
                 const cat = CURRENT_ROUND_CATS[idx];
                 
                 // === CORREÇÃO VITAL ===
-                st.cat = cat;
+                st.cat = cat; 
+                // ======================
+
+                ui.showResult(cat.n.replace('*', ''), COLORS[idx % COLORS.length], () => game.pre());
+                
+                // Reset transition for next drag
+                setTimeout(() => {
+                    if (wheel.mode === 'wheel') wheel.el.style.transition = 'none';
+                    else wheel.jackpot.style.transition = 'none';
+                }, 100);
+            }
+        };
+
+        window.onload = () => {
+            storage.load();
+            sensor.init();
+        };
+    </script>
+</body>
+</html>
