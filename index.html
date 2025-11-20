@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
-    <meta name="color-scheme" content="dark only"> <!-- Força modo escuro -->
+    <meta name="color-scheme" content="dark only">
     <title>Palavra na Testa</title>
     
     <!-- Fontes -->
@@ -27,7 +27,6 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
-        /* Força o fundo roxo para evitar partes brancas */
         html {
             background-color: #1e1b4b;
             background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
@@ -37,7 +36,7 @@
         body {
             width: 100vw; height: 100vh; overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
-            background: transparent; /* Usa o fundo do html */
+            background: transparent;
             position: fixed; top: 0; left: 0;
         }
 
@@ -58,7 +57,7 @@
 
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(3rem, 8vw, 5rem); /* Fonte Título Enorme */
+            font-size: clamp(3rem, 8vw, 5rem);
             text-transform: uppercase; margin-bottom: 40px;
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -73,31 +72,28 @@
         }
 
         .setup-col {
-            flex: 1 1 450px; /* Colunas largas */
+            flex: 1 1 450px;
             display: flex; flex-direction: column; gap: 25px;
         }
 
-        /* Estilo dos Inputs Atualizado */
-        .input-wrapper {
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        .input-wrapper { display: flex; flex-direction: column; gap: 10px; }
 
         label {
-            font-size: 1.2rem; color: #e2e8f0; font-weight: 800; 
+            font-size: 1.2rem; color: #818cf8; font-weight: 800; 
             text-transform: uppercase; margin-left: 5px;
         }
+        .col-pink label { color: #f472b6; }
+        .col-gray label { color: #cbd5e1; }
 
         input {
             width: 100%; padding: 20px; 
-            background: rgba(255,255,255,0.1); 
-            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15); 
+            border: none;
             color: white; border-radius: 15px; 
-            font-size: 2rem; /* Texto digitado grande */
-            font-weight: 700; font-family: 'Montserrat';
+            font-size: 2rem; font-weight: 700; font-family: 'Montserrat';
         }
-        input:focus { border-color: var(--secondary); background: rgba(0,0,0,0.3); }
+        input:focus { background: rgba(255,255,255,0.25); }
 
-        /* Botão Jogar */
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             color: white; border: none; border-radius: 60px;
@@ -105,91 +101,126 @@
             text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
             box-shadow: 0 10px 40px rgba(236, 72, 153, 0.4);
             transition: transform 0.1s; width: 100%; max-width: 500px;
-            font-family: 'Montserrat', sans-serif;
-            margin-top: 10px;
+            font-family: 'Montserrat', sans-serif; margin-top: 10px;
         }
         .btn:active { transform: scale(0.97); }
 
-        /* === TELA DE JOGO (FULLSCREEN PRETO) === */
-        #screen-game { 
-            background-color: black !important; 
-            background-image: none !important;
-        }
+        /* === TELA DE JOGO === */
+        #screen-game { background-color: black !important; background-image: none !important; padding: 0; }
 
-        /* Cronômetro Canto Superior Direito */
         .timer-wrapper {
             position: absolute; top: 30px; right: 30px;
-            width: 100px; height: 100px;
-            border-radius: 50%;
+            width: 100px; height: 100px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            /* O background conic será atualizado via JS */
             background: conic-gradient(var(--secondary) 0deg, #333 0deg);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
             z-index: 20;
         }
-        /* Buraco do anel */
         .timer-wrapper::after {
             content: ''; position: absolute; inset: 10px;
             background: black; border-radius: 50%; z-index: 1;
         }
-        .timer-text {
-            position: relative; z-index: 2;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2.5rem; font-weight: 900; color: white;
-        }
+        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 2.5rem; font-weight: 900; }
 
-        /* Palavra Gigante */
         #word-disp {
-            font-family: 'Montserrat', sans-serif; 
-            font-weight: 900; 
-            font-size: 22vmin; /* Máximo tamanho possível */
-            text-align: center; line-height: 0.9; 
-            text-transform: uppercase; word-break: break-word;
-            color: white; 
-            width: 95%; z-index: 5;
+            font-family: 'Montserrat'; font-weight: 900; font-size: 22vmin;
+            text-align: center; line-height: 0.9; text-transform: uppercase;
+            color: white; width: 95%; z-index: 5;
         }
 
-        /* HUD Inferior */
         .hud-bar {
             position: absolute; bottom: 40px; width: 90%;
             display: flex; justify-content: space-between;
-            font-family: 'Montserrat'; font-weight: 800; 
-            text-transform: uppercase; font-size: 1.5rem; letter-spacing: 1px;
+            font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem;
             z-index: 10;
         }
-        .hud-left { color: var(--danger); display: flex; align-items: center; gap: 10px; }
-        .hud-right { color: var(--success); display: flex; align-items: center; gap: 10px; }
+        .hud-left { color: var(--danger); } .hud-right { color: var(--success); }
 
-        /* Feedback Overlay (Tela toda pisca) */
         .flash-overlay {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
             font-size: 15vmin; font-weight: 900; color: white;
-            opacity: 0; pointer-events: none; z-index: 50;
-            font-family: 'Montserrat';
+            opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat';
         }
 
-        /* Zonas de Toque Invisíveis */
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; }
         .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === ROLETA === */
-        #screen-wheel { flex-direction: row; gap: 5vw; }
-        #wheel-container { width: 70vmin; height: 70vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0;}
-        #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 4px solid white; overflow: hidden; transition: transform 0.05s linear; }
-        
-        .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; pointer-events: none; }
-        .slice-text { 
-            position: absolute; top: -2vmin; left: 50%; transform-origin: 0 0; 
-            padding-left: 12vmin; /* Ajuste de posicionamento do texto */
-            font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin; color: white; text-transform: uppercase; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        /* === ROLETA (CORRIGIDA) === */
+        /* Layout dividido: Roleta Esq | Texto Dir */
+        #screen-wheel { 
+            flex-direction: row; 
+            justify-content: center; 
+            gap: 5vw; 
         }
-        #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 5; }
+        
+        #wheel-container { 
+            width: 75vmin; height: 75vmin; 
+            position: relative; 
+            filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); 
+            flex-shrink: 0;
+        }
+        
+        #wheel-spinner { 
+            width: 100%; height: 100%; 
+            border-radius: 50%; position: relative; 
+            border: 6px solid white; 
+            overflow: hidden; 
+            /* Transform será aplicado via JS */
+        }
+        
+        /* === CORREÇÃO DO TEXTO DA ROLETA === */
+        .slice-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0; /* Pivô zero */
+            height: 0; /* Pivô zero */
+            transform-origin: 0 0; /* Roda a partir do centro exato */
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .slice-text { 
+            position: absolute;
+            top: 0; 
+            left: 0;
+            transform: translateY(-50%); /* Centraliza verticalmente na linha imaginária */
+            padding-left: 10vmin; /* MARGEM DO CENTRO - Empurra o texto para fora */
+            font-family: 'Montserrat'; 
+            font-weight: 900; 
+            font-size: 3.5vmin; 
+            color: white; 
+            text-transform: uppercase; 
+            white-space: nowrap;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+        }
+        
+        #pointer { 
+            position: absolute; top: -35px; left: 50%; transform: translateX(-50%); 
+            width: 0; height: 0;
+            border-left: 35px solid transparent; 
+            border-right: 35px solid transparent; 
+            border-top: 70px solid white; 
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+            z-index: 20; 
+        }
 
-        .wheel-info { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* Centro da Roleta (Círculo Branco) */
+        .wheel-center-cap {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 15%; height: 15%; background: white; border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15;
+        }
+
+        .wheel-info { 
+            display: flex; flex-direction: column; 
+            align-items: flex-start; /* Alinhado à esquerda do bloco da direita */
+            justify-content: center;
+            text-align: left;
+            min-width: 300px;
+        }
 
         /* === RESULTADOS === */
-        #screen-res, #screen-final { background: #1e1b4b; } /* Garante fundo roxo */
+        #screen-res, #screen-final { background: #1e1b4b; }
 
         /* === BLOQUEIO PORTRAIT === */
         #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
@@ -199,8 +230,9 @@
             #screen-setup.active { display: flex !important; }
             #screen-setup.active ~ #lock { display: none; }
         }
-        @media (max-width: 800px) {
-            #screen-wheel { flex-direction: column; }
+        @media (max-width: 900px) {
+            #screen-wheel { flex-direction: column; gap: 20px; }
+            .wheel-info { align-items: center; text-align: center; }
             .setup-col { flex: 1 1 100%; }
             h1 { font-size: 3rem; margin-bottom: 20px; }
         }
@@ -231,40 +263,39 @@
         <h1>PALAVRA NA TESTA</h1>
         
         <div class="setup-container">
-            <!-- Coluna Times -->
-            <div class="setup-col">
+            <div class="setup-col col-blue">
                 <div class="input-wrapper">
-                    <label style="color: #818cf8;">Time Azul</label>
-                    <input type="text" id="t1" value="Time Azul" style="border-left: 8px solid #6366f1">
-                </div>
-                <div class="input-wrapper">
-                    <label style="color: #f472b6;">Time Rosa</label>
-                    <input type="text" id="t2" value="Time Rosa" style="border-left: 8px solid #ec4899">
+                    <label>TIME AZUL</label>
+                    <input type="text" id="t1" value="Time Azul" style="background:#6b7280;">
                 </div>
             </div>
-            
-            <!-- Coluna Configs -->
-            <div class="setup-col">
+            <div class="setup-col col-gray">
                 <div class="input-wrapper">
-                    <label>Tempo (segundos)</label>
-                    <input type="number" id="time" value="60">
+                    <label>TEMPO (SEGUNDOS)</label>
+                    <input type="number" id="time" value="60" style="background:#6b7280;">
                 </div>
+            </div>
+            <div class="setup-col col-pink">
                 <div class="input-wrapper">
-                    <label>Rodadas</label>
-                    <input type="number" id="rounds" value="3">
+                    <label>TIME ROSA</label>
+                    <input type="text" id="t2" value="Time Rosa" style="background:#6b7280;">
+                </div>
+            </div>
+            <div class="setup-col col-gray">
+                <div class="input-wrapper">
+                    <label>RODADAS</label>
+                    <input type="number" id="rounds" value="3" style="background:#6b7280;">
                 </div>
             </div>
         </div>
 
-        <!-- Botão Jogar -->
         <button class="btn" onclick="app.start()">JOGAR</button>
     </div>
 
     <!-- 2. INTRO -->
     <div id="screen-intro" class="screen">
-        <h2 style="opacity:0.6">RODADA <span id="lbl-rd">1</span></h2>
-        <h1 id="lbl-tm" style="font-size: 8vmin; margin: 20px 0;">TIME</h1>
-        <p style="font-size: 1.5rem; opacity: 0.8">Celular na testa (Horizontal)</p>
+        <h2 style="opacity:0.6; font-size: 2rem;">RODADA <span id="lbl-rd">1</span></h2>
+        <h1 id="lbl-tm" style="font-size: 5rem; margin: 20px 0;">TIME</h1>
         <button class="btn" style="width: auto; margin-top: 30px;" onclick="app.toWheel()">GIRAR ROLETA</button>
     </div>
 
@@ -273,38 +304,34 @@
         <div id="wheel-container">
             <div id="pointer"></div>
             <div id="wheel-spinner"></div>
-            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:15%; height:15%; background:white; border-radius:50%; box-shadow:0 0 20px rgba(0,0,0,0.5); z-index:2"></div>
+            <div class="wheel-center-cap"></div>
         </div>
-        <div class="wheel-info" style="text-align:center">
-            <h2 style="color:var(--accent)">CATEGORIA</h2>
-            <div id="res-cat" style="font-size: 4rem; font-weight: 900; margin: 10px 0; opacity:0; transition: opacity 0.3s">...</div>
-            <button id="btn-go" class="btn" style="display:none" onclick="game.pre()">COMEÇAR</button>
+        
+        <div class="wheel-info">
+            <h3 style="color: #fbbf24; font-size: 1.5rem; text-transform: uppercase; margin-bottom: 10px;">Categoria</h3>
+            <div id="res-cat" style="font-size: 4rem; font-weight: 900; margin-bottom: 20px; color: #22c55e; text-transform: uppercase;">AÇÕES</div>
+            <button id="btn-go" class="btn" onclick="game.pre()">COMEÇAR</button>
         </div>
     </div>
 
     <!-- 4. GAME -->
     <div id="screen-game" class="screen">
-        <!-- Cronometro Topo Direito -->
         <div class="timer-wrapper">
             <div class="timer-text" id="timer-num">60</div>
         </div>
 
-        <!-- Palavra -->
         <div id="word-disp">PALAVRA</div>
         
-        <!-- HUD -->
         <div class="hud-bar">
-            <div class="hud-left">▼ PULAR</div>
-            <div class="hud-right">▲ ACERTOU</div>
+            <div class="hud-left">▼ BAIXO: PULAR</div>
+            <div class="hud-right">▲ CIMA: ACERTOU</div>
         </div>
 
-        <!-- Toque -->
         <div class="touch-zone tz-l" onclick="game.act(false)"></div>
         <div class="touch-zone tz-r" onclick="game.act(true)"></div>
         
-        <!-- Feedback -->
-        <div id="fb-ok" class="flash-overlay" style="background: var(--success);">ACERTOU!</div>
-        <div id="fb-no" class="flash-overlay" style="background: var(--danger);">PULOU!</div>
+        <div id="fb-ok" class="flash-overlay" style="background: rgba(34, 197, 94, 0.9);">ACERTOU!</div>
+        <div id="fb-no" class="flash-overlay" style="background: rgba(239, 68, 68, 0.9);">PULOU!</div>
     </div>
 
     <!-- 5. RESULTS -->
@@ -333,32 +360,33 @@
     </div>
 
     <script>
-        /* --- DADOS --- */
         const CATS = [
-            {n:"ANIMAIS", c:"#ef4444", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
-            {n:"FILMES", c:"#f97316", w:["Titanic","Avatar","Shrek","Matrix","Barbie","Batman","Frozen","Vingadores","Coringa"]},
-            {n:"OBJETOS", c:"#eab308", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},
-            {n:"AÇÕES", c:"#22c55e", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
-            {n:"FAMOSOS", c:"#3b82f6", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
-            {n:"LUGARES", c:"#a855f7", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
+            {n:"ANIMAIS", c:"#10b981", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
+            {n:"FILMES", c:"#3b82f6", w:["Titanic","Avatar","Shrek","Matrix","Barbie","Batman","Frozen","Vingadores","Coringa"]},
+            {n:"OBJETOS", c:"#f59e0b", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},
+            {n:"AÇÕES", c:"#ef4444", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
+            {n:"FAMOSOS", c:"#8b5cf6", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
+            {n:"LUGARES", c:"#ec4899", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
         ];
+
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], h:[], pts:0, on:false };
 
-        /* --- SENSOR (Lógica mantida, UI removida) --- */
         const sensor = {
             z: 0, wait: false,
             init: () => {
                 if (window.DeviceMotionEvent) {
                     window.addEventListener('devicemotion', sensor.handle);
-                    // Try to auto request on iOS if possible or wait for interaction
+                    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                         // iOS request logic if needed later
+                    }
                 }
             },
             handle: (e) => {
                 const acc = e.accelerationIncludingGravity;
                 if (!acc) return;
                 sensor.z = acc.z || 0;
-
+                // 9.8 (teto) vs -9.8 (chão)
                 if (st.on && !sensor.wait) {
                     if (sensor.z > 7.0) { game.act(true); sensor.pause(); }
                     else if (sensor.z < -7.0) { game.act(false); sensor.pause(); }
@@ -368,7 +396,6 @@
         };
         sensor.init();
 
-        /* --- NAV --- */
         const app = {
             to: (id) => {
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -376,12 +403,9 @@
             },
             start: () => {
                 aud.p('click');
-                if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-                
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     DeviceMotionEvent.requestPermission().then(r=>{ if(r!=='granted') alert('Permissão negada!'); }).catch(e=>{});
                 }
-
                 st.t[0].n = document.getElementById('t1').value;
                 st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('time').value);
@@ -410,12 +434,13 @@
             }
         };
 
-        /* --- WHEEL --- */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
-            ang: 0, spin: false,
+            ang: 0, spin: false, velocity: 0, lastY: 0, lastTime: 0,
             rst: () => {
-                wheel.spin=false; document.getElementById('btn-go').style.display='none'; document.getElementById('res-cat').style.opacity=0;
+                wheel.spin=false; document.getElementById('btn-go').style.display='none'; 
+                document.getElementById('res-cat').style.opacity=0;
+                
                 let g="conic-gradient(", h=""; const sl=360/CATS.length;
                 CATS.forEach((c,i)=>{
                     g+=`${c.c} ${i*sl}deg ${(i+1)*sl}deg,`;
@@ -423,26 +448,96 @@
                     h+=`<div class="slice-wrapper" style="transform:rotate(${mid}deg)"><span class="slice-text">${c.n}</span></div>`;
                 });
                 wheel.el.style.background=g.slice(0,-1)+")"; wheel.el.innerHTML=h;
-                const w=document.getElementById('wheel-container'); let ly=0;
-                const mv=(e)=>{ if(wheel.spin)return; e.preventDefault(); const y=e.touches?e.touches[0].clientY:e.clientY; wheel.ang+=(y-ly)*0.5; ly=y; wheel.el.style.transform=`rotate(${wheel.ang}deg)`; };
-                w.ontouchstart=e=>ly=e.touches[0].clientY; w.ontouchmove=mv; w.ontouchend=()=>!wheel.spin && wheel.go();
-                w.onmousedown=e=>{ly=e.clientY;document.onmousemove=mv}; document.onmouseup=()=>{document.onmousemove=null;if(!wheel.spin&&ly!=0)wheel.go()};
+                
+                // Physics Touch Logic
+                const w=document.getElementById('wheel-container'); 
+                
+                const trackMove = (y) => {
+                    const now = Date.now();
+                    const deltaY = y - wheel.lastY;
+                    const deltaTime = now - wheel.lastTime;
+                    
+                    // Calculate speed (pixels per ms) -> convert to degrees roughly
+                    // Simple delta is enough for direct tracking
+                    wheel.ang += deltaY * 0.8; 
+                    wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                    
+                    // Store velocity for release (degrees per ms approx)
+                    if (deltaTime > 0) {
+                         wheel.velocity = (deltaY / deltaTime) * 15; // multiplier for feel
+                    }
+                    
+                    wheel.lastY = y;
+                    wheel.lastTime = now;
+                };
+
+                const startDrag = (y) => {
+                    if (wheel.spin) return;
+                    wheel.lastY = y;
+                    wheel.lastTime = Date.now();
+                    wheel.velocity = 0;
+                };
+
+                const endDrag = () => {
+                    if (wheel.spin) return;
+                    // If dragged with speed, spin
+                    if (Math.abs(wheel.velocity) > 0.5) {
+                        wheel.go(wheel.velocity);
+                    }
+                };
+
+                // Touch Events
+                w.ontouchstart = e => startDrag(e.touches[0].clientY);
+                w.ontouchmove = e => { e.preventDefault(); trackMove(e.touches[0].clientY); };
+                w.ontouchend = endDrag;
+
+                // Mouse Events
+                w.onmousedown = e => { startDrag(e.clientY); w.onmousemove = ev => trackMove(ev.clientY); };
+                window.onmouseup = () => { w.onmousemove = null; endDrag(); };
             },
-            go: () => {
-                wheel.spin=true; aud.l('spin',true); let v=20+Math.random()*20;
-                const loop=()=>{ if(!wheel.spin)return; v*=0.97; wheel.ang+=v; wheel.el.style.transform=`rotate(${wheel.ang}deg)`;
-                    if(v<0.1){ wheel.spin=false; aud.l('spin',false);
-                        const idx=Math.floor(((360-(wheel.ang%360+360)%360)%360)/(360/CATS.length));
-                        st.cat=CATS[idx]; document.getElementById('res-cat').innerText=st.cat.n;
-                        document.getElementById('res-cat').style.color=st.cat.c; document.getElementById('res-cat').style.opacity=1;
-                        aud.p('win'); document.getElementById('btn-go').style.display='inline-block';
-                    } else requestAnimationFrame(loop);
+            go: (initialVel) => {
+                wheel.spin = true; 
+                aud.l('spin', true);
+                let v = initialVel || 20;
+                
+                // Cap max speed
+                if (v > 40) v = 40;
+                if (v < -40) v = -40;
+                // Ensure min speed for gameplay if tapped lightly
+                if (Math.abs(v) < 5) v = 10 * (Math.random() < 0.5 ? -1 : 1);
+
+                const loop = () => {
+                    if (!wheel.spin) return;
+                    v *= 0.98; // Friction
+                    wheel.ang += v;
+                    wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                    
+                    if (Math.abs(v) < 0.1) {
+                        wheel.spin = false; 
+                        aud.l('spin', false);
+                        // Calculate Result
+                        const norm = (wheel.ang % 360 + 360) % 360; // 0-360
+                        // Pointer is at top (0 deg). Conic gradient starts at 0 deg (Top).
+                        // The slice at Top is the one where the angle is (360 - rotation)
+                        const winAngle = (360 - norm) % 360;
+                        const sliceSize = 360 / CATS.length;
+                        const idx = Math.floor(winAngle / sliceSize);
+                        
+                        st.cat = CATS[idx];
+                        const el = document.getElementById('res-cat');
+                        el.innerText = st.cat.n; 
+                        el.style.color = st.cat.c; 
+                        el.style.opacity = 1;
+                        aud.p('win'); 
+                        document.getElementById('btn-go').style.display = 'inline-block';
+                    } else {
+                        requestAnimationFrame(loop);
+                    }
                 }
                 loop();
             }
         };
 
-        /* --- GAME --- */
         const game = {
             tmr: null,
             pre: () => {
@@ -452,17 +547,14 @@
             run: () => {
                 st.on=true; st.pts=0; st.h=[]; st.q=[...st.cat.w].sort(()=>Math.random()-0.5);
                 game.next();
-                let totalT = st.cfg.t;
-                let t = totalT;
+                let totalT = st.cfg.t; let t = totalT;
                 const tn = document.getElementById('timer-num');
                 const tw = document.querySelector('.timer-wrapper');
                 
                 game.tmr = setInterval(()=>{
                     t--; tn.innerText = t;
-                    // Update Ring
                     const pct = ((totalT - t) / totalT) * 360;
                     tw.style.background = `conic-gradient(var(--secondary) ${pct}deg, #333 ${pct}deg)`;
-
                     if(t<=0) game.end();
                 },1000);
             },
