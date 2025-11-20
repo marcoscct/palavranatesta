@@ -12,112 +12,234 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === VARS & RESET === */
+        /* === RESET & VARS === */
         :root {
             --bg-dark: #0f172a;
             --primary: #6366f1;
             --secondary: #ec4899;
             --accent: #fbbf24;
+            --success: #22c55e;
+            --danger: #ef4444;
             --glass: rgba(255, 255, 255, 0.05);
+            --border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-        html { background-color: #1e1b4b; background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%); height: 100%; }
-        body { width: 100vw; height: 100vh; overflow: hidden; font-family: 'Poppins', sans-serif; color: white; position: fixed; top: 0; left: 0; }
 
-        /* === UTILS === */
-        .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
+
+        html {
+            background-color: #1e1b4b;
+            background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            width: 100vw; height: 100vh; overflow: hidden;
+            font-family: 'Poppins', sans-serif; color: white;
+            background: transparent;
+            position: fixed; top: 0; left: 0;
+        }
+
+        /* === TELAS === */
+        .screen {
+            position: absolute; inset: 0;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 2vh 4vw; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
+            height: 100%; width: 100%;
+        }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
 
         /* === TELA 1: SETUP === */
-        #screen-setup { justify-content: flex-start; padding-top: 5vh; overflow-y: auto; }
-        h1 { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: clamp(3rem, 8vw, 5rem); text-transform: uppercase; margin-bottom: 30px; background: linear-gradient(to right, #818cf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; filter: drop-shadow(0 0 20px rgba(99,102,241,0.5)); }
-        
-        .setup-container { display: flex; flex-wrap: wrap; gap: 20px; width: 100%; max-width: 1000px; justify-content: center; margin-bottom: 30px; }
-        .setup-col { flex: 1 1 400px; display: flex; flex-direction: column; gap: 20px; }
-        
-        label { font-size: 1rem; color: #e2e8f0; font-weight: 800; text-transform: uppercase; margin-left: 5px; }
-        input { width: 100%; padding: 15px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); color: white; border-radius: 15px; font-size: 1.5rem; font-weight: 700; font-family: 'Montserrat'; }
-        
-        .btn { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 60px; padding: 20px 60px; font-size: 2rem; font-weight: 900; text-transform: uppercase; cursor: pointer; box-shadow: 0 10px 40px rgba(236, 72, 153, 0.4); transition: transform 0.1s; width: 100%; max-width: 500px; margin-top: 10px; font-family: 'Montserrat'; }
+        #screen-setup {
+            justify-content: center;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif; font-weight: 900; 
+            font-size: clamp(1.5rem, 8vh, 4rem);
+            text-transform: uppercase; margin-bottom: 2vh;
+            background: linear-gradient(to right, #818cf8, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-align: center; letter-spacing: -1px;
+            filter: drop-shadow(0 0 10px rgba(99,102,241,0.5));
+            line-height: 1;
+        }
+
+        .setup-container {
+            display: flex;
+            flex-direction: row;
+            gap: 2vw;
+            width: 100%; max-width: 1000px;
+            justify-content: center; align-items: stretch;
+            margin-bottom: 2vh;
+        }
+
+        .setup-col {
+            flex: 1;
+            display: flex; flex-direction: column; gap: 1.5vh;
+            background: rgba(255,255,255,0.03);
+            padding: 1.5vh; border-radius: 15px; border: var(--border);
+        }
+
+        .input-wrapper { display: flex; flex-direction: column; gap: 0.5vh; width: 100%; }
+
+        label {
+            font-size: 1.5vh; color: #cbd5e1; font-weight: 700; 
+            text-transform: uppercase; margin-left: 2px; white-space: nowrap;
+        }
+
+        input {
+            width: 100%; padding: 1.2vh 1vw;
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+            color: white; border-radius: 8px; 
+            font-size: 2.5vh;
+            font-weight: 600; font-family: 'Montserrat';
+        }
+        input:focus { border-color: var(--primary); background: rgba(0,0,0,0.5); }
+
+        .btn {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white; border: none; border-radius: 50px;
+            padding: 1.5vh 4vw; font-size: 3vh; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(236, 72, 153, 0.3);
+            transition: transform 0.1s; width: auto; min-width: 300px;
+            font-family: 'Montserrat', sans-serif;
+        }
         .btn:active { transform: scale(0.97); }
 
-        /* === TELA 2: JOGO === */
-        #screen-game { background-color: black !important; padding: 0; }
-        .timer-wrapper { position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20; }
-        .timer-wrapper::after { content: ''; position: absolute; inset: 8px; background: black; border-radius: 50%; z-index: 1; }
-        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 2rem; font-weight: 900; }
+        /* === TELA DE JOGO === */
+        #screen-game { background-color: black !important; background-image: none !important; padding: 0; }
 
-        #word-disp { font-family: 'Montserrat'; font-weight: 900; font-size: 20vmin; text-align: center; line-height: 0.9; text-transform: uppercase; width: 95%; z-index: 5; }
-        .hud-bar { position: absolute; bottom: 40px; width: 90%; display: flex; justify-content: space-between; font-family: 'Montserrat'; font-weight: 800; font-size: 1.2rem; z-index: 10; }
-        .hud-left { color: #ef4444; } .hud-right { color: #22c55e; }
-        .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
-        .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
+        .timer-wrapper {
+            position: absolute; top: 2vh; right: 2vh;
+            width: 12vh; height: 12vh; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: conic-gradient(var(--secondary) 0deg, #333 0deg);
+            z-index: 20;
+        }
+        .timer-wrapper::after { content: ''; position: absolute; inset: 10%; background: black; border-radius: 50%; z-index: 1; }
+        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 5vh; font-weight: 900; }
 
-        /* === TELA 3: ROLETA === */
-        #screen-wheel { flex-direction: row; gap: 5vw; }
-        #wheel-container { width: 75vmin; height: 75vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
+        #word-disp {
+            font-family: 'Montserrat'; font-weight: 900; 
+            font-size: 20vmin; 
+            text-align: center; line-height: 0.9; 
+            text-transform: uppercase; word-break: break-word;
+            color: white; width: 95%; z-index: 5;
+        }
+
+        .hud-bar {
+            position: absolute; bottom: 3vh; width: 90%;
+            display: flex; justify-content: space-between;
+            font-family: 'Montserrat'; font-weight: 800; 
+            text-transform: uppercase; font-size: 3vh; letter-spacing: 1px;
+            z-index: 10;
+        }
+        .hud-left { color: var(--danger); } .hud-right { color: var(--success); }
         
-        /* O Spinner (A roda) */
+        .flash-overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 15vmin; font-weight: 900; color: white;
+            opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat';
+        }
+        .touch-zone { position: absolute; top:0; bottom:0; width: 35%; z-index: 8; }
+        .tz-l { left: 0; } .tz-r { right: 0; }
+
+        /* === ROLETA === */
+        #screen-wheel { flex-direction: row; gap: 4vw; }
+        #wheel-container { 
+            width: 65vmin; height: 65vmin; 
+            position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0;
+        }
         #wheel-spinner { 
             width: 100%; height: 100%; border-radius: 50%; position: relative; 
-            border: 6px solid white; overflow: hidden; 
-            /* Movimento controlado via JS */
+            border: 0.8vmin solid white; overflow: hidden; transition: transform 0.05s linear; 
         }
         
-        /* Texto das Fatias (Geometria Corrigida) */
-        .slice-wrapper { 
-            position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; 
-        }
+        /* Texto corrigido */
+        .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
         .slice-text { 
-            position: absolute; top: 0; left: 0;
-            transform: translateY(-50%); /* Centraliza verticalmente na linha radial */
-            padding-left: 11vmin; /* Afasta do centro */
+            position: absolute; top: 0; left: 0; transform: translateY(-50%); 
+            padding-left: 10vmin; 
             font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin; 
-            color: white; text-transform: uppercase; white-space: nowrap; 
-            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
         }
-
         #pointer { 
-            position: absolute; top: -30px; left: 50%; transform: translateX(-50%); 
-            border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; 
+            position: absolute; top: -4vh; left: 50%; transform: translateX(-50%); 
+            border-left: 3vh solid transparent; border-right: 3vh solid transparent; border-top: 6vh solid white; 
             z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
         }
-        .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 18%; height: 18%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.3); z-index: 15; }
-        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
-
-        /* === RESPONSIVO === */
-        @media (max-width: 900px) {
-            #screen-wheel { flex-direction: column; gap: 20px; }
-            .wheel-info { align-items: center; text-align: center; }
-            .setup-col { flex: 1 1 100%; }
-            h1 { font-size: 3rem; }
+        .wheel-center-cap {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 15%; height: 15%; background: white; border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15;
         }
-        #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        @media screen and (orientation: portrait) { #lock { display: flex; } .screen { display: none !important; } #screen-setup.active { display: flex !important; } #screen-setup.active ~ #lock { display: none; } }
+        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 250px; text-align: left; }
+
+        /* === RESULTADOS === */
+        #screen-res, #screen-final { background: #1e1b4b; }
+
+        /* === MEDIA QUERIES === */
+        @media (max-height: 500px) {
+            .setup-container { margin-bottom: 1vh; gap: 1vw; }
+            .setup-col { padding: 1vh 2vw; gap: 1vh; }
+            input { padding: 1vh; font-size: 2.5vh; }
+            label { font-size: 2vh; }
+            h1 { margin-bottom: 1vh; font-size: 6vh; }
+            .btn { padding: 1vh 3vw; font-size: 3vh; }
+            #screen-wheel { gap: 2vw; }
+            .wheel-info h3 { font-size: 3vh; margin-bottom: 0.5vh; }
+            #res-cat { font-size: 6vh; margin-bottom: 1vh; }
+        }
+
+        /* Portrait Lock */
+        #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        @media screen and (orientation: portrait) {
+            #lock { display: flex; } .screen { display: none !important; }
+            #screen-setup.active { display: flex !important; } #screen-setup.active ~ #lock { display: none; }
+            .setup-container { flex-direction: column; } 
+        }
     </style>
 </head>
 <body>
 
+    <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
     <audio id="snd-ok" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
     <audio id="snd-pass" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
 
+    <!-- UI ELEMENTS -->
     <div id="lock"><h2 style="margin-top:20px">GIRE A TELA</h2></div>
-    <div style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5" onclick="if(confirm('Voltar?')) location.reload()"><svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+    <div style="position:absolute; top:2vh; left:2vw; z-index:100; cursor:pointer; opacity:0.5" onclick="if(confirm('Voltar ao menu?')) location.reload()">
+        <svg width="4vh" height="4vh" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </div>
 
     <!-- 1. SETUP -->
     <div id="screen-setup" class="screen active">
         <h1>PALAVRA NA TESTA</h1>
         <div class="setup-container">
             <div class="setup-col">
-                <div><label style="color:#818cf8">Time Azul</label><input type="text" id="t1" value="Time Azul" style="border-left:8px solid #6366f1"></div>
-                <div><label style="color:#f472b6">Time Rosa</label><input type="text" id="t2" value="Time Rosa" style="border-left:8px solid #ec4899"></div>
+                <div class="input-wrapper">
+                    <label style="color: #818cf8;">Time Azul</label>
+                    <input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1">
+                </div>
+                <div class="input-wrapper">
+                    <label style="color: #f472b6;">Time Rosa</label>
+                    <input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899">
+                </div>
             </div>
             <div class="setup-col">
-                <div><label>Tempo (s)</label><input type="number" id="time" value="60"></div>
-                <div><label>Rodadas</label><input type="number" id="rounds" value="3"></div>
+                <div class="input-wrapper">
+                    <label>Tempo (s)</label>
+                    <input type="number" id="time" value="60">
+                </div>
+                <div class="input-wrapper">
+                    <label>Rodadas</label>
+                    <input type="number" id="rounds" value="3">
+                </div>
             </div>
         </div>
         <button class="btn" onclick="app.start()">JOGAR</button>
@@ -125,9 +247,10 @@
 
     <!-- 2. INTRO -->
     <div id="screen-intro" class="screen">
-        <h2 style="opacity:0.6; font-size:2rem">RODADA <span id="lbl-rd">1</span></h2>
-        <h1 id="lbl-tm" style="font-size:8vmin; margin:20px 0">TIME</h1>
-        <button class="btn" style="width:auto; margin-top:30px" onclick="app.toWheel()">GIRAR ROLETA</button>
+        <h2 style="opacity:0.6; font-size: 4vh;">RODADA <span id="lbl-rd">1</span></h2>
+        <h1 id="lbl-tm" style="font-size: 10vh; margin: 2vh 0;">TIME</h1>
+        <p style="font-size: 3vh; opacity: 0.8">Celular na testa</p>
+        <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">GIRAR ROLETA</button>
     </div>
 
     <!-- 3. ROLETA -->
@@ -135,11 +258,11 @@
         <div id="wheel-container">
             <div id="pointer"></div>
             <div id="wheel-spinner"></div>
-            <div class="wheel-center"></div>
+            <div class="wheel-center-cap"></div>
         </div>
         <div class="wheel-info">
-            <h3 style="color:#fbbf24; font-size:1.5rem; text-transform:uppercase; margin-bottom:10px">Categoria</h3>
-            <div id="res-cat" style="font-size:4rem; font-weight:900; margin-bottom:20px; color:#22c55e; text-transform:uppercase">...</div>
+            <h3 style="color: #fbbf24; font-size: 3vh; text-transform: uppercase; margin-bottom: 1vh;">Categoria</h3>
+            <div id="res-cat" style="font-size: 8vh; font-weight: 900; margin-bottom: 2vh; color: #22c55e; text-transform: uppercase;">...</div>
             <button id="btn-go" class="btn" style="display:none" onclick="game.pre()">COMEÇAR</button>
         </div>
     </div>
@@ -151,35 +274,34 @@
         <div class="hud-bar"><div class="hud-left">▼ PULAR</div><div class="hud-right">▲ ACERTOU</div></div>
         <div class="touch-zone tz-l" onclick="game.act(false)"></div>
         <div class="touch-zone tz-r" onclick="game.act(true)"></div>
-        <div id="fb-ok" class="flash" style="background:rgba(34,197,94,0.9)">ACERTOU!</div>
-        <div id="fb-no" class="flash" style="background:rgba(239,68,68,0.9)">PULOU!</div>
+        <div id="fb-ok" class="flash-overlay" style="background: rgba(34, 197, 94, 0.9);">ACERTOU!</div>
+        <div id="fb-no" class="flash-overlay" style="background: rgba(239, 68, 68, 0.9);">PULOU!</div>
     </div>
 
     <!-- 5. RESULTS -->
     <div id="screen-res" class="screen">
-        <h2 style="color:var(--success)">FIM DA RODADA</h2>
-        <div id="res-score" style="font-size:6rem; font-weight:900; margin:20px 0">0</div>
-        <div id="res-list" style="width:100%; max-width:600px; height:30vh; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:15px"></div>
-        <button class="btn" style="width:auto; margin-top:20px" onclick="app.next()">PRÓXIMO</button>
+        <h2 style="color:var(--success); font-size: 4vh;">FIM DA RODADA</h2>
+        <div id="res-score" style="font-size: 12vh; font-weight: 900; margin: 2vh 0;">0</div>
+        <div id="res-list" style="width:100%; max-width:600px; height:30vh; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:15px;"></div>
+        <button class="btn" style="width:auto; margin-top:3vh" onclick="app.next()">PRÓXIMO</button>
     </div>
 
     <!-- 6. FINAL -->
     <div id="screen-final" class="screen">
-        <h1>FIM DE JOGO</h1>
-        <div style="display:flex; gap:30px; margin:30px 0; flex-wrap:wrap; justify-content:center">
-            <div style="text-align:center; background:rgba(255,255,255,0.1); padding:20px; border-radius:20px; min-width:200px">
-                <div id="fn-1" style="color:#818cf8; font-weight:bold; font-size:1.5rem">Azul</div><div id="fs-1" style="font-size:4rem; font-weight:900">0</div>
+        <h1 style="font-size: 8vh;">FIM DE JOGO</h1>
+        <div style="display:flex; gap:4vw; margin: 4vh 0; flex-wrap: wrap; justify-content: center;">
+            <div style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
+                <div id="fn-1" style="color:#818cf8; font-weight:bold; font-size: 3vh">Azul</div><div id="fs-1" style="font-size:8vh; font-weight:900">0</div>
             </div>
-            <div style="text-align:center; background:rgba(255,255,255,0.1); padding:20px; border-radius:20px; min-width:200px">
-                <div id="fn-2" style="color:#f472b6; font-weight:bold; font-size:1.5rem">Rosa</div><div id="fs-2" style="font-size:4rem; font-weight:900">0</div>
+            <div style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
+                <div id="fn-2" style="color:#f472b6; font-weight:bold; font-size: 3vh">Rosa</div><div id="fs-2" style="font-size:8vh; font-weight:900">0</div>
             </div>
         </div>
-        <h2 id="winner" style="color:var(--accent); font-size:2rem">VENCEDOR</h2>
-        <button class="btn" style="width:auto; margin-top:20px" onclick="location.reload()">MENU PRINCIPAL</button>
+        <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
+        <button class="btn" style="width:auto; margin-top: 3vh;" onclick="location.reload()">MENU PRINCIPAL</button>
     </div>
 
     <script>
-        /* CONFIG & DADOS */
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
         const CATS = [
             {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
@@ -193,12 +315,11 @@
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], h:[], pts:0, on:false };
 
-        /* SENSOR */
         const sensor = {
             z: 0, wait: false,
-            init: () => { if(window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
+            init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
             handle: (e) => {
-                const acc = e.accelerationIncludingGravity; if(!acc) return;
+                const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
                     if (sensor.z > 7.0) { game.act(true); sensor.pause(); }
@@ -209,7 +330,6 @@
         };
         sensor.init();
 
-        /* NAV */
         const app = {
             to: (id) => {
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -218,7 +338,7 @@
             start: () => {
                 aud.p('click');
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-                if(typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     DeviceMotionEvent.requestPermission().catch(()=>{});
                 }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
@@ -247,7 +367,6 @@
             }
         };
 
-        /* WHEEL (FÍSICA & GEOMETRIA CORRIGIDAS) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             ang: 0, spin: false, velocity: 0, lastY: 0, lastTime: 0,
@@ -255,41 +374,22 @@
                 wheel.spin=false; document.getElementById('btn-go').style.display='none'; 
                 document.getElementById('res-cat').innerText = "..."; document.getElementById('res-cat').style.opacity=0;
                 
-                let g="conic-gradient(", h=""; 
-                const count = CATS.length;
-                const sliceDeg = 360 / count;
-
+                let g="conic-gradient(", h=""; const count = CATS.length; const sliceDeg = 360 / count;
                 CATS.forEach((c, i) => {
                     const color = COLORS[i % COLORS.length];
-                    const start = i * sliceDeg;
-                    const end = (i + 1) * sliceDeg;
+                    const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
                     g += `${color} ${start}deg ${end}deg,`;
-                    
-                    // CORREÇÃO MATEMÁTICA: Centro da fatia + Correção de 90 graus (CSS 0 = 3h, Grad 0 = 12h)
-                    // Center = start + slice/2.  CSS Correction = -90deg.
                     const mid = start + (sliceDeg / 2);
-                    // O transform roda o container da fatia para a posição. O texto dentro já tem translate.
-                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)">
-                            <span class="slice-text">${c.n}</span>
-                          </div>`;
+                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text">${c.n}</span></div>`;
                 });
+                wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
+                wheel.ang = -(sliceDeg / 2); wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
 
-                wheel.el.style.background = g.slice(0, -1) + ")"; 
-                wheel.el.innerHTML = h;
-                
-                // Posição Inicial: Centraliza o ponteiro na primeira fatia (fatia 0 está em 0-51deg)
-                // O ponteiro está em 0deg (topo). A fatia 0 vai de 0 a 51.
-                // Queremos que o ponteiro aponte para o meio da fatia 0 (25.7deg).
-                // Então rodamos a roleta -25.7deg.
-                wheel.ang = -(sliceDeg / 2);
-                wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-
-                // Física de Arrasto
                 const w=document.getElementById('wheel-container'); 
                 const track=(y)=>{
                     const now=Date.now(); const dy=y-wheel.lastY; const dt=now-wheel.lastTime;
                     wheel.ang+=dy*0.5; wheel.el.style.transform=`rotate(${wheel.ang}deg)`;
-                    if(dt>0) wheel.velocity=(dy/dt)*12; // Sensibilidade de velocidade
+                    if(dt>0) wheel.velocity=(dy/dt)*12;
                     wheel.lastY=y; wheel.lastTime=now;
                 };
                 const start=(y)=>{ if(wheel.spin)return; wheel.lastY=y; wheel.lastTime=Date.now(); wheel.velocity=0; };
@@ -301,32 +401,20 @@
             go: (v) => {
                 wheel.spin=true; aud.l('spin',true);
                 let vel = v || 20;
-                // Clamp max speed
                 if(vel>35) vel=35; if(vel<-35) vel=-35; 
-                // Min speed boost
                 if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
 
                 const loop=()=>{
                     if(!wheel.spin) return;
-                    vel*=0.985; // Atrito suave
+                    vel*=0.985; 
                     wheel.ang+=vel;
                     wheel.el.style.transform=`rotate(${wheel.ang}deg)`;
                     
                     if(Math.abs(vel)<0.05) {
                         wheel.spin=false; aud.l('spin',false);
-                        
-                        // Lógica de Vencedor
-                        // Ponteiro (0deg) aponta para qual ângulo da roda?
-                        // Normalizar ângulo positivo 0-360
                         const norm = (wheel.ang % 360 + 360) % 360;
-                        // A roda girou `norm` graus. A fatia no topo (0deg) é aquela que estava em `-norm` graus.
-                        // Mas conic-gradient é Clockwise. Fatia 0 é 0-50. Fatia 1 é 50-100.
-                        // Se rodar +50deg, Fatia 0 vai para 50-100. Fatia N (última) vem para 0-50.
-                        // Logo, Index = (360 - norm) / sliceSize
                         const winAngle = (360 - norm) % 360;
                         const sliceDeg = 360 / CATS.length;
-                        // Ajuste fino: O ponteiro está em 0deg (meio do topo).
-                        // Verificamos qual fatia contém o ângulo 0.
                         const idx = Math.floor(winAngle / sliceDeg);
                         
                         st.cat = CATS[idx];
@@ -334,7 +422,6 @@
                         el.innerText = st.cat.n; 
                         el.style.color = COLORS[idx % COLORS.length];
                         el.style.opacity = 1;
-                        
                         aud.p('win'); document.getElementById('btn-go').style.display='inline-block';
                     } else requestAnimationFrame(loop);
                 }
@@ -342,7 +429,6 @@
             }
         };
 
-        /* GAME */
         const game = {
             tmr: null,
             pre: () => {
