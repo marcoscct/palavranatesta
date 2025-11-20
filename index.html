@@ -20,8 +20,12 @@
             --accent: #fbbf24;
             --success: #22c55e;
             --danger: #ef4444;
-            --glass: rgba(255, 255, 255, 0.05);
             --border: 1px solid rgba(255, 255, 255, 0.15);
+            /* Variáveis de Segurança para iOS (Notch/Home Indicator) */
+            --safe-top: env(safe-area-inset-top, 20px);
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
@@ -33,12 +37,18 @@
         }
 
         body {
-            width: 100vw; height: 100vh; overflow: hidden;
+            width: 100vw; 
+            /* FIX iOS: 100dvh ajusta dinamicamente com a barra do Safari */
+            height: 100dvh; 
+            overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
             background: transparent;
             position: fixed; top: 0; left: 0;
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
+            /* Padding seguro para não cobrir conteúdo */
+            padding-top: var(--safe-top);
+            padding-bottom: 0; 
+            padding-left: var(--safe-left);
+            padding-right: var(--safe-right);
         }
 
         /* === UTILS === */
@@ -47,9 +57,46 @@
             display: none; flex-direction: column; align-items: center; justify-content: center;
             padding: 2vh 4vw; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
             width: 100%; height: 100%;
+            
+            /* FIX CRUCIAL PARA IPHONE MINI: */
+            overflow-y: auto; /* Permite scroll se não couber */
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll no iOS */
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
-        .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
+        
+        /* A tela de jogo DEVE ser fixa */
+        #screen-game { overflow: hidden; touch-action: none; justify-content: center; }
+
+        /* === RESPONSIVIDADE INTELIGENTE (FIX IPHONE MINI) === 
+           Se a tela for baixa (menos de 850px de altura), paramos de tentar 
+           centralizar verticalmente e alinhamos ao topo, permitindo scroll.
+        */
+        @media (max-height: 850px) {
+            .screen:not(#screen-game) {
+                justify-content: flex-start; /* Alinha no topo */
+                padding-top: 40px; /* Espaço do topo */
+                /* Espaço extra embaixo para o botão não colar no home indicator */
+                padding-bottom: calc(var(--safe-bottom) + 80px); 
+            }
+            
+            /* Diminui um pouco o título para ganhar espaço */
+            h1 { 
+                font-size: clamp(2rem, 8vw, 3rem) !important; 
+                margin-top: 10px;
+                margin-bottom: 20px !important;
+                flex-shrink: 0;
+            }
+
+            /* Garante que o botão tenha espaço */
+            .btn {
+                flex-shrink: 0; 
+                margin-top: auto; /* Empurra para o final se sobrar espaço, ou fica no fluxo */
+                margin-bottom: 10px;
+            }
+        }
+
+        .scrollable { justify-content: flex-start; padding-top: 40px; padding-bottom: 120px; }
         .hidden { display: none !important; }
 
         /* === TYPOGRAPHY === */
@@ -61,6 +108,7 @@
             text-align: center; letter-spacing: -1px; margin-bottom: 2vh;
             filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));
             line-height: 1.1;
+            width: 100%;
         }
         h2 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; }
 
@@ -73,13 +121,14 @@
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
             transition: transform 0.1s; width: 100%; max-width: 400px; margin: 1vh 0;
             font-family: 'Montserrat';
+            min-height: 55px; /* Garante área de toque */
         }
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
         .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
 
-        .input-group { margin-bottom: 1.5vh; width: 100%; max-width: 600px; position: relative; }
+        .input-group { margin-bottom: 1.5vh; width: 100%; max-width: 600px; position: relative; flex-shrink: 0; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
         
         label { display: block; font-size: clamp(0.8rem, 2vh, 1rem); color: #cbd5e1; font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; }
@@ -252,7 +301,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.1</div>
+        <div class="version-tag">v22.2</div>
     </div>
     
     <!-- HOME ICON -->
@@ -277,7 +326,7 @@
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
             </div>
             
-            <!-- NOVA SEÇÃO: MODO DE SORTEIO -->
+            <!-- SEÇÃO: MODO DE SORTEIO -->
             <div class="section-box">
                 <h2>Modo de Sorteio</h2>
                 <div class="input-group">
