@@ -30,20 +30,25 @@
             background-color: #1e1b4b;
             background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
             height: 100%;
+            overflow: hidden;
         }
 
         body {
-            width: 100vw; height: 100vh; overflow: hidden;
+            width: 100%; height: 100%; overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
             background: transparent;
             position: fixed; top: 0; left: 0;
+            /* Safe Area para S25 Ultra e iPhones */
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
 
         /* === UTILS === */
         .screen {
             position: absolute; inset: 0;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
+            padding: 2vh 4vw; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
+            width: 100%; height: 100%;
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
@@ -52,11 +57,12 @@
         /* === TYPOGRAPHY === */
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2rem, 6vw, 4rem); text-transform: uppercase; 
+            font-size: clamp(2rem, 7vh, 4rem); text-transform: uppercase; 
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-align: center; letter-spacing: -1px; margin-bottom: 20px;
+            text-align: center; letter-spacing: -1px; margin-bottom: 2vh;
             filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));
+            line-height: 1.1;
         }
         h2 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; }
 
@@ -64,24 +70,24 @@
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             color: white; border: none; border-radius: 50px;
-            padding: 15px 40px; font-size: 1.5rem; font-weight: 900;
+            padding: 1.5vh 4vw; font-size: clamp(1rem, 2.5vh, 2rem); font-weight: 900;
             text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
-            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 10px 0;
+            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 1vh 0;
             font-family: 'Montserrat';
         }
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
 
-        .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; position: relative; }
+        .input-group { margin-bottom: 1.5vh; width: 100%; max-width: 600px; position: relative; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
         
-        label { display: block; font-size: 0.9rem; color: #cbd5e1; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
+        label { display: block; font-size: clamp(0.8rem, 2vh, 1rem); color: #cbd5e1; font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; }
         input, textarea {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.1); 
-            border: var(--border); color: white; border-radius: 10px; 
-            font-size: 1.2rem; font-family: 'Poppins';
+            width: 100%; padding: 1.5vh; background: rgba(255,255,255,0.1); 
+            border: var(--border); color: white; border-radius: 12px; 
+            font-size: clamp(1rem, 2.5vh, 1.5rem); font-family: 'Poppins'; font-weight: 600;
         }
         textarea { min-height: 150px; resize: vertical; font-size: 0.9rem; font-family: monospace; }
 
@@ -94,7 +100,7 @@
         .table-input-words { width: 60%; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; }
         
-        /* === MODAL === */
+        /* === MODAL (CUSTOM POPUP) === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -118,31 +124,34 @@
         #screen-home { gap: 20px; }
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
         .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
+        
+        /* === TELA TIMES (OTIMIZADA) === */
         .teams-container { 
-            display: flex; flex-direction: column; gap: 15px; 
-            width: 100%; max-width: 600px; 
-            justify-content: center;
+            display: flex; flex-direction: column; gap: 1vh; 
+            width: 100%; max-width: 600px; justify-content: center;
+            margin-bottom: 2vh;
         }
 
         /* === TELA JOGO === */
         #screen-game { background: transparent; padding: 0; }
         .timer-wrapper {
-            position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%;
+            position: absolute; top: 3vh; right: 3vh; width: 12vh; height: 12vh; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20;
         }
-        .timer-wrapper::after { content: ''; position: absolute; inset: 8px; background: #1e1b4b; border-radius: 50%; z-index: 1; }
-        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 2rem; font-weight: 900; }
+        .timer-wrapper::after { content: ''; position: absolute; inset: 10%; background: #1e1b4b; border-radius: 50%; z-index: 1; }
+        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 5vh; font-weight: 900; }
 
         #word-disp {
-            font-family: 'Montserrat'; font-weight: 900; font-size: 18vmin;
+            font-family: 'Montserrat'; font-weight: 900; 
+            font-size: clamp(3rem, 18vmin, 8rem); /* Fonte Segura */
             text-align: center; line-height: 0.9; text-transform: uppercase;
-            width: 95%; z-index: 5;
+            width: 90%; z-index: 5; word-wrap: break-word;
         }
 
         .hud-bar {
-            position: absolute; bottom: 40px; width: 90%; display: flex; justify-content: space-between;
-            font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem; z-index: 10;
+            position: absolute; bottom: 3vh; width: 90%; display: flex; justify-content: space-between;
+            font-family: 'Montserrat'; font-weight: 800; font-size: 3vh; z-index: 10;
         }
         .hud-left { color: var(--success); }
         .hud-right { color: var(--danger); }
@@ -150,7 +159,7 @@
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === SELETOR === */
+        /* === SELETOR: LAYOUT DUAL === */
         #screen-wheel { flex-direction: row; gap: 5vw; }
         .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
         
@@ -167,9 +176,9 @@
         .slice-text { 
             position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 16vh; 
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; line-height: 0.95; font-size: 4vh;
+            display: flex; flex-direction: column; line-height: 0.95; font-size: 3.5vh;
         }
-        #pointer { position: absolute; top: -4vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        #pointer { position: absolute; top: -3vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
         /* 2. ESTILO JACKPOT */
@@ -198,21 +207,18 @@
         /* === RESULTADOS === */
         #screen-res, #screen-final { background: #1e1b4b; }
 
-        /* === RESPONSIVO === */
-        @media (max-width: 900px) {
-            #screen-wheel { flex-direction: column; gap: 20px; }
-            .wheel-info { align-items: center; text-align: center; width: 90%; }
-            #wheel-container { width: 85vw; height: 85vw; }
-            #jackpot-container { width: 85vw; height: 85vw; }
-            h1 { font-size: 2.5rem; }
+        /* === RESPONSIVO MOBILE LANDSCAPE === */
+        @media (orientation: landscape) and (max-height: 600px) {
+            h1 { margin-bottom: 1vh; }
+            .screen { padding: 1vh 2vw; }
+            #wheel-container, #jackpot-container { width: 85vh; height: 85vh; }
+            .slice-text { padding-left: 15vh; font-size: 3.5vh; }
+            .jackpot-item { font-size: 6vh; }
+            .input-group { margin-bottom: 1vh; }
+            .btn { padding: 1.5vh 3vw; }
         }
-        @media (orientation: landscape) {
-            #wheel-container { width: 85vh; height: 85vh; }
-            #jackpot-container { width: 85vh; height: 85vh; }
-            .slice-text { padding-left: 16vh; font-size: 3.5vh; }
-        }
-
-        /* Lock & Version */
+        
+        /* LOCK SCREEN */
         #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
         .rotate-phone-icon { width: 80px; height: 80px; fill: white; animation: rotateAnim 2s infinite ease-in-out; }
         @keyframes rotateAnim { 0% { transform: rotate(0deg); } 30% { transform: rotate(-90deg); } 70% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
@@ -227,7 +233,6 @@
 </head>
 <body>
 
-    <!-- MODAL -->
     <div id="modal-overlay">
         <div class="modal-box">
             <div class="modal-title" id="modal-title">Atenção</div>
@@ -236,7 +241,6 @@
         </div>
     </div>
 
-    <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
@@ -270,6 +274,7 @@
                 <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
             </div>
+            
             <div class="section-box">
                 <h2>Google Sheets</h2>
                 <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública).</p>
@@ -278,11 +283,13 @@
                     <button class="btn btn-small" style="background: #22c55e;" onclick="dataMgr.loadSheet()">CARREGAR</button>
                 </div>
             </div>
+
             <div class="section-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                     <h2 style="margin:0">Editor</h2>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.toggleView()">Alternar Tabela/JSON</button>
                 </div>
+
                 <div id="editor-container">
                     <div id="view-table" class="editor-view active">
                         <div id="table-rows"></div>
@@ -292,6 +299,7 @@
                         <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
                     </div>
                 </div>
+
                 <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px">
                     <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
                     <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar Tudo</button>
@@ -302,13 +310,13 @@
         </div>
     </div>
 
-    <!-- TELA 1: TIMES (FIXED LAYOUT) -->
+    <!-- TELA 1: TIMES (SEM VOLTAR) -->
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
             <div class="input-group"><label style="color: #6366f1;">Time Azul</label><input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1" onchange="storage.save()"></div>
             <div class="input-group"><label style="color: #ec4899;">Time Rosa</label><input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899" onchange="storage.save()"></div>
-            <button class="btn" onclick="app.start()">JOGAR AGORA</button>
+            <button class="btn" onclick="app.confirmTeams()">JOGAR AGORA</button>
         </div>
     </div>
 
@@ -369,18 +377,15 @@
         <button class="btn" style="width:auto; margin-top: 3vh;" onclick="location.reload()">MENU PRINCIPAL</button>
     </div>
 
-    <!-- Leitura de Excel -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-
     <script>
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
         const DEFAULT_CATS = [
-            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão"]},
-            {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie"]},
-            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá"]},
-            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer"]},
-            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa"]},
-            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital"]}
+            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
+            {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},
+            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},
+            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
+            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
+            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
         ];
         
         let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
@@ -441,29 +446,20 @@
                 try {
                     const data = JSON.parse(localStorage.getItem('pnt_data_v18'));
                     if(data) {
-                        // Validate data integrity
-                        if(data.cats && Array.isArray(data.cats) && data.cats.length > 0) {
-                             GLOBAL_SHEETS_DATA = [data.cats];
-                        }
+                        if(data.cats && Array.isArray(data.cats) && data.cats.length > 0) GLOBAL_SHEETS_DATA = [data.cats];
                         if(data.source) SOURCE_TYPE = data.source;
                         if(data.t1) document.getElementById('t1').value = data.t1;
                         if(data.t2) document.getElementById('t2').value = data.t2;
                         if(data.time) document.getElementById('opt-time').value = data.time;
                         if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
                     }
-                } catch(e) {
-                    // Corrupt data reset
-                    localStorage.removeItem('pnt_data_v18');
-                }
+                } catch(e) { localStorage.removeItem('pnt_data_v18'); }
             }
         };
 
         const dataMgr = {
             isTableMode: true,
-            init: () => { 
-                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2); 
-                dataMgr.renderTable();
-            },
+            init: () => { document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2); dataMgr.renderTable(); },
             toggleView: () => {
                 dataMgr.isTableMode = !dataMgr.isTableMode;
                 document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode);
@@ -478,8 +474,7 @@
                     const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
                     if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
                 });
-                GLOBAL_SHEETS_DATA[0] = newCats; 
-                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2);
+                GLOBAL_SHEETS_DATA[0] = newCats; document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2);
             },
             renderTable: () => {
                 const container = document.getElementById('table-rows'); container.innerHTML = '';
@@ -552,18 +547,9 @@
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
                     if (sensor.resetState) {
-                        if (sensor.z < -8.0) { 
-                            game.act(true); 
-                            sensor.pause(); 
-                            sensor.resetState = false;
-                        } else if (sensor.z > 8.0) { 
-                            game.act(false); 
-                            sensor.pause(); 
-                            sensor.resetState = false; 
-                        }
-                    } else {
-                        if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
-                    }
+                        if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; }
+                        else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; }
+                    } else { if (Math.abs(sensor.z) < 2.0) sensor.resetState = true; }
                 }
             },
             pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
@@ -581,41 +567,29 @@
                 if(id === 'home') homeBtn.style.display = 'none'; else homeBtn.style.display = 'block';
             },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
-            start: () => {
+            confirmTeams: () => {
+                // This function bridges the gap to ensure data is saved and flow is correct
                 try {
-                    aud.p('click');
-                    if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-                    
-                    // Ensure data is valid
-                    if(!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0) {
-                         GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
-                    }
-                    
-                    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') { 
-                        DeviceMotionEvent.requestPermission().catch(()=>{}); 
-                    }
-                    
-                    st.t[0].n = document.getElementById('t1').value || "Time Azul";
-                    st.t[1].n = document.getElementById('t2').value || "Time Rosa";
+                    st.t[0].n = document.getElementById('t1').value || "Time 1";
+                    st.t[1].n = document.getElementById('t2').value || "Time 2";
                     st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
                     st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
-                    
                     storage.save();
                     app.prep();
                 } catch(e) {
-                    ui.alert("Erro ao iniciar: " + e.message);
+                    ui.alert("Erro ao iniciar. Reiniciando dados...");
+                    localStorage.clear();
+                    location.reload();
                 }
             },
             prep: () => {
                 if(st.rd > st.cfg.r) { app.end(); return; }
-                
                 const turnIdx = (st.rd - 1) * 2 + st.trn;
                 const numSheets = GLOBAL_SHEETS_DATA.length;
                 let effectiveSheets = numSheets;
                 if (numSheets > 1 && numSheets % 2 !== 0) effectiveSheets = numSheets - 1;
                 const sheetIdx = turnIdx % effectiveSheets;
                 CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
-                
                 const t = st.t[st.trn];
                 document.getElementById('lbl-rd').innerText = st.rd;
                 document.getElementById('lbl-tm').innerText = t.n;
@@ -648,17 +622,12 @@
                 document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
                 wheel.spin = false;
-
-                if (wheel.mode === 'wheel') wheel.setupWheel();
-                else wheel.setupJackpot();
+                if (wheel.mode === 'wheel') wheel.setupWheel(); else wheel.setupJackpot();
                 
                 const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
                 const newEl = target.cloneNode(true);
                 target.parentNode.replaceChild(newEl, target);
-                
-                if(wheel.mode==='wheel') wheel.el = document.getElementById('wheel-spinner');
-                else wheel.jackpot = document.getElementById('jackpot-strip');
-                
+                if(wheel.mode==='wheel') wheel.el = document.getElementById('wheel-spinner'); else wheel.jackpot = document.getElementById('jackpot-strip');
                 wheel.attachPhysics(document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container'));
             },
 
@@ -693,11 +662,9 @@
                 const track = (e) => {
                     const now = Date.now();
                     let currentVal, delta;
-                    
                     if (wheel.mode === 'wheel') {
                         const rect = target.getBoundingClientRect();
-                        const cx = rect.left + rect.width/2;
-                        const cy = rect.top + rect.height/2;
+                        const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
                         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                         const angleDeg = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
@@ -753,7 +720,6 @@
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
                 else winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
-                
                 st.cat = CURRENT_ROUND_CATS[winnerIdx];
                 let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
 
@@ -821,7 +787,6 @@
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
                 const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
-                
                 game.tmr = setInterval(()=>{
                     t--; tn.innerText=t;
                     const pct=((totalT-t)/totalT)*360;
@@ -856,10 +821,7 @@
             }
         };
 
-        window.onload = () => {
-            storage.load();
-            sensor.init();
-        };
+        window.onload = () => { storage.load(); sensor.init(); };
     </script>
 </body>
 </html>
