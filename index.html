@@ -83,11 +83,12 @@
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
         
         label { display: block; font-size: clamp(0.8rem, 2vh, 1rem); color: #cbd5e1; font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; }
-        input, textarea {
+        input, textarea, select {
             width: 100%; padding: 1.5vh; background: rgba(255,255,255,0.1); 
             border: var(--border); color: white; border-radius: 12px; 
             font-size: clamp(1rem, 2.5vh, 1.2rem); font-family: 'Poppins'; font-weight: 600;
         }
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right .7em top 50%; background-size: .65em auto; }
         textarea { min-height: 150px; resize: vertical; font-size: 0.9rem; font-family: monospace; }
 
         /* === TABLE EDITOR === */
@@ -251,7 +252,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.0</div>
+        <div class="version-tag">v22.1</div>
     </div>
     
     <!-- HOME ICON -->
@@ -275,6 +276,25 @@
                 <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
             </div>
+            
+            <!-- NOVA SEÇÃO: MODO DE SORTEIO -->
+            <div class="section-box">
+                <h2>Modo de Sorteio</h2>
+                <div class="input-group">
+                    <label>Estilo</label>
+                    <select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()">
+                        <option value="auto">Automático (Misto)</option>
+                        <option value="wheel">Sempre Roleta</option>
+                        <option value="jackpot">Sempre Jackpot</option>
+                    </select>
+                </div>
+                <div class="input-group" id="group-threshold">
+                    <label>Limite para Jackpot (Auto)</label>
+                    <input type="number" id="opt-threshold" value="12" onchange="storage.save()">
+                    <p style="font-size:0.7rem; color:#aaa; margin-top:5px">Se houver mais categorias que esse número, usa Jackpot.</p>
+                </div>
+            </div>
+
             <div class="section-box">
                 <h2>Google Sheets</h2>
                 <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública).</p>
@@ -438,7 +458,9 @@
                 const data = {
                     cats: GLOBAL_SHEETS_DATA[0], source: SOURCE_TYPE,
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
-                    time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
+                    time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value,
+                    mode: document.getElementById('opt-mode').value,
+                    threshold: document.getElementById('opt-threshold').value
                 };
                 localStorage.setItem('pnt_data_v22', JSON.stringify(data));
             },
@@ -452,6 +474,9 @@
                         if(data.t2) document.getElementById('t2').value = data.t2;
                         if(data.time) document.getElementById('opt-time').value = data.time;
                         if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
+                        if(data.mode) document.getElementById('opt-mode').value = data.mode;
+                        if(data.threshold) document.getElementById('opt-threshold').value = data.threshold;
+                        app.toggleThresholdVisibility();
                     }
                 } catch(e) { localStorage.removeItem('pnt_data_v22'); }
             }
@@ -580,6 +605,11 @@
                 if(id === 'home') homeBtn.style.display = 'none'; else homeBtn.style.display = 'block';
             },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
+            toggleThresholdVisibility: () => {
+                const mode = document.getElementById('opt-mode').value;
+                const el = document.getElementById('group-threshold');
+                if(mode === 'auto') el.style.display = 'block'; else el.style.display = 'none';
+            },
             confirmTeams: () => {
                 try {
                     st.t[0].n = document.getElementById('t1').value || "Time 1";
@@ -660,7 +690,17 @@
             ang: 0, offsetY: 0, spin: false, velocity: 0, lastVal: 0, lastTime: 0,
             
             init: () => {
-                wheel.mode = CURRENT_ROUND_CATS.length > 12 ? 'jackpot' : 'wheel';
+                // LÓGICA ALTERADA PARA RESPEITAR OPÇÕES
+                const mode = document.getElementById('opt-mode').value;
+                const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
+
+                if (mode === 'wheel') wheel.mode = 'wheel';
+                else if (mode === 'jackpot') wheel.mode = 'jackpot';
+                else {
+                    // auto
+                    wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
+                }
+
                 document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
                 wheel.spin = false;
@@ -862,9 +902,7 @@
                 aud.l('spin', false); aud.p('win');
                 const cat = CURRENT_ROUND_CATS[idx];
                 
-                // === CORREÇÃO AQUI ===
                 st.cat = cat; 
-                // =====================
 
                 ui.showResult(cat.n.replace('*', ''), COLORS[idx % COLORS.length], () => game.pre());
                 
