@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === RESET & VARS === */
+        /* === VARS & RESET === */
         :root {
             --bg-dark: #0f172a;
             --primary: #6366f1;
@@ -21,90 +21,45 @@
             --success: #22c55e;
             --danger: #ef4444;
             --glass: rgba(255, 255, 255, 0.05);
-            --border: 1px solid rgba(255, 255, 255, 0.15);
+            --border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-
         html { background-color: #1e1b4b; background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%); height: 100%; }
         body { width: 100vw; height: 100vh; overflow: hidden; font-family: 'Poppins', sans-serif; color: white; position: fixed; top: 0; left: 0; }
 
-        /* === TELAS === */
-        .screen {
-            position: absolute; inset: 0;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
-        }
+        /* === UTILS === */
+        .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease; }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
 
         /* === TYPOGRAPHY === */
-        h1 {
-            font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2.5rem, 6vw, 4.5rem); text-transform: uppercase; 
-            background: linear-gradient(to right, #818cf8, #f472b6);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-align: center; letter-spacing: -1px; margin-bottom: 20px;
-            filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));
-        }
+        h1 { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: clamp(2.5rem, 6vw, 4.5rem); text-transform: uppercase; background: linear-gradient(to right, #818cf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; letter-spacing: -1px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(99,102,241,0.5)); }
         h2 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; }
 
         /* === UI COMPONENTS === */
-        .btn {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white; border: none; border-radius: 50px;
-            padding: 18px 40px; font-size: 1.5rem; font-weight: 900;
-            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
-            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
-            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 10px 0;
-            font-family: 'Montserrat';
-        }
+        .btn { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 50px; padding: 18px 40px; font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4); transition: transform 0.1s; width: 100%; max-width: 400px; margin: 10px 0; font-family: 'Montserrat'; }
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 1rem; max-width: 200px; margin: 5px; }
-
-        .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; }
+        .input-group { margin-bottom: 15px; width: 100%; max-width: 500px; }
         label { display: block; font-size: 0.9rem; color: #cbd5e1; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
-        input, textarea {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.1); 
-            border: var(--border); color: white; border-radius: 10px; 
-            font-size: 1.2rem; font-family: 'Poppins';
-        }
+        input, textarea { width: 100%; padding: 15px; background: rgba(255,255,255,0.1); border: var(--border); color: white; border-radius: 10px; font-size: 1.2rem; font-family: 'Poppins'; }
         textarea { min-height: 100px; resize: vertical; font-size: 0.9rem; }
         
         /* === TELA INICIAL === */
         #screen-home { gap: 20px; }
-
-        /* === TELA OPÇÕES === */
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
         .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
-        
-        /* === TELA TIMES === */
         .teams-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 500px; }
 
         /* === TELA JOGO === */
         #screen-game { background: black !important; padding: 0; }
-        .timer-wrapper {
-            position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20;
-        }
+        .timer-wrapper { position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20; }
         .timer-wrapper::after { content: ''; position: absolute; inset: 8px; background: black; border-radius: 50%; z-index: 1; }
         .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 2rem; font-weight: 900; }
-
-        #word-disp {
-            font-family: 'Montserrat'; font-weight: 900; font-size: 18vmin;
-            text-align: center; line-height: 0.9; text-transform: uppercase;
-            width: 95%; z-index: 5;
-        }
-
-        .hud-bar {
-            position: absolute; bottom: 40px; width: 90%; display: flex; justify-content: space-between;
-            font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem; z-index: 10;
-        }
-        .hud-left { color: var(--success); }
-        .hud-right { color: var(--danger); }
-
+        #word-disp { font-family: 'Montserrat'; font-weight: 900; font-size: 18vmin; text-align: center; line-height: 0.9; text-transform: uppercase; width: 95%; z-index: 5; }
+        .hud-bar { position: absolute; bottom: 40px; width: 90%; display: flex; justify-content: space-between; font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem; z-index: 10; }
+        .hud-left { color: var(--success); } .hud-right { color: var(--danger); }
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
@@ -114,15 +69,24 @@
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
+        
         .slice-text { 
-            position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 10vmin; 
+            position: absolute; top: 0; left: 0; 
+            transform: translateY(-50%); /* Centraliza verticalmente */
+            padding-left: 10vmin; /* Afasta do centro */
             font-family: 'Montserrat'; font-weight: 900; 
-            color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            color: white; text-transform: uppercase; 
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            /* Ajustes para multiline */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start; /* Alinha o texto à esquerda (que é o centro da roda para fora) */
+            line-height: 0.95;
+            white-space: nowrap; /* Default, JS muda se precisar */
         }
-        #pointer { 
-            position: absolute; top: -30px; left: 50%; transform: translateX(-50%); 
-            border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
-        }
+
+        #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
 
         /* === RESPONSIVO === */
@@ -141,6 +105,7 @@
 </head>
 <body>
 
+    <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
@@ -164,40 +129,20 @@
         <h1>OPÇÕES</h1>
         <div class="options-container">
             <div class="section-box">
-                <h2>Configurações</h2>
-                <div class="input-group">
-                    <label>Tempo por Rodada (s)</label>
-                    <input type="number" id="opt-time" value="60">
-                </div>
-                <div class="input-group">
-                    <label>Número de Rodadas</label>
-                    <input type="number" id="opt-rounds" value="3">
-                </div>
+                <h2>Configurações de Jogo</h2>
+                <div class="input-group"><label>Tempo por Rodada (s)</label><input type="number" id="opt-time" value="60"></div>
+                <div class="input-group"><label>Número de Rodadas</label><input type="number" id="opt-rounds" value="3"></div>
             </div>
-
             <div class="section-box">
-                <h2>Google Sheets (Público)</h2>
-                <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">
-                    Cole o link da planilha Google. A planilha deve ser "Pública na Web" ou "Qualquer um com o link".<br>
-                    <strong>Formato:</strong> Linha 1 = Categorias, Linhas 2+ = Palavras.
-                </p>
-                <div class="input-group">
-                    <input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/d/..." onchange="dataMgr.loadSheet()">
-                </div>
-            </div>
-
-            <div class="section-box">
-                <h2>Editor Manual</h2>
-                <div class="input-group">
-                    <textarea id="json-input" placeholder='[{"n":"CAT","w":["A","B"]}]'></textarea>
-                </div>
+                <h2>Editor de Categorias</h2>
+                <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px">Cole aqui seu JSON ou use a IA.</p>
+                <div class="input-group"><textarea id="json-input"></textarea></div>
                 <div style="display:flex; flex-wrap:wrap; gap:10px">
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Copiar Prompt IA</button>
                     <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar</button>
                 </div>
             </div>
-            
             <button class="btn" onclick="app.to('home')">VOLTAR</button>
         </div>
     </div>
@@ -206,14 +151,8 @@
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
-            <div class="input-group">
-                <label style="color: #6366f1;">Time Azul</label>
-                <input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1">
-            </div>
-            <div class="input-group">
-                <label style="color: #ec4899;">Time Rosa</label>
-                <input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899">
-            </div>
+            <div class="input-group"><label style="color: #6366f1;">Time Azul</label><input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1"></div>
+            <div class="input-group"><label style="color: #ec4899;">Time Rosa</label><input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899"></div>
         </div>
         <button class="btn" onclick="app.start()">JOGAR AGORA</button>
         <button class="btn btn-outline" onclick="app.to('home')">VOLTAR</button>
@@ -223,7 +162,7 @@
     <div id="screen-intro" class="screen">
         <h2 style="opacity:0.6; font-size: 3vh;">RODADA <span id="lbl-rd">1</span></h2>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
-        <p style="font-size: 3vh; opacity: 0.8">Celular na testa</p>
+        <p style="font-size: 3vh; opacity: 0.8">Celular na testa (Horizontal)</p>
         <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">GIRAR ROLETA</button>
     </div>
 
@@ -232,11 +171,11 @@
         <div id="wheel-container">
             <div id="pointer"></div>
             <div id="wheel-spinner"></div>
-            <div class="wheel-center-cap"></div>
+            <div class="wheel-center-cap"></div> <!-- Agora é uma div separada, não dentro do spinner -->
         </div>
         <div class="wheel-info">
             <h3 style="color: #fbbf24; font-size: 3vh; text-transform: uppercase; margin-bottom: 1vh;">Categoria</h3>
-            <div id="res-cat" style="font-size: 8vh; font-weight: 900; margin-bottom: 2vh; color: #22c55e; text-transform: uppercase;">...</div>
+            <div id="res-cat" style="font-size: 6vh; font-weight: 900; margin-bottom: 2vh; color: #22c55e; text-transform: uppercase; line-height:1.1">...</div>
             <button id="btn-go" class="btn" style="display:none" onclick="game.pre()">COMEÇAR</button>
         </div>
     </div>
@@ -279,7 +218,6 @@
     </div>
 
     <script>
-        /* --- CONFIG --- */
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
         
         const DEFAULT_CATS = [
@@ -288,6 +226,7 @@
             {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador","Garfo","Colher","Prato","Cama","Travesseiro","Televisão","Controle Remoto","Lâmpada","Ventilador","Geladeira","Fogão","Microondas","Máquina de Lavar","Secador","Escova","Pente","Shampoo","Sabonete","Toalha","Papel Higiênico","Chave"]},
             {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular","Cozinhar","Ler","Escrever","Cantar","Dirigir","Pintar","Desenhar","Jogar","Assistir","Ouvir","Falar","Andar","Sentar","Levantar","Deitar","Abraçar","Sorrir","Rir","Tossir","Espirrar","Bocejar"]},
             {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos","Faustão","Gisele Bündchen","Lady Gaga","Justin Bieber","Cristiano Ronaldo","Rihanna","Shakira","Ivete Sangalo","Luan Santana","Marília Mendonça","Gusttavo Lima","Whindersson Nunes","Felipe Neto","Casimiro","Alok","Ludmilla","Pabllo Vittar","Glória Maria","William Bonner","Luciano Huck","Ana Maria Braga","Jô Soares"]},
+            {n:"JOGADORES DE FUTEBOL", w:["Neymar", "Messi", "Cristiano Ronaldo", "Pelé", "Maradona", "Ronaldinho", "Zidane", "Ronaldo Fenômeno", "Mbappé", "Haaland", "Vinícius Júnior", "Modric", "De Bruyne", "Salah", "Lewandowski", "Kane", "Benzema", "Courtois", "Alisson", "Ederson", "Casemiro", "Thiago Silva", "Marquinhos", "Richarlison", "Gabriel Jesus", "Bruno Fernandes", "Bernardo Silva", "Son", "Mané", "Neuer"]},
             {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco","Padaria","Supermercado","Farmácia","Restaurante","Hotel","Aeroporto","Rodoviária","Estádio","Teatro","Museu","Biblioteca","Faculdade","Academia","Zoológico","Circo","Piscina","Praça","Rua","Avenida","Ponte","Túnel","Montanha"]}
         ];
 
@@ -296,47 +235,40 @@
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
-        /* --- DATA MANAGER --- */
+        /* --- HELPERS --- */
+        // Função para quebrar texto inteligentemente
+        function smartSplit(text) {
+            if (text.length <= 10) return { text: text, lines: 1 };
+            
+            const words = text.split(' ');
+            if (words.length === 1) return { text: text, lines: 1 }; // Palavra única longa
+            
+            // Tenta achar o meio
+            let bestIdx = 0;
+            let minDiff = Infinity;
+            let currentLen = 0;
+            const totalLen = text.length;
+            
+            for(let i=0; i<words.length-1; i++) {
+                currentLen += words[i].length;
+                const diff = Math.abs(currentLen - (totalLen - currentLen));
+                if(diff < minDiff) {
+                    minDiff = diff;
+                    bestIdx = i;
+                }
+            }
+            
+            const line1 = words.slice(0, bestIdx + 1).join(' ');
+            const line2 = words.slice(bestIdx + 1).join(' ');
+            return { text: `${line1}<br>${line2}`, lines: 2, maxLen: Math.max(line1.length, line2.length) };
+        }
+
+        /* --- DATA MGR --- */
         const dataMgr = {
             init: () => { document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); },
-            save: () => {
-                try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); alert("Salvo!"); } 
-                catch(e) { alert("Erro JSON"); }
-            },
+            save: () => { try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); alert("Salvo!"); } catch(e) { alert("Erro JSON"); } },
             reset: () => { CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); dataMgr.init(); alert("Resetado!"); },
-            copyPrompt: () => {
-                const p = "Gere um JSON válido. Formato: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]. 5 categorias, 30 palavras cada.";
-                navigator.clipboard.writeText(p).then(()=>alert("Copiado!"));
-            },
-            loadSheet: () => {
-                const url = document.getElementById('sheet-input').value;
-                if(!url.includes('docs.google.com')) return;
-                const id = url.match(/\/d\/(.*?)\//)[1];
-                const csvUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
-                
-                fetch(csvUrl).then(r => r.text()).then(csv => {
-                    const rows = csv.split('\n').map(r => r.split(','));
-                    const newCats = [];
-                    const numCols = rows[0].length;
-                    
-                    for(let c=0; c<numCols; c++) {
-                        const name = rows[0][c].replace(/"/g, '').trim();
-                        if(!name) continue;
-                        const words = [];
-                        for(let r=1; r<rows.length; r++) {
-                            const w = rows[r][c] ? rows[r][c].replace(/"/g, '').trim() : "";
-                            if(w) words.push(w);
-                        }
-                        if(words.length > 0) newCats.push({n: name, w: words});
-                    }
-                    
-                    if(newCats.length > 0) {
-                        CURRENT_CATS = newCats;
-                        dataMgr.init();
-                        alert(`Sucesso! ${newCats.length} categorias carregadas.`);
-                    }
-                }).catch(e => alert("Erro ao ler planilha. Verifique se é pública."));
-            }
+            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>alert("Copiado!")); }
         };
 
         /* --- SENSOR --- */
@@ -347,8 +279,8 @@
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
-                    if (sensor.z < -8.0) { game.act(true); sensor.pause(); } // Chão (Acerto)
-                    else if (sensor.z > 8.0) { game.act(false); sensor.pause(); } // Teto (Pular)
+                    if (sensor.z < -8.0) { game.act(true); sensor.pause(); }
+                    else if (sensor.z > 8.0) { game.act(false); sensor.pause(); }
                 }
             },
             pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
@@ -365,9 +297,11 @@
             start: () => {
                 aud.p('click');
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission().catch(()=>{});
+                }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
-                st.cfg.t = parseInt(document.getElementById('opt-time').value); 
-                st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
+                st.cfg.t = parseInt(document.getElementById('opt-time').value); st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
                 app.prep();
             },
             prep: () => {
@@ -407,15 +341,29 @@
                     g += `${color} ${start}deg ${end}deg,`;
                     const mid = start + (sliceDeg / 2);
                     
-                    // Texto Dinâmico
-                    let fontSize = 3.5;
-                    if (c.n.length > 9) fontSize = 3.5 * (9 / c.n.length);
+                    // Lógica de Quebra de Linha e Tamanho
+                    const split = smartSplit(c.n);
+                    let fontSize = 3.5; 
+                    const refLen = split.lines === 1 ? c.n.length : split.maxLen;
+                    if(refLen > 8) fontSize = 3.5 * (8 / refLen); // Reduz se for grande
                     
                     h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)">
-                            <span class="slice-text" style="font-size:${fontSize}vmin">${c.n}</span>
+                            <span class="slice-text" style="font-size:${fontSize}vmin">${split.text}</span>
                           </div>`;
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
+                
+                // Centraliza a fatia 0
+                // Fatia 0 vai de 0 a SliceDeg. Centro em SliceDeg/2.
+                // Queremos que SliceDeg/2 esteja em 0 (topo).
+                // Então rot = -(SliceDeg/2).
+                // Porém, o texto foi girado -90deg. O background conic começa em 0deg (topo).
+                // O CSS pointer está em 0deg.
+                // Se deixarmos 0, o ponteiro aponta para o início da fatia 0.
+                // Queremos o meio.
+                
+                // Reseta acumulador visual mas mantém lógica se quiser
+                // wheel.currentRot = -(sliceDeg / 2);
                 wheel.el.style.transform = `rotate(${wheel.currentRot}deg)`;
 
                 const w=document.getElementById('wheel-container'); 
@@ -457,7 +405,7 @@
             }
         };
 
-        /* --- GAME LOGIC (Ciclo de Pulos) --- */
+        /* --- GAME --- */
         const game = {
             tmr: null,
             pre: () => {
@@ -465,9 +413,7 @@
                 const i=setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(i); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
             },
             run: () => {
-                st.on=true; st.pts=0; st.h=[]; st.skp=[]; // skp = pilha de pulos
-                st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
-                
+                st.on=true; st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
                 const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
@@ -480,34 +426,16 @@
                 },1000);
             },
             next: () => {
-                // Lógica de Esgotamento e Reciclagem
                 if(st.q.length === 0) {
-                    if(st.skp.length > 0) {
-                        // Recicla os pulados
-                        st.q = [...st.skp].sort(()=>Math.random()-0.5);
-                        st.skp = [];
-                    } else {
-                        // Acabou tudo (Vitória antecipada)
-                        game.end(); return;
-                    }
+                    if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } 
+                    else { game.end(); return; }
                 }
-                st.cw = st.q.pop();
-                document.getElementById('word-disp').innerText = st.cw;
+                st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw;
             },
             act: (win) => {
                 if(!st.on) return;
-                if(win){ 
-                    aud.p('ok'); st.pts++; 
-                    st.h.push({w:st.cw,ok:true}); 
-                    game.flash('fb-ok');
-                    // Não volta pra pilha
-                }
-                else { 
-                    aud.p('pass'); 
-                    st.h.push({w:st.cw,ok:false}); 
-                    game.flash('fb-no');
-                    st.skp.push(st.cw); // Adiciona na pilha de pulos
-                }
+                if(win){ aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); }
+                else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); }
                 game.next();
             },
             flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
