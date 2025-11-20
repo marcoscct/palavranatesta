@@ -861,6 +861,11 @@
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
                 const cat = CURRENT_ROUND_CATS[idx];
+                
+                // === CORREÇÃO AQUI ===
+                st.cat = cat; 
+                // =====================
+
                 ui.showResult(cat.n.replace('*', ''), COLORS[idx % COLORS.length], () => game.pre());
                 
                 // Reset transition for next drag
