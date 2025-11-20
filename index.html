@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === RESET & VARS === */
+        /* === VARS & RESET === */
         :root {
             --bg-dark: #0f172a;
             --primary: #6366f1;
@@ -47,6 +47,7 @@
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
+        .hidden { display: none !important; }
 
         /* === TYPOGRAPHY === */
         h1 {
@@ -72,6 +73,7 @@
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
+        .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
 
         .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; position: relative; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
@@ -98,25 +100,39 @@
         #source-indicator {
             position: absolute; bottom: 20px; left: 20px; z-index: 100;
             display: flex; align-items: center; gap: 10px;
-            background: rgba(0,0,0,0.4); padding: 8px 15px; border-radius: 20px;
+            background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.1); pointer-events: none;
             opacity: 0.8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+            transition: opacity 0.3s;
         }
         #source-icon svg { width: 20px; height: 20px; fill: white; }
         .source-sheet #source-icon svg { fill: #22c55e; }
+        /* Esconde durante o jogo */
+        body.game-active #source-indicator { opacity: 0; }
 
+        /* === MODAL (CUSTOM POPUP) === */
+        #modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: #1e1b4b; border: 1px solid rgba(255,255,255,0.2);
+            padding: 30px; border-radius: 20px; text-align: center;
+            width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
+        .modal-msg { margin-bottom: 20px; font-size: 1rem; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        
         /* === TELA INICIAL === */
         #screen-home { gap: 20px; }
-
-        /* === TELA OPÇÕES === */
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
         .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
-        
-        /* === TELA TIMES === */
         .teams-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 500px; }
 
-        /* === TELA JOGO (Fundo Roxo Global) === */
-        #screen-game { /* Remove background black */ }
+        /* === TELA JOGO === */
+        #screen-game { background: transparent; padding: 0; }
         .timer-wrapper {
             position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -207,7 +223,18 @@
 </head>
 <body>
 
-    <!-- AUDIOS -->
+    <!-- MODAL CUSTOMIZADO -->
+    <div id="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title" id="modal-title">Atenção</div>
+            <div class="modal-msg" id="modal-msg">Mensagem aqui</div>
+            <div class="modal-actions" id="modal-actions">
+                <!-- Botoes injetados via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
@@ -223,7 +250,11 @@
     </div>
 
     <div id="lock"><h2 style="margin-top:20px">GIRE A TELA</h2></div>
-    <div style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5" onclick="if(confirm('Voltar ao menu?')) location.reload()"><svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+    
+    <!-- HOME ICON (CUSTOM ACTION) -->
+    <div style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5" onclick="app.tryHome()">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </div>
 
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
@@ -258,13 +289,10 @@
                 </div>
 
                 <div id="editor-container">
-                    <!-- JSON VIEW -->
                     <div id="view-json" class="editor-view active">
                         <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite o JSON diretamente.</p>
                         <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
                     </div>
-
-                    <!-- TABLE VIEW -->
                     <div id="view-table" class="editor-view">
                         <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite como tabela. Palavras separadas por vírgula.</p>
                         <div id="table-rows"></div>
@@ -372,6 +400,26 @@
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
+        /* UI UTILS */
+        const ui = {
+            alert: (msg, title="Atenção") => {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-msg').innerText = msg;
+                document.getElementById('modal-actions').innerHTML = `<button class="btn btn-small" onclick="document.getElementById('modal-overlay').style.display='none'">OK</button>`;
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+            confirm: (msg, cb) => {
+                document.getElementById('modal-title').innerText = "Confirmação";
+                document.getElementById('modal-msg').innerText = msg;
+                const btns = document.getElementById('modal-actions');
+                btns.innerHTML = '';
+                const yes = document.createElement('button'); yes.className='btn btn-small'; yes.innerText='Sim'; yes.onclick=()=>{document.getElementById('modal-overlay').style.display='none'; cb();};
+                const no = document.createElement('button'); no.className='btn btn-small btn-outline'; no.innerText='Não'; no.onclick=()=>{document.getElementById('modal-overlay').style.display='none';};
+                btns.appendChild(yes); btns.appendChild(no);
+                document.getElementById('modal-overlay').style.display = 'flex';
+            }
+        };
+
         function smartSplit(text) {
             if (text.length <= 10) return { text: text, lines: 1 };
             const words = text.split(' ');
@@ -385,6 +433,7 @@
             return { text: `${words.slice(0, bestIdx+1).join(' ')}<br>${words.slice(bestIdx+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, bestIdx+1).join(' ').length, words.slice(bestIdx+1).join(' ').length) };
         }
 
+        /* STORAGE & DATA */
         const storage = {
             save: () => {
                 const data = {
@@ -392,11 +441,10 @@
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v3', JSON.stringify(data));
-                dataMgr.updateUI();
+                localStorage.setItem('pnt_data_v9', JSON.stringify(data));
             },
             load: () => {
-                const data = JSON.parse(localStorage.getItem('pnt_data_v3'));
+                const data = JSON.parse(localStorage.getItem('pnt_data_v9'));
                 if(data) {
                     if(data.cats) CURRENT_CATS = data.cats;
                     if(data.source) SOURCE_TYPE = data.source;
@@ -433,91 +481,55 @@
                 dataMgr.isTableMode = !dataMgr.isTableMode;
                 document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode);
                 document.getElementById('view-table').classList.toggle('active', dataMgr.isTableMode);
-                if(dataMgr.isTableMode) dataMgr.syncFromJSON();
-                else dataMgr.syncFromTable();
+                if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable();
             },
-            markDirty: () => { /* Flag if needed */ },
-            syncFromJSON: () => {
-                try {
-                    CURRENT_CATS = JSON.parse(document.getElementById('json-input').value);
-                    dataMgr.renderTable();
-                } catch(e) {}
-            },
+            markDirty: () => {},
+            syncFromJSON: () => { try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); } catch(e) {} },
             syncFromTable: () => {
-                const rows = document.querySelectorAll('.table-row');
-                const newCats = [];
+                const rows = document.querySelectorAll('.table-row'); const newCats = [];
                 rows.forEach(r => {
-                    const n = r.querySelector('.table-input-cat').value;
-                    const wStr = r.querySelector('.table-input-words').value;
-                    if(n && wStr) {
-                        const w = wStr.split(',').map(s=>s.trim()).filter(s=>s);
-                        if(w.length) newCats.push({n, w});
-                    }
+                    const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
+                    if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
                 });
-                CURRENT_CATS = newCats;
-                document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2);
+                CURRENT_CATS = newCats; document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2);
             },
             renderTable: () => {
-                const container = document.getElementById('table-rows');
-                container.innerHTML = '';
+                const container = document.getElementById('table-rows'); container.innerHTML = '';
                 CURRENT_CATS.forEach((cat, idx) => {
-                    const row = document.createElement('div');
-                    row.className = 'table-row';
-                    row.innerHTML = `
-                        <input type="text" class="table-input-cat" value="${cat.n}" placeholder="Nome Categoria">
-                        <input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras separadas por vírgula">
-                        <button class="btn btn-del" onclick="this.parentElement.remove()">×</button>
-                    `;
+                    const row = document.createElement('div'); row.className = 'table-row';
+                    row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
                     container.appendChild(row);
                 });
             },
             addTableRow: () => {
-                const container = document.getElementById('table-rows');
-                const row = document.createElement('div');
-                row.className = 'table-row';
-                row.innerHTML = `
-                    <input type="text" class="table-input-cat" placeholder="NOVA CAT">
-                    <input type="text" class="table-input-words" placeholder="Palavra 1, Palavra 2...">
-                    <button class="btn btn-del" onclick="this.parentElement.remove()">×</button>
-                `;
+                const container = document.getElementById('table-rows'); const row = document.createElement('div'); row.className = 'table-row';
+                row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
                 container.appendChild(row);
             },
             save: () => {
-                if(dataMgr.isTableMode) dataMgr.syncFromTable();
-                else dataMgr.syncFromJSON();
-                SOURCE_TYPE='default'; storage.save(); alert("Salvo!");
+                if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
+                SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
             },
-            reset: () => { CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); SOURCE_TYPE='default'; dataMgr.init(); storage.save(); alert("Resetado!"); },
-            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>alert("Copiado!")); },
+            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
+            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
             loadSheet: () => {
                 const url = document.getElementById('sheet-input').value;
-                if(!url.includes('docs.google.com')) return;
+                if(!url.includes('docs.google.com')) { ui.alert("Link inválido."); return; }
                 const id = url.match(/\/d\/(.*?)\//)[1];
                 const gviz = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`;
                 fetch(gviz).then(r=>r.text()).then(csv=>{
-                    const rows = csv.split('\n').map(r=>r.split(','));
-                    const newCats = [];
+                    const rows = csv.split('\n').map(r=>r.split(',')); const newCats = [];
                     for(let c=0; c<rows[0].length; c++) {
-                        const name = rows[0][c].replace(/"/g,'').trim();
-                        if(!name) continue;
-                        const w = [];
-                        for(let r=1; r<rows.length; r++) {
-                            if(rows[r] && rows[r][c]) {
-                                const word = rows[r][c].replace(/"/g,'').trim();
-                                if(word) w.push(word);
-                            }
-                        }
+                        const name = rows[0][c].replace(/"/g,'').trim(); if(!name) continue;
+                        const w = []; for(let r=1; r<rows.length; r++) { if(rows[r] && rows[r][c]) { const word = rows[r][c].replace(/"/g,'').trim(); if(word) w.push(word); } }
                         if(w.length) newCats.push({n:name, w:w});
                     }
-                    if(newCats.length){ 
-                        CURRENT_CATS=newCats; SOURCE_TYPE='sheets'; 
-                        dataMgr.init(); storage.save(); 
-                        alert("Carregado com sucesso!"); 
-                    }
-                }).catch(e=>alert("Erro! Verifique se a planilha é pública."));
+                    if(newCats.length){ CURRENT_CATS=newCats; SOURCE_TYPE='sheets'; dataMgr.init(); storage.save(); ui.alert("Planilha carregada!"); }
+                }).catch(e=>ui.alert("Erro! A planilha precisa ser pública na web."));
             }
         };
 
+        /* SENSOR */
         const sensor = {
             z: 0, wait: false,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
@@ -533,22 +545,27 @@
         };
         sensor.init();
 
+        /* NAV */
         const app = {
             to: (id) => {
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
                 document.getElementById('screen-'+id).classList.add('active');
                 if(id === 'options') dataMgr.init();
+                // Toggle source indicator visibility
+                if(id === 'game') document.body.classList.add('game-active'); else document.body.classList.remove('game-active');
+            },
+            tryHome: () => {
+                ui.confirm("Voltar ao menu? O jogo atual será cancelado, mas configurações serão salvas.", () => {
+                    app.to('home');
+                });
             },
             start: () => {
                 aud.p('click');
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().catch(()=>{});
-                }
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') { DeviceMotionEvent.requestPermission().catch(()=>{}); }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('opt-time').value); st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
-                storage.save();
-                app.prep();
+                storage.save(); app.prep();
             },
             prep: () => {
                 if(st.rd > st.cfg.r) { app.end(); return; }
@@ -572,11 +589,12 @@
             }
         };
 
+        /* WHEEL & JACKPOT (DETERMINISTIC) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
             mode: 'wheel',
-            ang: 0, offsetY: 0, spin: false, velocity: 0, lastPos: 0, lastTime: 0,
+            ang: 0, offsetY: 0, spin: false, 
             
             init: () => {
                 wheel.mode = CURRENT_CATS.length > 12 ? 'jackpot' : 'wheel';
@@ -589,7 +607,18 @@
                 if (wheel.mode === 'wheel') wheel.setupWheel();
                 else wheel.setupJackpot();
                 
-                wheel.attachEvents();
+                // Single click logic for deterministic spin
+                const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
+                // Clean old listeners
+                const newEl = target.cloneNode(true);
+                target.parentNode.replaceChild(newEl, target);
+                
+                // Re-select after clone
+                if(wheel.mode==='wheel') wheel.el = document.getElementById('wheel-spinner');
+                else wheel.jackpot = document.getElementById('jackpot-strip');
+                
+                const activeTarget = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
+                activeTarget.onclick = () => { if(!wheel.spin) wheel.go(); };
             },
 
             setupWheel: () => {
@@ -610,111 +639,74 @@
 
             setupJackpot: () => {
                 let h = "";
+                // Triplicar a lista para loop
                 const list = [...CURRENT_CATS, ...CURRENT_CATS, ...CURRENT_CATS]; 
                 list.forEach((c, i) => {
                      const color = COLORS[i % COLORS.length];
                      h += `<div class="jackpot-item" style="background:${color}">${c.n}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
-                wheel.offsetY = 0; wheel.jackpot.style.transform = `translateY(0px)`;
+                // Reset position to middle set start
+                wheel.offsetY = 0; 
+                wheel.jackpot.style.transform = `translateY(0px)`;
             },
 
-            attachEvents: () => {
-                const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
-                const track = (pos) => {
-                    const now=Date.now(); const delta = pos - wheel.lastPos; const dt=now-wheel.lastTime;
-                    if (wheel.mode === 'wheel') {
-                        wheel.ang += delta * 0.5; 
-                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                    } else {
-                        wheel.offsetY += delta;
-                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                    }
-                    if(dt>0) wheel.velocity = (delta/dt) * 15;
-                    wheel.lastPos = pos; wheel.lastTime = now;
-                };
-                const start = (pos) => { if(wheel.spin)return; wheel.lastPos=pos; wheel.lastTime=Date.now(); wheel.velocity=0; };
-                const end = () => { if(wheel.spin)return; if(Math.abs(wheel.velocity)>0.5) wheel.go(wheel.velocity); };
-                
-                target.ontouchstart = e => start(e.touches[0].clientY);
-                target.ontouchmove = e => { e.preventDefault(); track(e.touches[0].clientY); };
-                target.ontouchend = end;
-                target.onmousedown = e => { start(e.clientY); target.onmousemove = ev => track(ev.clientY); };
-                window.onmouseup = () => { target.onmousemove = null; end(); };
-            },
-
-            go: (v) => {
+            go: () => {
                 wheel.spin=true; aud.l('spin',true);
-                let vel = v || 20; 
-                if(vel>40) vel=40; if(vel<-40) vel=-40; if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
+                
+                // 1. Escolher vencedor deterministicamente
+                const winnerIdx = Math.floor(Math.random() * CURRENT_CATS.length);
+                st.cat = CURRENT_CATS[winnerIdx];
 
-                const loop=()=>{
-                    if(!wheel.spin) return;
-                    vel *= 0.98;
-                    if (wheel.mode === 'wheel') {
-                        wheel.ang += vel;
-                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                    } else {
-                        wheel.offsetY += vel * 5;
-                        const stripH = wheel.jackpot.clientHeight / 3; 
-                        if (wheel.offsetY > 0) wheel.offsetY -= stripH;
-                        if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
-                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                    }
-                    
-                    if(Math.abs(vel)<0.05) {
-                        wheel.spin=false; aud.l('spin',false);
-                        wheel.finish();
-                    } else requestAnimationFrame(loop);
-                }
-                loop();
-            },
-
-            finish: () => {
-                let cat, idx;
+                // 2. Calcular rotação final baseada no vencedor
                 if (wheel.mode === 'wheel') {
-                    const norm = (wheel.ang % 360 + 360) % 360;
-                    const winAngle = (360 - norm) % 360;
                     const sliceDeg = 360 / CURRENT_CATS.length;
-                    idx = Math.floor(winAngle / sliceDeg);
+                    // A fatia do vencedor está em (winnerIdx * sliceDeg).
+                    // Para colocar essa fatia no topo (0deg), precisamos girar:
+                    // TargetRot = - (winnerIdx * sliceDeg) - (sliceDeg/2) - 90 (ajuste visual)
+                    // Simplificando para lógica de rotação positiva:
+                    // Se girarmos N voltas (N*360) + offset
+                    const targetAngle = 360 * 5 + (360 - (winnerIdx * sliceDeg) - (sliceDeg/2)); 
+                    
+                    // Animar CSS
+                    wheel.el.style.transition = "transform 4s cubic-bezier(0.25, 1, 0.5, 1)";
+                    wheel.el.style.transform = `rotate(${targetAngle}deg)`;
+                    
+                    setTimeout(() => wheel.finish(winnerIdx), 4000);
+
                 } else {
-                    // JACKPOT LOGIC (V9.0 FIXED)
-                    // Convertendo unidades relativas para pixels
+                    // Jackpot Math
                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
                     const itemH = 12 * vmin; 
                     const containerH = 50 * vmin; 
                     const centerLine = containerH / 2;
                     
-                    // Posição atual relativa ao início da fita
-                    // offsetY é negativo (fita sobe). Queremos saber qual item está cruzando a linha central.
-                    // CoordY_do_Item_I = offsetY + (i * itemH) + (itemH/2)
-                    // Queremos que CoordY_do_Item_I = centerLine
-                    // i = (centerLine - itemH/2 - offsetY) / itemH
+                    // O item alvo está no segundo bloco (índice + length)
+                    const targetItemIndex = winnerIdx + CURRENT_CATS.length;
                     
-                    let rawIndex = Math.round((centerLine - (itemH/2) - wheel.offsetY) / itemH);
+                    // Calcular onde o centro do item alvo deve estar (no centerLine)
+                    // Posição Y do item (topo) = targetItemIndex * itemH
+                    // Posição Y do centro do item = (targetItemIndex * itemH) + (itemH/2)
+                    // Queremos que: offsetY + Y_Centro_Item = CenterLine
+                    // offsetY = CenterLine - Y_Centro_Item
                     
-                    // Animação de Snap para o centro exato
-                    const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
-                    wheel.jackpot.style.transition = "transform 0.3s ease-out";
+                    const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
+                    
+                    // Animar CSS
+                    wheel.jackpot.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
                     
-                    // Atualiza offset lógico
-                    wheel.offsetY = targetY; 
-                    setTimeout(() => wheel.jackpot.style.transition = "none", 300);
-
-                    // Mapeia para o índice do array original
-                    idx = rawIndex % CURRENT_CATS.length;
-                    if(idx < 0) idx += CURRENT_CATS.length;
+                    setTimeout(() => wheel.finish(winnerIdx), 3000);
                 }
-                
-                cat = CURRENT_CATS[idx];
-                st.cat = cat;
+            },
+
+            finish: (idx) => {
+                wheel.spin = false; aud.l('spin', false); aud.p('win');
+                const cat = CURRENT_CATS[idx];
                 const el = document.getElementById('res-cat');
                 el.innerText = cat.n; 
                 el.style.color = COLORS[idx % COLORS.length];
                 el.style.opacity = 1;
-                
-                aud.p('win'); 
                 document.getElementById('btn-go').style.display='inline-block';
             }
         };
@@ -766,11 +758,7 @@
             }
         };
 
-        // Load saved data
-        window.onload = () => {
-            storage.load();
-            sensor.init();
-        };
+        window.onload = () => { storage.load(); sensor.init(); };
     </script>
 </body>
 </html>
