@@ -7,6 +7,9 @@
     <meta name="color-scheme" content="dark only">
     <title>Palavra na Testa</title>
     
+    <!-- XLSX Library para ler abas -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
@@ -33,7 +36,7 @@
         }
 
         body {
-            width: 100%; height: 100%; overflow: hidden;
+            width: 100vw; height: 100vh; overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
             background: transparent;
             position: fixed; top: 0; left: 0;
@@ -44,7 +47,6 @@
             position: absolute; inset: 0;
             display: none; flex-direction: column; align-items: center; justify-content: center;
             padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
-            width: 100%; height: 100%;
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
@@ -53,10 +55,10 @@
         /* === TYPOGRAPHY === */
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2rem, 6vw, 4rem); text-transform: uppercase; 
+            font-size: clamp(2.5rem, 6vw, 4.5rem); text-transform: uppercase; 
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-align: center; letter-spacing: -1px; margin-bottom: 20px;
+            text-align: center; letter-spacing: -1px; margin-bottom: 5px; /* Margin reduzida */
             filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));
         }
         h2 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; }
@@ -65,10 +67,10 @@
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             color: white; border: none; border-radius: 50px;
-            padding: 15px 40px; font-size: 1.3rem; font-weight: 900;
+            padding: 15px 40px; font-size: 1.5rem; font-weight: 900;
             text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
-            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 8px 0;
+            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 5px 0;
             font-family: 'Montserrat';
         }
         .btn:active { transform: scale(0.97); }
@@ -104,24 +106,14 @@
         .modal-box {
             background: #1e1b4b; border: 1px solid rgba(255,255,255,0.2);
             padding: 30px; border-radius: 20px; text-align: center;
-            width: 90%; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; }
-        .modal-msg { margin-bottom: 20px; font-size: 1.2rem; line-height: 1.5; color: white; }
-        .modal-actions { display: flex; gap: 10px; justify-content: center; width: 100%; }
-
-        /* RESULT MODAL */
-        #result-cat-display {
-            font-size: 3rem; font-weight: 900; color: white; 
-            margin: 10px 0 30px 0; text-transform: uppercase;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        /* === TELA INICIAL (COMPACTA) === */
-        #screen-home { gap: 10px; justify-content: center; } 
+        .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
+        .modal-msg { margin-bottom: 20px; font-size: 1rem; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        
+        /* === TELA INICIAL === */
+        #screen-home { gap: 15px; }
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
         .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
         .teams-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 500px; }
@@ -152,32 +144,31 @@
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === SELETOR: LAYOUT CENTRAL === */
-        #screen-wheel { flex-direction: column; justify-content: center; align-items: center; }
-
-        /* 1. ESTILO ROLETA (MOBILE OPTIMIZED) */
-        #wheel-container { 
-            display:none; 
-            width: 85vh; height: 85vh; /* Ocupa verticalmente */
-            position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; 
+        /* === SELETOR: LAYOUT DUAL === */
+        #screen-wheel { flex-direction: row; gap: 5vw; }
+        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
+        
+        #res-cat {
+            font-size: 5vh; font-weight: 900; margin-bottom: 2vh; 
+            color: #22c55e; text-transform: uppercase; line-height:1.1;
+            word-wrap: break-word;
         }
+
+        /* 1. ESTILO ROLETA */
+        #wheel-container { display:none; width: 65vmin; height: 65vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
-        
         .slice-text { 
-            position: absolute; top: 0; left: 0; transform: translateY(-50%); 
-            padding-left: 16vh; /* MARGEM DO CENTRO */
+            position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 14vmin; 
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; line-height: 0.9;
-            font-size: 4vh; 
+            display: flex; flex-direction: column; line-height: 0.95;
         }
-        
-        #pointer { position: absolute; top: -4vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
+        #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
         /* 2. ESTILO JACKPOT */
         #jackpot-container { 
-            display:none; width: 85vh; height: 85vh; 
+            display:none; width: 50vmin; height: 50vmin; 
             position: relative; flex-shrink: 0;
             background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
             overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
@@ -186,40 +177,40 @@
         }
         #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
-            height: 15vh; 
+            height: 12vmin; 
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Montserrat'; font-weight: 900; font-size: 5vh;
+            font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin;
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             text-align: center; padding: 0 10px;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
-        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 15vh; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
+        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
         .jackpot-arrow { position: absolute; top: 50%; left: -20px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
         .jackpot-arrow-right { left: auto; right: -20px; transform: translateY(-50%) rotate(180deg); }
 
         /* === RESULTADOS === */
         #screen-res, #screen-final { background: #1e1b4b; }
 
-        /* === RESPONSIVO MOBILE LANDSCAPE === */
-        @media (orientation: landscape) and (max-height: 600px) {
-            #wheel-container, #jackpot-container { width: 90vh; height: 90vh; }
-            .slice-text { font-size: 4.5vh; padding-left: 18vh; }
-            .jackpot-item { font-size: 6vh; }
+        /* === RESPONSIVO === */
+        @media (max-width: 900px) {
+            #screen-wheel { flex-direction: column; gap: 20px; }
+            .wheel-info { align-items: center; text-align: center; width: 90%; }
+            #wheel-container { width: 85vw; height: 85vw; }
+            #jackpot-container { width: 85vw; height: 85vw; }
+            h1 { font-size: 2.5rem; }
         }
-        
-        /* LOCK SCREEN & VERSION TAG */
-        #lock { 
-            position: fixed; inset: 0; background: #020617; z-index: 9999; 
-            display: none; flex-direction: column; align-items: center; justify-content: center; color: white; 
-        }
-        
-        .rotate-phone-icon {
-            width: 80px; height: 80px; fill: white;
-            animation: rotateAnim 2s infinite ease-in-out;
-        }
-        @keyframes rotateAnim { 0% { transform: rotate(0deg); } 30% { transform: rotate(-90deg); } 70% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
 
+        @media (orientation: landscape) {
+            #wheel-container { width: 85vh; height: 85vh; }
+            #jackpot-container { width: 85vh; height: 85vh; }
+            .slice-text { padding-left: 15vh; font-size: 3.5vh; }
+        }
+
+        /* Lock & Version */
+        #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .rotate-phone-icon { width: 80px; height: 80px; fill: white; animation: rotateAnim 2s infinite ease-in-out; }
+        @keyframes rotateAnim { 0% { transform: rotate(0deg); } 30% { transform: rotate(-90deg); } 70% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
         .version-tag { margin-top: 20px; opacity: 0.3; font-family: monospace; font-size: 14px; letter-spacing: 2px; }
 
         @media screen and (orientation: portrait) { 
@@ -231,10 +222,6 @@
 </head>
 <body>
 
-    <!-- VERSION CONSTANT INJECTED -->
-    <script>const APP_VERSION = "v0.17";</script>
-
-    <!-- MODAL -->
     <div id="modal-overlay">
         <div class="modal-box">
             <div class="modal-title" id="modal-title">Atenção</div>
@@ -243,37 +230,26 @@
         </div>
     </div>
 
-    <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
     <audio id="snd-ok" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
     <audio id="snd-pass" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
 
-    <!-- LOCK & VERSION -->
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag" id="v-tag-disp"></div>
+        <div class="version-tag">v0.16</div>
     </div>
     
-    <!-- HOME ICON -->
     <div id="home-btn" style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    </div>
-
-    <!-- INDICADOR DE FONTE (FOOTER) -->
-    <div id="source-indicator" style="display:none;">
-        <div id="source-icon">
-            <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
-        </div>
-        <span id="source-text">Padrão</span>
     </div>
 
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
         <h1>PALAVRA NA TESTA</h1>
-        <button class="btn" onclick="app.to('teams')">INICIAR JOGO</button>
+        <button class="btn" onclick="app.start()">INICIAR JOGO</button>
         <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
     </div>
 
@@ -289,7 +265,7 @@
             
             <div class="section-box">
                 <h2>Google Sheets</h2>
-                <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública).</p>
+                <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública). Múltiplas abas suportadas.</p>
                 <div class="input-row">
                     <input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/...">
                     <button class="btn btn-small" style="background: #22c55e;" onclick="dataMgr.loadSheet()">CARREGAR</button>
@@ -304,12 +280,10 @@
 
                 <div id="editor-container">
                     <div id="view-table" class="editor-view active">
-                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite como tabela. Palavras separadas por vírgula.</p>
                         <div id="table-rows"></div>
                         <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Nova Categoria</button>
                     </div>
                     <div id="view-json" class="editor-view">
-                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite o JSON diretamente.</p>
                         <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
                     </div>
                 </div>
@@ -331,7 +305,7 @@
             <div class="input-group"><label style="color: #6366f1;">Time Azul</label><input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1" onchange="storage.save()"></div>
             <div class="input-group"><label style="color: #ec4899;">Time Rosa</label><input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899" onchange="storage.save()"></div>
         </div>
-        <button class="btn" onclick="app.start()">JOGAR AGORA</button>
+        <button class="btn" onclick="app.prep()">COMEÇAR</button>
         <button class="btn btn-outline" onclick="app.to('home')">VOLTAR</button>
     </div>
 
@@ -355,6 +329,11 @@
             <div class="jackpot-arrow"></div>
             <div class="jackpot-arrow jackpot-arrow-right"></div>
             <div id="jackpot-strip"></div>
+        </div>
+        <div class="wheel-info">
+            <h3 style="color: #fbbf24; font-size: 3vh; text-transform: uppercase; margin-bottom: 1vh;">Categoria</h3>
+            <div id="res-cat" style="opacity:0">...</div>
+            <button id="btn-go" class="btn" style="display:none" onclick="game.pre()">COMEÇAR</button>
         </div>
     </div>
 
@@ -393,9 +372,6 @@
     </div>
 
     <script>
-        // Set version
-        document.getElementById('v-tag-disp').innerText = APP_VERSION;
-
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
         const DEFAULT_CATS = [
             {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
@@ -406,7 +382,9 @@
             {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
         ];
         
-        let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
+        // Estrutura: [ [CatsSheet1], [CatsSheet2]... ]
+        // Padrão: 1 aba com os defaults
+        let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
         let SOURCE_TYPE = 'default';
 
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
@@ -440,10 +418,12 @@
         };
 
         function smartSplit(text) {
-            if (text.length <= 12) return { text: text, lines: 1 };
-            const words = text.split(' ');
-            if (words.length === 1) return { text: text, lines: 1 };
-            let bestIdx=0, minDiff=Infinity, curLen=0, total=text.length;
+            // Clean asterisk from display
+            const cleanText = text.replace(/\*$/, '');
+            if (cleanText.length <= 12) return { text: cleanText, lines: 1 };
+            const words = cleanText.split(' ');
+            if (words.length === 1) return { text: cleanText, lines: 1 };
+            let bestIdx=0, minDiff=Infinity, curLen=0, total=cleanText.length;
             for(let i=0; i<words.length-1; i++) {
                 curLen+=words[i].length;
                 const diff = Math.abs(curLen - (total - curLen));
@@ -456,22 +436,23 @@
         const storage = {
             save: () => {
                 const data = {
-                    cats: CURRENT_CATS, source: SOURCE_TYPE,
+                    // Store only default sheet for editor. If multi-sheet, reload required.
+                    cats: GLOBAL_SHEETS_DATA[0], 
+                    source: SOURCE_TYPE,
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v16', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v17', JSON.stringify(data));
             },
             load: () => {
-                const data = JSON.parse(localStorage.getItem('pnt_data_v16'));
+                const data = JSON.parse(localStorage.getItem('pnt_data_v17'));
                 if(data) {
-                    if(data.cats) CURRENT_CATS = data.cats;
+                    if(data.cats) GLOBAL_SHEETS_DATA = [data.cats];
                     if(data.source) SOURCE_TYPE = data.source;
                     if(data.t1) document.getElementById('t1').value = data.t1;
                     if(data.t2) document.getElementById('t2').value = data.t2;
                     if(data.time) document.getElementById('opt-time').value = data.time;
                     if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
-                    dataMgr.updateUI();
                 }
             }
         };
@@ -479,13 +460,9 @@
         const dataMgr = {
             isTableMode: true,
             init: () => { 
-                document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); 
+                // Edit only the first sheet in the editor
+                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2); 
                 dataMgr.renderTable();
-            },
-            updateUI: () => {
-                const txt = document.getElementById('source-text');
-                if(SOURCE_TYPE === 'sheets') txt.innerText = "Planilha";
-                else txt.innerText = "Padrão";
             },
             toggleView: () => {
                 dataMgr.isTableMode = !dataMgr.isTableMode;
@@ -494,18 +471,19 @@
                 if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable();
             },
             markDirty: () => {},
-            syncFromJSON: () => { try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); } catch(e) {} },
+            syncFromJSON: () => { try { GLOBAL_SHEETS_DATA[0] = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); } catch(e) {} },
             syncFromTable: () => {
                 const rows = document.querySelectorAll('.table-row'); const newCats = [];
                 rows.forEach(r => {
                     const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
                     if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
                 });
-                CURRENT_CATS = newCats; document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2);
+                GLOBAL_SHEETS_DATA[0] = newCats; 
+                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2);
             },
             renderTable: () => {
                 const container = document.getElementById('table-rows'); container.innerHTML = '';
-                CURRENT_CATS.forEach((cat, idx) => {
+                GLOBAL_SHEETS_DATA[0].forEach((cat, idx) => {
                     const row = document.createElement('div'); row.className = 'table-row';
                     row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
                     container.appendChild(row);
@@ -520,51 +498,102 @@
                 if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
                 SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
             },
-            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
+            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
             copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
-            loadSheet: () => {
+            loadSheet: async () => {
                 const url = document.getElementById('sheet-input').value;
-                if(!url.includes('docs.google.com')) { ui.alert("Link inválido."); return; }
-                const id = url.match(/\/d\/(.*?)\//)[1];
-                const gviz = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`;
-                fetch(gviz).then(r=>r.text()).then(csv=>{
-                    const rows = csv.split('\n').map(r=>r.split(',')); const newCats = [];
-                    for(let c=0; c<rows[0].length; c++) {
-                        const name = rows[0][c].replace(/"/g,'').trim(); if(!name) continue;
-                        const w = []; for(let r=1; r<rows.length; r++) { if(rows[r] && rows[r][c]) { const word = rows[r][c].replace(/"/g,'').trim(); if(word) w.push(word); } }
-                        if(w.length) newCats.push({n:name, w:w});
+                if(!url) return;
+                
+                try {
+                    // 1. Fetch as Blob
+                    // Construct export URL (xlsx format)
+                    let exportUrl = url;
+                    if (url.includes('docs.google.com/spreadsheets')) {
+                         const id = url.match(/\/d\/(.*?)\//)[1];
+                         exportUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
                     }
-                    if(newCats.length){ CURRENT_CATS=newCats; SOURCE_TYPE='sheets'; dataMgr.init(); storage.save(); ui.alert("Planilha carregada!"); }
-                }).catch(e=>ui.alert("Erro! A planilha precisa ser pública na web."));
+
+                    const response = await fetch(exportUrl);
+                    if (!response.ok) throw new Error("Network");
+                    const blob = await response.blob();
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        
+                        const parsedSheets = [];
+                        
+                        workbook.SheetNames.forEach(sheetName => {
+                            const sheet = workbook.Sheets[sheetName];
+                            const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                            
+                            // Logic: Row 1 = Headers (Categories), Rows 2+ = Data
+                            const cats = [];
+                            if (json.length > 0) {
+                                const headers = json[0];
+                                for (let c = 0; c < headers.length; c++) {
+                                    const name = headers[c];
+                                    if (!name) continue;
+                                    const words = [];
+                                    for (let r = 1; r < json.length; r++) {
+                                        if (json[r] && json[r][c]) words.push(String(json[r][c]).trim());
+                                    }
+                                    if (words.length > 0) cats.push({n: name, w: words});
+                                }
+                            }
+                            if (cats.length > 0) parsedSheets.push(cats);
+                        });
+
+                        // Logic for Tabs: Even number of tabs required? Or ignore last if odd?
+                        // "ignore a última aba se for uma aba impar" -> If count is odd > 1, remove last.
+                        // Actually the prompt said "Se tiver mais abas, vá distribuindo as 2n primeiras abas".
+                        // So we just keep all valid sheets and use modulo logic in prep().
+                        
+                        if (parsedSheets.length > 0) {
+                            // Ignore last if odd and > 1?
+                            // if (parsedSheets.length > 1 && parsedSheets.length % 2 !== 0) parsedSheets.pop();
+                            
+                            GLOBAL_SHEETS_DATA = parsedSheets;
+                            SOURCE_TYPE = 'sheets';
+                            dataMgr.init(); // Will show first sheet in editor
+                            storage.save();
+                            ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
+                        } else {
+                            ui.alert("Nenhuma categoria encontrada.");
+                        }
+                    };
+                    reader.readAsArrayBuffer(blob);
+
+                } catch(e) {
+                    ui.alert("Erro ao ler planilha. Verifique se o link é público e permite download.");
+                }
             }
         };
 
         /* SENSOR (HISTERESE) */
         const sensor = {
             z: 0, wait: false,
-            resetState: true, // Precisa voltar ao neutro para aceitar novo comando
+            resetState: true,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
             handle: (e) => {
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 
                 if (st.on && !sensor.wait) {
-                    // Histerese/Debounce Lógico
+                    // Z < -8 (Baixo/Acertou) | Z > 8 (Cima/Pular)
                     if (sensor.resetState) {
                         if (sensor.z < -8.0) { 
                             game.act(true); 
                             sensor.pause(); 
-                            sensor.resetState = false; // Bloqueia até voltar ao neutro
+                            sensor.resetState = false;
                         } else if (sensor.z > 8.0) { 
                             game.act(false); 
                             sensor.pause(); 
-                            sensor.resetState = false; // Bloqueia até voltar ao neutro
+                            sensor.resetState = false; 
                         }
                     } else {
-                        // Só libera se voltar perto de 0 (Z entre -2 e 2)
-                        if (Math.abs(sensor.z) < 2.0) {
-                            sensor.resetState = true;
-                        }
+                        if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
                     }
                 }
             },
@@ -573,16 +602,18 @@
         sensor.init();
 
         /* NAV */
+        let CURRENT_ROUND_CATS = []; // Categorias ativas da rodada atual
+
         const app = {
             to: (id) => {
                 if(document.querySelector('#screen-game.active')) game.stop();
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
                 document.getElementById('screen-'+id).classList.add('active');
                 if(id === 'options') dataMgr.init();
+                
                 const homeBtn = document.getElementById('home-btn');
-                const footer = document.getElementById('source-indicator');
-                if(id === 'home') { homeBtn.style.display='none'; footer.style.display='flex'; } 
-                else { homeBtn.style.display='block'; footer.style.display='none'; }
+                if(id === 'home') homeBtn.style.display = 'none';
+                else homeBtn.style.display = 'block';
             },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
             start: () => {
@@ -592,10 +623,31 @@
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('opt-time').value); st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
                 storage.save();
-                app.prep();
+                // Go directly to teams, then auto prep? No, teams screen is manual.
+                app.to('teams'); 
             },
             prep: () => {
                 if(st.rd > st.cfg.r) { app.end(); return; }
+                
+                // MULTI-TAB LOGIC
+                // Turn Index: 0 (T1 R1), 1 (T2 R1), 2 (T1 R2), 3 (T2 R2)...
+                const turnIdx = (st.rd - 1) * 2 + st.trn;
+                
+                // Map turn to Sheet Index
+                let sheetIdx = 0;
+                const numSheets = GLOBAL_SHEETS_DATA.length;
+                
+                // "Se tiver mais abas, vá distribuindo... Se tiver menos, volte para a primeira"
+                // Logic: Just loop through valid sheets
+                // If we have 5 sheets (Odd), user said "ignore last if odd".
+                // So effective sheets = floor(5/2)*2 = 4.
+                let effectiveSheets = numSheets;
+                if (numSheets > 1 && numSheets % 2 !== 0) effectiveSheets = numSheets - 1;
+                
+                sheetIdx = turnIdx % effectiveSheets;
+                
+                CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
+                
                 const t = st.t[st.trn];
                 document.getElementById('lbl-rd').innerText = st.rd;
                 document.getElementById('lbl-tm').innerText = t.n;
@@ -616,17 +668,19 @@
             }
         };
 
-        /* WHEEL & JACKPOT (DETERMINISTIC) */
+        /* WHEEL & JACKPOT */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
             mode: 'wheel',
-            ang: 0, offsetY: 0, spin: false, velocity: 0, lastVal: 0, lastTime: 0,
+            ang: 0, offsetY: 0, spin: false, 
             
             init: () => {
-                wheel.mode = CURRENT_CATS.length > 12 ? 'jackpot' : 'wheel';
+                wheel.mode = CURRENT_ROUND_CATS.length > 12 ? 'jackpot' : 'wheel';
                 document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                document.getElementById('btn-go').style.display='none'; 
+                document.getElementById('res-cat').innerText = "..."; document.getElementById('res-cat').style.opacity=0;
                 wheel.spin = false;
 
                 if (wheel.mode === 'wheel') wheel.setupWheel();
@@ -639,172 +693,88 @@
                 if(wheel.mode==='wheel') wheel.el = document.getElementById('wheel-spinner');
                 else wheel.jackpot = document.getElementById('jackpot-strip');
                 
-                // Use physics attach
-                wheel.attachPhysics(document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container'));
+                const activeTarget = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
+                activeTarget.onclick = () => { if(!wheel.spin) wheel.go(); };
             },
 
             setupWheel: () => {
-                let g="conic-gradient(", h=""; const count = CURRENT_CATS.length; const sliceDeg = 360 / count;
-                CURRENT_CATS.forEach((c, i) => {
+                let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
+                CURRENT_ROUND_CATS.forEach((c, i) => {
                     const color = COLORS[i % COLORS.length];
                     const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
                     g += `${color} ${start}deg ${end}deg,`;
                     const mid = start + (sliceDeg / 2);
                     const split = smartSplit(c.n);
-                    
-                    // Adjusted font calculation for Mobile
-                    let fontSize = 3.5; 
-                    const refLen = split.lines === 1 ? c.n.length : split.maxLen;
+                    let fontSize = 3.5; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
                     if(refLen > 8) fontSize = 3.5 * (8 / refLen);
-                    
                     h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
-                wheel.el.style.transform = `rotate(0deg)`;
+                wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
             },
 
             setupJackpot: () => {
                 let h = "";
-                const list = [...CURRENT_CATS, ...CURRENT_CATS, ...CURRENT_CATS]; 
+                const list = [...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS]; 
                 list.forEach((c, i) => {
                      const color = COLORS[i % COLORS.length];
-                     h += `<div class="jackpot-item" style="background:${color}">${c.n}</div>`;
+                     h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
-                wheel.offsetY = 0; wheel.jackpot.style.transform = `translateY(0px)`;
+                wheel.offsetY = 0; 
+                wheel.jackpot.style.transform = `translateY(0px)`;
             },
 
-            attachPhysics: (target) => {
-                const track = (e) => {
-                    const now = Date.now();
-                    let currentVal, delta;
-                    
-                    if (wheel.mode === 'wheel') {
-                        // Vector Math
-                        const rect = target.getBoundingClientRect();
-                        const cx = rect.left + rect.width/2;
-                        const cy = rect.top + rect.height/2;
-                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                        const angleRad = Math.atan2(clientY - cy, clientX - cx);
-                        const angleDeg = angleRad * (180 / Math.PI);
-                        
-                        if (wheel.lastVal !== null) {
-                            delta = angleDeg - wheel.lastVal;
-                            if (delta > 180) delta -= 360;
-                            if (delta < -180) delta += 360;
-                            wheel.ang += delta;
-                            wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                        }
-                        currentVal = angleDeg;
-                    } else {
-                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                        currentVal = clientY;
-                        if (wheel.lastVal !== null) {
-                            delta = currentVal - wheel.lastVal;
-                            wheel.offsetY += delta;
-                            wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                        }
-                    }
-
-                    const dt = now - wheel.lastTime;
-                    if(dt > 0 && delta !== undefined) {
-                         wheel.velocity = (delta / dt) * 15; 
-                    }
-                    wheel.lastVal = currentVal;
-                    wheel.lastTime = now;
-                };
-
-                const start = (e) => {
-                    if(wheel.spin) return;
-                    wheel.lastVal = null; 
-                    wheel.lastTime = Date.now();
-                    wheel.velocity = 0;
-                    if (wheel.mode === 'wheel') { 
-                        const rect = target.getBoundingClientRect();
-                        const cx = rect.left + rect.width/2;
-                        const cy = rect.top + rect.height/2;
-                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                        wheel.lastVal = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
-                    } else {
-                        wheel.lastVal = e.touches ? e.touches[0].clientY : e.clientY;
-                    }
-                    document.addEventListener('touchmove', onMove, {passive: false});
-                    document.addEventListener('mousemove', onMove);
-                    document.addEventListener('touchend', onEnd);
-                    document.addEventListener('mouseup', onEnd);
-                };
-                const onMove = (e) => { e.preventDefault(); track(e); };
-                const onEnd = () => {
-                    document.removeEventListener('touchmove', onMove);
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('touchend', onEnd);
-                    document.removeEventListener('mouseup', onEnd);
-                    if(Math.abs(wheel.velocity) > 0.5) wheel.go(wheel.velocity);
-                };
-                target.onmousedown = start; target.ontouchstart = start;
-            },
-
-            go: (v) => {
+            go: () => {
                 wheel.spin=true; aud.l('spin',true);
-                const winnerIdx = Math.floor(Math.random() * CURRENT_CATS.length);
-                st.cat = CURRENT_CATS[winnerIdx];
-                // Animation Loop
-                let vel = v;
-                if(vel>50) vel=50; if(vel<-50) vel=-50;
-
-                const loop=()=>{
-                    if(!wheel.spin) return;
-                    
-                    // Simple visual spin before snapping
-                    vel *= 0.98;
-                    if (wheel.mode === 'wheel') {
-                         wheel.ang += vel;
-                         wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                    } else {
-                         wheel.offsetY += vel * 5;
-                         const stripH = wheel.jackpot.clientHeight / 3; 
-                         if (wheel.offsetY > 0) wheel.offsetY -= stripH;
-                         if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
-                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                    }
-
-                    if(Math.abs(vel)<0.1) {
-                         wheel.spin = false;
-                         // Start Deterministic Snap
-                         wheel.snapToWinner(winnerIdx);
-                    } else {
-                         requestAnimationFrame(loop);
-                    }
+                
+                // CHEAT CODE LOGIC
+                let winnerIdx = -1;
+                // Check if any cat has *
+                const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
+                
+                if (cheats.length > 0) {
+                    // Pick random from cheats
+                    winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
+                } else {
+                    winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
                 }
-                loop();
-            },
+                
+                st.cat = CURRENT_ROUND_CATS[winnerIdx];
 
-            snapToWinner: (idx) => {
                 if (wheel.mode === 'wheel') {
-                    const sliceDeg = 360 / CURRENT_CATS.length;
-                    const targetAngle = 360 * 5 + (360 - (idx * sliceDeg) - (sliceDeg/2)); 
-                    wheel.el.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
+                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
+                    const currentFullRotations = Math.floor(wheel.ang / 360);
+                    // Add 5 full spins + target
+                    const targetAngle = (currentFullRotations + 5) * 360 + (360 - (winnerIdx * sliceDeg) - (sliceDeg/2)); 
+                    
+                    wheel.ang = targetAngle;
+                    wheel.el.style.transition = "transform 4s cubic-bezier(0.25, 1, 0.5, 1)";
                     wheel.el.style.transform = `rotate(${targetAngle}deg)`;
-                    setTimeout(() => wheel.finish(idx), 3000);
+                    setTimeout(() => wheel.finish(winnerIdx), 4000);
                 } else {
                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
-                    const itemH = 15 * vmin; 
-                    const containerH = 85 * vmin; 
+                    const itemH = 12 * vmin; 
+                    const containerH = 50 * vmin; 
                     const centerLine = containerH / 2;
-                    const targetItemIndex = idx + CURRENT_CATS.length;
+                    
+                    const targetItemIndex = winnerIdx + CURRENT_ROUND_CATS.length;
                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
+                    
                     wheel.jackpot.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
-                    setTimeout(() => wheel.finish(idx), 3000);
+                    setTimeout(() => wheel.finish(winnerIdx), 3000);
                 }
             },
 
             finish: (idx) => {
-                aud.l('spin', false); aud.p('win');
-                const cat = CURRENT_CATS[idx];
-                ui.showResult(cat.n, COLORS[idx % COLORS.length], () => game.pre());
+                wheel.spin = false; aud.l('spin', false); aud.p('win');
+                const cat = CURRENT_ROUND_CATS[idx];
+                // Clean name for display
+                const displayName = cat.n.replace('*', '');
+                
+                // Auto Popup
+                ui.showResult(displayName, COLORS[idx % COLORS.length], () => game.pre());
             }
         };
 
@@ -814,7 +784,6 @@
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
             pre: () => {
                 app.to('game'); 
-                // Force Reset Timer
                 document.getElementById('timer-num').innerText = st.cfg.t;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
                 
