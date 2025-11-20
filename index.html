@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
     <meta name="color-scheme" content="dark only">
-    <title>Palavra na Testa: Final</title>
+    <title>Palavra na Testa</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,7 +63,7 @@
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 1rem; max-width: 200px; margin: 5px; }
 
-        .input-group { margin-bottom: 15px; width: 100%; max-width: 500px; }
+        .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; }
         label { display: block; font-size: 0.9rem; color: #cbd5e1; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
         input, textarea {
             width: 100%; padding: 15px; background: rgba(255,255,255,0.1); 
@@ -102,8 +102,8 @@
             position: absolute; bottom: 40px; width: 90%; display: flex; justify-content: space-between;
             font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem; z-index: 10;
         }
-        .hud-left { color: var(--success); } /* Invertido a pedido */
-        .hud-right { color: var(--danger); } /* Invertido a pedido */
+        .hud-left { color: var(--success); }
+        .hud-right { color: var(--danger); }
 
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
@@ -116,7 +116,8 @@
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
         .slice-text { 
             position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 10vmin; 
-            font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            font-family: 'Montserrat'; font-weight: 900; 
+            color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
         }
         #pointer { 
             position: absolute; top: -30px; left: 50%; transform: translateX(-50%); 
@@ -163,7 +164,7 @@
         <h1>OPÇÕES</h1>
         <div class="options-container">
             <div class="section-box">
-                <h2>Configurações de Jogo</h2>
+                <h2>Configurações</h2>
                 <div class="input-group">
                     <label>Tempo por Rodada (s)</label>
                     <input type="number" id="opt-time" value="60">
@@ -175,17 +176,25 @@
             </div>
 
             <div class="section-box">
-                <h2>Editor de Categorias</h2>
-                <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px">Cole aqui seu JSON ou lista personalizada. Use o botão de IA para gerar.</p>
+                <h2>Google Sheets (Público)</h2>
+                <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">
+                    Cole o link da planilha Google. A planilha deve ser "Pública na Web" ou "Qualquer um com o link".<br>
+                    <strong>Formato:</strong> Linha 1 = Categorias, Linhas 2+ = Palavras.
+                </p>
                 <div class="input-group">
-                    <textarea id="json-input" placeholder='Ex: [{"n":"MINHA CAT","w":["Palavra1","Palavra2"]}]'></textarea>
+                    <input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/d/..." onchange="dataMgr.loadSheet()">
+                </div>
+            </div>
+
+            <div class="section-box">
+                <h2>Editor Manual</h2>
+                <div class="input-group">
+                    <textarea id="json-input" placeholder='[{"n":"CAT","w":["A","B"]}]'></textarea>
                 </div>
                 <div style="display:flex; flex-wrap:wrap; gap:10px">
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Copiar Prompt p/ IA</button>
-                    <button class="btn btn-small btn-outline" onclick="document.getElementById('file-input').click()">📂 Importar Arquivo</button>
-                    <input type="file" id="file-input" style="display:none" accept=".json,.txt" onchange="dataMgr.loadFile(this)">
-                    <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar Alterações</button>
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Padrão</button>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
+                    <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar</button>
                 </div>
             </div>
             
@@ -214,7 +223,7 @@
     <div id="screen-intro" class="screen">
         <h2 style="opacity:0.6; font-size: 3vh;">RODADA <span id="lbl-rd">1</span></h2>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
-        <p style="font-size: 3vh; opacity: 0.8">Celular na testa (Horizontal)</p>
+        <p style="font-size: 3vh; opacity: 0.8">Celular na testa</p>
         <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">GIRAR ROLETA</button>
     </div>
 
@@ -237,11 +246,11 @@
         <div class="timer-wrapper"><div class="timer-text" id="timer-num">60</div></div>
         <div id="word-disp">PALAVRA</div>
         <div class="hud-bar">
-            <div class="hud-left">▼ ACERTOU</div> <!-- Invertido conforme pedido -->
+            <div class="hud-left">▼ ACERTOU</div>
             <div class="hud-right">▲ PULAR</div>
         </div>
-        <div class="touch-zone tz-l" onclick="game.act(true)"></div> <!-- Esquerda = Baixo = Acertou -->
-        <div class="touch-zone tz-r" onclick="game.act(false)"></div> <!-- Direita = Cima = Pular -->
+        <div class="touch-zone tz-l" onclick="game.act(true)"></div>
+        <div class="touch-zone tz-r" onclick="game.act(false)"></div>
         <div id="fb-ok" class="flash" style="background: rgba(34, 197, 94, 0.9);">ACERTOU!</div>
         <div id="fb-no" class="flash" style="background: rgba(239, 68, 68, 0.9);">PULOU!</div>
     </div>
@@ -273,7 +282,6 @@
         /* --- CONFIG --- */
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
         
-        // Banco de Dados Inicial (Expandido)
         const DEFAULT_CATS = [
             {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco","Baleia","Sapo","Cobra","Águia","Urso","Lobo","Raposa","Coelho","Tigre","Onça","Cavalo","Vaca","Porco","Galinha","Pato","Pinguim","Canguru","Hipopótamo","Rinoceronte","Camelo","Jacaré"]},
             {n:"FILMES", w:["Titanic","Avatar","Shrek","Matrix","Barbie","Batman","Frozen","Vingadores","Coringa","Homem Aranha","Harry Potter","Star Wars","Jurassic Park","O Rei Leão","Toy Story","Procurando Nemo","Divertida Mente","Moana","Aladdin","A Bela e a Fera","Mulan","Thor","Homem de Ferro","Capitão América","Hulk","Pantera Negra","Viúva Negra","Doutor Estranho","Guardiões da Galáxia","E.T."]},
@@ -283,45 +291,55 @@
             {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco","Padaria","Supermercado","Farmácia","Restaurante","Hotel","Aeroporto","Rodoviária","Estádio","Teatro","Museu","Biblioteca","Faculdade","Academia","Zoológico","Circo","Piscina","Praça","Rua","Avenida","Ponte","Túnel","Montanha"]}
         ];
 
-        let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); // Cópia de trabalho
+        let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
 
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
-        const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], h:[], pts:0, on:false };
+        const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
-        /* --- DATA MANAGER (Menu Opções) --- */
+        /* --- DATA MANAGER --- */
         const dataMgr = {
-            init: () => {
-                document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2);
-            },
+            init: () => { document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); },
             save: () => {
-                try {
-                    const val = document.getElementById('json-input').value;
-                    CURRENT_CATS = JSON.parse(val);
-                    alert("Categorias salvas com sucesso!");
-                } catch(e) { alert("Erro no formato JSON. Verifique a sintaxe."); }
+                try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); alert("Salvo!"); } 
+                catch(e) { alert("Erro JSON"); }
             },
-            reset: () => {
-                CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
-                dataMgr.init();
-                alert("Categorias resetadas para o padrão.");
-            },
+            reset: () => { CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); dataMgr.init(); alert("Resetado!"); },
             copyPrompt: () => {
-                const p = "Gere um JSON válido para um jogo de adivinhação. Formato: [{\"n\":\"NOME_CATEGORIA\", \"w\":[\"Palavra1\",\"Palavra2\",...]}]. Crie 5 categorias com 30 palavras cada.";
-                navigator.clipboard.writeText(p).then(()=>alert("Prompt copiado! Cole no ChatGPT, gere o JSON e cole aqui."));
+                const p = "Gere um JSON válido. Formato: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]. 5 categorias, 30 palavras cada.";
+                navigator.clipboard.writeText(p).then(()=>alert("Copiado!"));
             },
-            loadFile: (input) => {
-                const file = input.files[0];
-                if(!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('json-input').value = e.target.result;
-                    dataMgr.save();
-                };
-                reader.readAsText(file);
+            loadSheet: () => {
+                const url = document.getElementById('sheet-input').value;
+                if(!url.includes('docs.google.com')) return;
+                const id = url.match(/\/d\/(.*?)\//)[1];
+                const csvUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
+                
+                fetch(csvUrl).then(r => r.text()).then(csv => {
+                    const rows = csv.split('\n').map(r => r.split(','));
+                    const newCats = [];
+                    const numCols = rows[0].length;
+                    
+                    for(let c=0; c<numCols; c++) {
+                        const name = rows[0][c].replace(/"/g, '').trim();
+                        if(!name) continue;
+                        const words = [];
+                        for(let r=1; r<rows.length; r++) {
+                            const w = rows[r][c] ? rows[r][c].replace(/"/g, '').trim() : "";
+                            if(w) words.push(w);
+                        }
+                        if(words.length > 0) newCats.push({n: name, w: words});
+                    }
+                    
+                    if(newCats.length > 0) {
+                        CURRENT_CATS = newCats;
+                        dataMgr.init();
+                        alert(`Sucesso! ${newCats.length} categorias carregadas.`);
+                    }
+                }).catch(e => alert("Erro ao ler planilha. Verifique se é pública."));
             }
         };
 
-        /* --- SENSOR CORRIGIDO (Z Axis) --- */
+        /* --- SENSOR --- */
         const sensor = {
             z: 0, wait: false,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
@@ -329,11 +347,8 @@
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
-                    // Lógica Invertida:
-                    // Baixo (Chão) = Z < -8 = ACERTOU
-                    // Cima (Teto) = Z > 8 = PULAR
-                    if (sensor.z < -8.0) { game.act(true); sensor.pause(); } // Chão -> Acertou
-                    else if (sensor.z > 8.0) { game.act(false); sensor.pause(); } // Teto -> Pular
+                    if (sensor.z < -8.0) { game.act(true); sensor.pause(); } // Chão (Acerto)
+                    else if (sensor.z > 8.0) { game.act(false); sensor.pause(); } // Teto (Pular)
                 }
             },
             pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
@@ -350,9 +365,6 @@
             start: () => {
                 aud.p('click');
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().catch(()=>{});
-                }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('opt-time').value); 
                 st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
@@ -394,12 +406,16 @@
                     const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
                     g += `${color} ${start}deg ${end}deg,`;
                     const mid = start + (sliceDeg / 2);
-                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text">${c.n}</span></div>`;
+                    
+                    // Texto Dinâmico
+                    let fontSize = 3.5;
+                    if (c.n.length > 9) fontSize = 3.5 * (9 / c.n.length);
+                    
+                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)">
+                            <span class="slice-text" style="font-size:${fontSize}vmin">${c.n}</span>
+                          </div>`;
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
-                // Mantém a rotação anterior acumulada para evitar pulo, mas alinha o visual se necessário
-                // Para resetar visualmente:
-                // wheel.currentRot = -(sliceDeg / 2);
                 wheel.el.style.transform = `rotate(${wheel.currentRot}deg)`;
 
                 const w=document.getElementById('wheel-container'); 
@@ -441,7 +457,7 @@
             }
         };
 
-        /* --- GAME (Lógica Infinita) --- */
+        /* --- GAME LOGIC (Ciclo de Pulos) --- */
         const game = {
             tmr: null,
             pre: () => {
@@ -449,8 +465,7 @@
                 const i=setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(i); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
             },
             run: () => {
-                st.on=true; st.pts=0; st.h=[]; 
-                // Clona a lista de palavras
+                st.on=true; st.pts=0; st.h=[]; st.skp=[]; // skp = pilha de pulos
                 st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
                 
                 game.next();
@@ -465,17 +480,34 @@
                 },1000);
             },
             next: () => {
-                // Lógica Infinita: Se acabar, reembaralha e continua
+                // Lógica de Esgotamento e Reciclagem
                 if(st.q.length === 0) {
-                    st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
+                    if(st.skp.length > 0) {
+                        // Recicla os pulados
+                        st.q = [...st.skp].sort(()=>Math.random()-0.5);
+                        st.skp = [];
+                    } else {
+                        // Acabou tudo (Vitória antecipada)
+                        game.end(); return;
+                    }
                 }
                 st.cw = st.q.pop();
                 document.getElementById('word-disp').innerText = st.cw;
             },
             act: (win) => {
                 if(!st.on) return;
-                if(win){ aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); }
-                else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); }
+                if(win){ 
+                    aud.p('ok'); st.pts++; 
+                    st.h.push({w:st.cw,ok:true}); 
+                    game.flash('fb-ok');
+                    // Não volta pra pilha
+                }
+                else { 
+                    aud.p('pass'); 
+                    st.h.push({w:st.cw,ok:false}); 
+                    game.flash('fb-no');
+                    st.skp.push(st.cw); // Adiciona na pilha de pulos
+                }
                 game.next();
             },
             flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
