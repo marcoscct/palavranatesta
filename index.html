@@ -71,16 +71,28 @@
         }
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
-        .btn-small { padding: 10px 20px; font-size: 1rem; max-width: 200px; margin: 5px; }
+        .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
 
-        .input-group { margin-bottom: 15px; width: 100%; max-width: 500px; }
+        .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; position: relative; }
+        .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
+        
         label { display: block; font-size: 0.9rem; color: #cbd5e1; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
         input, textarea {
             width: 100%; padding: 15px; background: rgba(255,255,255,0.1); 
             border: var(--border); color: white; border-radius: 10px; 
             font-size: 1.2rem; font-family: 'Poppins';
         }
-        textarea { min-height: 100px; resize: vertical; font-size: 0.9rem; }
+        textarea { min-height: 150px; resize: vertical; font-size: 0.9rem; font-family: monospace; }
+
+        /* === TABLE EDITOR === */
+        #editor-container { width: 100%; }
+        .editor-view { display: none; width: 100%; }
+        .editor-view.active { display: block; }
+        
+        .table-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .table-input-cat { width: 30%; font-weight: bold; color: var(--accent); }
+        .table-input-words { width: 60%; font-size: 0.9rem; }
+        .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; }
         
         /* === DATA SOURCE INDICATOR === */
         #source-indicator {
@@ -91,7 +103,7 @@
             opacity: 0.8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
         }
         #source-icon svg { width: 20px; height: 20px; fill: white; }
-        .source-sheet #source-icon svg { fill: #22c55e; } /* Verde p/ Sheets */
+        .source-sheet #source-icon svg { fill: #22c55e; }
 
         /* === TELA INICIAL === */
         #screen-home { gap: 20px; }
@@ -103,14 +115,14 @@
         /* === TELA TIMES === */
         .teams-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 500px; }
 
-        /* === TELA JOGO === */
-        #screen-game { background: black !important; padding: 0; }
+        /* === TELA JOGO (Fundo Roxo Global) === */
+        #screen-game { /* Remove background black */ }
         .timer-wrapper {
             position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20;
         }
-        .timer-wrapper::after { content: ''; position: absolute; inset: 8px; background: black; border-radius: 50%; z-index: 1; }
+        .timer-wrapper::after { content: ''; position: absolute; inset: 8px; background: #1e1b4b; border-radius: 50%; z-index: 1; }
         .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 2rem; font-weight: 900; }
 
         #word-disp {
@@ -129,7 +141,7 @@
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === SELETOR: LAYOUT DUAL (Roleta OU Jackpot) === */
+        /* === SELETOR: LAYOUT DUAL === */
         #screen-wheel { flex-direction: row; gap: 5vw; }
         .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
         
@@ -139,7 +151,7 @@
             word-wrap: break-word;
         }
 
-        /* 1. ESTILO ROLETA (CIRCULAR) */
+        /* 1. ESTILO ROLETA */
         #wheel-container { display:none; width: 65vmin; height: 65vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
@@ -151,7 +163,7 @@
         #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
-        /* 2. ESTILO JACKPOT (VERTICAL - CORRIGIDO) */
+        /* 2. ESTILO JACKPOT (CORRIGIDO) */
         #jackpot-container { 
             display:none; width: 50vmin; height: 50vmin; 
             position: relative; flex-shrink: 0;
@@ -160,7 +172,7 @@
             mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
         }
-        #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); } /* Top 0 para facilitar cálculo */
+        #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
             height: 12vmin; /* Altura Fixa */
             display: flex; align-items: center; justify-content: center;
@@ -170,7 +182,6 @@
             text-align: center; padding: 0 10px;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
-        /* Destaque Central */
         .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
         .jackpot-arrow { position: absolute; top: 50%; left: -20px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
         .jackpot-arrow-right { left: auto; right: -20px; transform: translateY(-50%) rotate(180deg); }
@@ -206,7 +217,6 @@
     <!-- INDICADOR DE FONTE -->
     <div id="source-indicator">
         <div id="source-icon">
-            <!-- SVG Padrão (Pasta/Arquivo) -->
             <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
         </div>
         <span id="source-text">Padrão</span>
@@ -231,17 +241,40 @@
                 <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
             </div>
+            
             <div class="section-box">
                 <h2>Google Sheets</h2>
                 <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública).</p>
-                <div class="input-group"><input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/..." onchange="dataMgr.loadSheet()"></div>
+                <div class="input-row">
+                    <input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/...">
+                    <button class="btn btn-small" style="background: #22c55e;" onclick="dataMgr.loadSheet()">CARREGAR</button>
+                </div>
             </div>
+
             <div class="section-box">
-                <h2>Editor Manual</h2>
-                <div class="input-group"><textarea id="json-input" placeholder='[{"n":"CAT","w":["A","B"]}]'></textarea></div>
-                <div style="display:flex; flex-wrap:wrap; gap:10px">
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt</button>
-                    <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                    <h2 style="margin:0">Editor</h2>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.toggleView()">Alternar Tabela/JSON</button>
+                </div>
+
+                <div id="editor-container">
+                    <!-- JSON VIEW -->
+                    <div id="view-json" class="editor-view active">
+                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite o JSON diretamente.</p>
+                        <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
+                    </div>
+
+                    <!-- TABLE VIEW -->
+                    <div id="view-table" class="editor-view">
+                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite como tabela. Palavras separadas por vírgula.</p>
+                        <div id="table-rows"></div>
+                        <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Nova Categoria</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px">
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
+                    <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar Tudo</button>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar</button>
                 </div>
             </div>
@@ -334,7 +367,7 @@
         ];
         
         let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
-        let SOURCE_TYPE = 'default'; // default | sheets
+        let SOURCE_TYPE = 'default';
 
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
@@ -352,21 +385,18 @@
             return { text: `${words.slice(0, bestIdx+1).join(' ')}<br>${words.slice(bestIdx+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, bestIdx+1).join(' ').length, words.slice(bestIdx+1).join(' ').length) };
         }
 
-        /* --- STORAGE & DATA --- */
         const storage = {
             save: () => {
                 const data = {
-                    cats: CURRENT_CATS,
-                    source: SOURCE_TYPE,
-                    t1: document.getElementById('t1').value,
-                    t2: document.getElementById('t2').value,
-                    time: document.getElementById('opt-time').value,
-                    rounds: document.getElementById('opt-rounds').value
+                    cats: CURRENT_CATS, source: SOURCE_TYPE,
+                    t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
+                    time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v1', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v3', JSON.stringify(data));
+                dataMgr.updateUI();
             },
             load: () => {
-                const data = JSON.parse(localStorage.getItem('pnt_data_v1'));
+                const data = JSON.parse(localStorage.getItem('pnt_data_v3'));
                 if(data) {
                     if(data.cats) CURRENT_CATS = data.cats;
                     if(data.source) SOURCE_TYPE = data.source;
@@ -380,12 +410,15 @@
         };
 
         const dataMgr = {
-            init: () => { document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); },
+            isTableMode: false,
+            init: () => { 
+                document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); 
+                dataMgr.renderTable();
+            },
             updateUI: () => {
                 const el = document.getElementById('source-indicator');
                 const icon = document.getElementById('source-icon');
                 const txt = document.getElementById('source-text');
-                
                 if(SOURCE_TYPE === 'sheets') {
                     el.classList.add('source-sheet');
                     icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>';
@@ -395,10 +428,66 @@
                     icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>';
                     txt.innerText = "Padrão";
                 }
-                storage.save();
             },
-            save: () => { try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); SOURCE_TYPE='default'; dataMgr.updateUI(); alert("Salvo!"); } catch(e) { alert("Erro JSON"); } },
-            reset: () => { CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); SOURCE_TYPE='default'; dataMgr.init(); dataMgr.updateUI(); alert("Resetado!"); },
+            toggleView: () => {
+                dataMgr.isTableMode = !dataMgr.isTableMode;
+                document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode);
+                document.getElementById('view-table').classList.toggle('active', dataMgr.isTableMode);
+                if(dataMgr.isTableMode) dataMgr.syncFromJSON();
+                else dataMgr.syncFromTable();
+            },
+            markDirty: () => { /* Flag if needed */ },
+            syncFromJSON: () => {
+                try {
+                    CURRENT_CATS = JSON.parse(document.getElementById('json-input').value);
+                    dataMgr.renderTable();
+                } catch(e) {}
+            },
+            syncFromTable: () => {
+                const rows = document.querySelectorAll('.table-row');
+                const newCats = [];
+                rows.forEach(r => {
+                    const n = r.querySelector('.table-input-cat').value;
+                    const wStr = r.querySelector('.table-input-words').value;
+                    if(n && wStr) {
+                        const w = wStr.split(',').map(s=>s.trim()).filter(s=>s);
+                        if(w.length) newCats.push({n, w});
+                    }
+                });
+                CURRENT_CATS = newCats;
+                document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2);
+            },
+            renderTable: () => {
+                const container = document.getElementById('table-rows');
+                container.innerHTML = '';
+                CURRENT_CATS.forEach((cat, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'table-row';
+                    row.innerHTML = `
+                        <input type="text" class="table-input-cat" value="${cat.n}" placeholder="Nome Categoria">
+                        <input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras separadas por vírgula">
+                        <button class="btn btn-del" onclick="this.parentElement.remove()">×</button>
+                    `;
+                    container.appendChild(row);
+                });
+            },
+            addTableRow: () => {
+                const container = document.getElementById('table-rows');
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <input type="text" class="table-input-cat" placeholder="NOVA CAT">
+                    <input type="text" class="table-input-words" placeholder="Palavra 1, Palavra 2...">
+                    <button class="btn btn-del" onclick="this.parentElement.remove()">×</button>
+                `;
+                container.appendChild(row);
+            },
+            save: () => {
+                if(dataMgr.isTableMode) dataMgr.syncFromTable();
+                else dataMgr.syncFromJSON();
+                SOURCE_TYPE='default'; storage.save(); alert("Salvo!");
+            },
+            reset: () => { CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); SOURCE_TYPE='default'; dataMgr.init(); storage.save(); alert("Resetado!"); },
             copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>alert("Copiado!")); },
             loadSheet: () => {
                 const url = document.getElementById('sheet-input').value;
@@ -420,12 +509,15 @@
                         }
                         if(w.length) newCats.push({n:name, w:w});
                     }
-                    if(newCats.length){ CURRENT_CATS=newCats; SOURCE_TYPE='sheets'; dataMgr.updateUI(); alert("Carregado com sucesso!"); }
+                    if(newCats.length){ 
+                        CURRENT_CATS=newCats; SOURCE_TYPE='sheets'; 
+                        dataMgr.init(); storage.save(); 
+                        alert("Carregado com sucesso!"); 
+                    }
                 }).catch(e=>alert("Erro! Verifique se a planilha é pública."));
             }
         };
 
-        /* SENSOR */
         const sensor = {
             z: 0, wait: false,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
@@ -439,8 +531,8 @@
             },
             pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
         };
+        sensor.init();
 
-        /* NAV */
         const app = {
             to: (id) => {
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -449,10 +541,13 @@
             },
             start: () => {
                 aud.p('click');
-                storage.save();
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission().catch(()=>{});
+                }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('opt-time').value); st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
+                storage.save();
                 app.prep();
             },
             prep: () => {
@@ -477,7 +572,6 @@
             }
         };
 
-        /* WHEEL & JACKPOT */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -551,7 +645,8 @@
 
             go: (v) => {
                 wheel.spin=true; aud.l('spin',true);
-                let vel = v || 20; if(vel>40) vel=40; if(vel<-40) vel=-40; if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
+                let vel = v || 20; 
+                if(vel>40) vel=40; if(vel<-40) vel=-40; if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
 
                 const loop=()=>{
                     if(!wheel.spin) return;
@@ -566,6 +661,7 @@
                         if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                     }
+                    
                     if(Math.abs(vel)<0.05) {
                         wheel.spin=false; aud.l('spin',false);
                         wheel.finish();
@@ -582,30 +678,31 @@
                     const sliceDeg = 360 / CURRENT_CATS.length;
                     idx = Math.floor(winAngle / sliceDeg);
                 } else {
-                    // MATEMATICA CORRIGIDA PARA O OFFSET DO JACKPOT
+                    // JACKPOT LOGIC (V9.0 FIXED)
+                    // Convertendo unidades relativas para pixels
                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
                     const itemH = 12 * vmin; 
                     const containerH = 50 * vmin; 
                     const centerLine = containerH / 2;
                     
-                    // Cálculo reverso: O item que está na posição "Centro"
-                    // Item Y = offsetY + i*itemH
-                    // Queremos i onde Item Y + itemH/2 = centerLine
-                    // offsetY + i*itemH + itemH/2 = centerLine
+                    // Posição atual relativa ao início da fita
+                    // offsetY é negativo (fita sobe). Queremos saber qual item está cruzando a linha central.
+                    // CoordY_do_Item_I = offsetY + (i * itemH) + (itemH/2)
+                    // Queremos que CoordY_do_Item_I = centerLine
                     // i = (centerLine - itemH/2 - offsetY) / itemH
                     
-                    const relativeY = centerLine - (itemH/2) - wheel.offsetY;
-                    let rawIndex = Math.floor(relativeY / itemH);
+                    let rawIndex = Math.round((centerLine - (itemH/2) - wheel.offsetY) / itemH);
                     
-                    // Snap Visual
+                    // Animação de Snap para o centro exato
                     const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
                     wheel.jackpot.style.transition = "transform 0.3s ease-out";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
+                    
+                    // Atualiza offset lógico
+                    wheel.offsetY = targetY; 
                     setTimeout(() => wheel.jackpot.style.transition = "none", 300);
 
-                    // Mapeamento correto com ajuste de offset de 2 itens
-                    // Como a lista é triplicada, o índice é rawIndex % length.
-                    // Se o índice visual não bater, somamos um offset fixo aqui.
+                    // Mapeia para o índice do array original
                     idx = rawIndex % CURRENT_CATS.length;
                     if(idx < 0) idx += CURRENT_CATS.length;
                 }
@@ -669,6 +766,7 @@
             }
         };
 
+        // Load saved data
         window.onload = () => {
             storage.load();
             sensor.init();
