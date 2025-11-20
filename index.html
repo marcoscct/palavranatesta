@@ -83,11 +83,15 @@
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
         
         label { display: block; font-size: clamp(0.8rem, 2vh, 1rem); color: #cbd5e1; font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; }
-        input, textarea {
+        
+        input, textarea, select {
             width: 100%; padding: 1.5vh; background: rgba(255,255,255,0.1); 
             border: var(--border); color: white; border-radius: 12px; 
             font-size: clamp(1rem, 2.5vh, 1.2rem); font-family: 'Poppins'; font-weight: 600;
         }
+        select { -webkit-appearance: none; appearance: none; cursor: pointer; }
+        select option { background: #1e1b4b; color: white; }
+
         textarea { min-height: 150px; resize: vertical; font-size: 0.9rem; font-family: monospace; }
 
         /* === TABLE EDITOR === */
@@ -251,7 +255,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.0</div>
+        <div class="version-tag">v23.0</div>
     </div>
     
     <!-- HOME ICON -->
@@ -274,6 +278,23 @@
                 <h2>Configurações</h2>
                 <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
+                
+                <!-- NOVO SELETOR DE MODO -->
+                <div class="input-group">
+                    <label>Estilo de Sorteio</label>
+                    <select id="opt-mode" onchange="app.toggleTh(); storage.save()">
+                        <option value="mixed">Automático (Misto)</option>
+                        <option value="wheel">Sempre Roleta</option>
+                        <option value="jackpot">Sempre Jackpot</option>
+                    </select>
+                </div>
+                <!-- NOVO CAMPO DE THRESHOLD (Só aparece se misto) -->
+                <div class="input-group" id="group-th">
+                    <label>Limite para Jackpot</label>
+                    <input type="number" id="opt-th" value="10" onchange="storage.save()" title="Se houver mais categorias que esse número, usa Jackpot.">
+                    <div style="font-size:0.7rem; opacity:0.5; margin-top:5px">Acima deste valor, usa Jackpot. Abaixo, usa Roleta.</div>
+                </div>
+
             </div>
             <div class="section-box">
                 <h2>Google Sheets</h2>
@@ -393,7 +414,13 @@
         let CURRENT_ROUND_CATS = [];
 
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
-        const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
+        
+        // st.cfg agora tem 'mode' (mixed, wheel, jackpot) e 'th' (threshold)
+        const st = { 
+            t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], 
+            cfg:{t:60,r:3, mode:'mixed', th:10}, 
+            rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false 
+        };
 
         /* UI UTILS */
         const ui = {
@@ -438,13 +465,15 @@
                 const data = {
                     cats: GLOBAL_SHEETS_DATA[0], source: SOURCE_TYPE,
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
-                    time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
+                    time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value,
+                    mode: document.getElementById('opt-mode').value,
+                    th: document.getElementById('opt-th').value
                 };
-                localStorage.setItem('pnt_data_v22', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v23', JSON.stringify(data));
             },
             load: () => {
                 try {
-                    const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
+                    const data = JSON.parse(localStorage.getItem('pnt_data_v23'));
                     if(data) {
                         if(data.cats && Array.isArray(data.cats) && data.cats.length > 0) GLOBAL_SHEETS_DATA = [data.cats];
                         if(data.source) SOURCE_TYPE = data.source;
@@ -452,8 +481,11 @@
                         if(data.t2) document.getElementById('t2').value = data.t2;
                         if(data.time) document.getElementById('opt-time').value = data.time;
                         if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
+                        if(data.mode) document.getElementById('opt-mode').value = data.mode;
+                        if(data.th) document.getElementById('opt-th').value = data.th;
                     }
-                } catch(e) { localStorage.removeItem('pnt_data_v22'); }
+                } catch(e) { localStorage.removeItem('pnt_data_v23'); }
+                app.toggleTh();
             }
         };
 
@@ -571,6 +603,10 @@
 
         /* NAV */
         const app = {
+            toggleTh: () => {
+                const val = document.getElementById('opt-mode').value;
+                document.getElementById('group-th').style.display = (val === 'mixed') ? 'block' : 'none';
+            },
             to: (id) => {
                 if(document.querySelector('#screen-game.active')) game.stop();
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -586,6 +622,11 @@
                     st.t[1].n = document.getElementById('t2').value || "Time 2";
                     st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
                     st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
+                    
+                    // Salva configurações novas
+                    st.cfg.mode = document.getElementById('opt-mode').value;
+                    st.cfg.th = parseInt(document.getElementById('opt-th').value) || 10;
+
                     storage.save();
                     app.prep();
                 } catch(e) {
@@ -615,12 +656,14 @@
                     st.t[1].n = document.getElementById('t2').value || "Time 2";
                     st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
                     st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
+                    st.cfg.mode = document.getElementById('opt-mode').value;
+                    st.cfg.th = parseInt(document.getElementById('opt-th').value) || 10;
                     
                     storage.save();
                     app.to('teams');
                 } catch(e) {
                     // Fallback
-                    localStorage.removeItem('pnt_data_v22');
+                    localStorage.removeItem('pnt_data_v23');
                     location.reload();
                 }
             },
@@ -660,7 +703,20 @@
             ang: 0, offsetY: 0, spin: false, velocity: 0, lastVal: 0, lastTime: 0,
             
             init: () => {
-                wheel.mode = CURRENT_ROUND_CATS.length > 12 ? 'jackpot' : 'wheel';
+                // Lógica de seleção atualizada
+                const m = st.cfg.mode || 'mixed';
+                const th = st.cfg.th || 10;
+                const count = CURRENT_ROUND_CATS.length;
+
+                if (m === 'wheel') {
+                    wheel.mode = 'wheel';
+                } else if (m === 'jackpot') {
+                    wheel.mode = 'jackpot';
+                } else {
+                    // Misto
+                    wheel.mode = count > th ? 'jackpot' : 'wheel';
+                }
+                
                 document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
                 wheel.spin = false;
@@ -816,10 +872,6 @@
                     const centerLine = (85 * vmin) / 2;
                     
                     // Find closest instance of the winner in the visual strip
-                    // Current offset pushes items down (negative offset moves up).
-                    // Y of item i = offsetY + i*itemH
-                    // We need to find 'k' such that k % N == idx and dist is min.
-                    // Simplification: just scroll to the middle set instance of idx
                     const targetItemIndex = idx + CURRENT_ROUND_CATS.length;
                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
                     
@@ -850,7 +902,6 @@
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
                     wheel.offsetY = targetY; // Sync
                     
-                    // Modulo fix for negative numbers
                     const n = CURRENT_ROUND_CATS.length;
                     idx = ((rawIndex % n) + n) % n;
                 }
@@ -862,76 +913,5 @@
                 aud.l('spin', false); aud.p('win');
                 const cat = CURRENT_ROUND_CATS[idx];
                 
-                // === CORREÇÃO AQUI ===
-                st.cat = cat; 
-                // =====================
-
-                ui.showResult(cat.n.replace('*', ''), COLORS[idx % COLORS.length], () => game.pre());
-                
-                // Reset transition for next drag
-                setTimeout(() => {
-                    if (wheel.mode === 'wheel') wheel.el.style.transition = 'none';
-                    else wheel.jackpot.style.transition = 'none';
-                }, 100);
-            }
-        };
-
-        /* GAME */
-        const game = {
-            tmr: null,
-            stop: () => { if(game.tmr) clearInterval(game.tmr); },
-            pre: () => {
-                app.to('game'); 
-                document.getElementById('timer-num').innerText = st.cfg.t;
-                document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
-                const d=document.getElementById('word-disp'); 
-                let c=3; d.innerText=c; 
-                const i=setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(i); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
-            },
-            run: () => {
-                game.stop(); 
-                st.on=true; st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
-                game.next();
-                let totalT=st.cfg.t; let t=totalT;
-                const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
-                game.tmr = setInterval(()=>{
-                    t--; tn.innerText=t;
-                    const pct=((totalT-t)/totalT)*360;
-                    tw.style.background=`conic-gradient(var(--secondary) ${pct}deg, #333 ${pct}deg)`;
-                    if(t<=0) { game.stop(); game.end(); }
-                },1000);
-            },
-            next: () => {
-                if(st.q.length === 0) {
-                    if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } 
-                    else { game.stop(); game.end(); return; }
-                }
-                st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw;
-            },
-            act: (win) => {
-                if(!st.on) return;
-                if(win){ aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); }
-                else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); }
-                game.next();
-            },
-            flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
-            end: () => {
-                st.on=false; game.stop();
-                st.t[st.trn].s += st.pts; document.getElementById('res-score').innerText=st.pts;
-                const l=document.getElementById('res-list'); l.innerHTML="";
-                st.h.forEach(x=>{
-                    const d=document.createElement('div');
-                    d.innerHTML=`<b style="color:${x.ok?'#22c55e':'#ef4444'}">${x.ok?'✓':'✗'}</b> ${x.w}`;
-                    d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)"; l.appendChild(d);
-                });
-                app.to('res');
-            }
-        };
-
-        window.onload = () => {
-            storage.load();
-            sensor.init();
-        };
-    </script>
-</body>
-</html>
+                // === CORREÇÃO VITAL ===
+                st.cat = cat;
