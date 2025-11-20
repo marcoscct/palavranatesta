@@ -33,17 +33,20 @@
         }
 
         body {
-            width: 100%; height: 100%; overflow: hidden;
+            width: 100vw; height: 100vh; overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
             background: transparent;
             position: fixed; top: 0; left: 0;
+            /* Safe Area para S25 Ultra e iPhones */
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
 
         /* === UTILS === */
         .screen {
             position: absolute; inset: 0;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
+            padding: 2vh 4vw; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
             width: 100%; height: 100%;
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
@@ -53,11 +56,12 @@
         /* === TYPOGRAPHY === */
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2rem, 6vw, 4rem); text-transform: uppercase; 
+            font-size: clamp(2rem, 7vh, 4rem); text-transform: uppercase; 
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-align: center; letter-spacing: -1px; margin-bottom: 20px;
+            text-align: center; letter-spacing: -1px; margin-bottom: 2vh;
             filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));
+            line-height: 1.1;
         }
         h2 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; }
 
@@ -65,10 +69,10 @@
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             color: white; border: none; border-radius: 50px;
-            padding: 15px 40px; font-size: 1.4rem; font-weight: 900;
+            padding: 1.5vh 4vw; font-size: clamp(1rem, 2.5vh, 2rem); font-weight: 900;
             text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
-            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 8px 0;
+            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 1vh 0;
             font-family: 'Montserrat';
         }
         .btn:active { transform: scale(0.97); }
@@ -76,18 +80,27 @@
         .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
         .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
 
-        .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; position: relative; }
+        .input-group { margin-bottom: 1.5vh; width: 100%; max-width: 600px; position: relative; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
         
-        label { display: block; font-size: 0.9rem; color: #cbd5e1; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
+        label { display: block; font-size: clamp(0.8rem, 2vh, 1rem); color: #cbd5e1; font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; }
         input, textarea {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.1); 
-            border: var(--border); color: white; border-radius: 10px; 
-            font-size: 1.2rem; font-family: 'Poppins';
+            width: 100%; padding: 1.5vh; background: rgba(255,255,255,0.1); 
+            border: var(--border); color: white; border-radius: 12px; 
+            font-size: clamp(1rem, 2.5vh, 1.5rem); font-family: 'Poppins'; font-weight: 600;
         }
         textarea { min-height: 150px; resize: vertical; font-size: 0.9rem; font-family: monospace; }
 
-        /* === MODAL === */
+        /* === TABLE EDITOR === */
+        #editor-container { width: 100%; }
+        .editor-view { display: none; width: 100%; }
+        .editor-view.active { display: block; }
+        .table-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .table-input-cat { width: 30%; font-weight: bold; color: var(--accent); }
+        .table-input-words { width: 60%; font-size: 0.9rem; }
+        .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; }
+        
+        /* === MODAL (CUSTOM POPUP) === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -97,43 +110,48 @@
             background: #1e1b4b; border: 1px solid rgba(255,255,255,0.2);
             padding: 30px; border-radius: 20px; text-align: center;
             width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            animation: popIn 0.3s ease-out;
         }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
-        .modal-msg { margin-bottom: 20px; font-size: 1.2rem; line-height: 1.5; color: white; }
-        .modal-actions { display: flex; gap: 10px; justify-content: center; width: 100%; }
+        .modal-msg { margin-bottom: 20px; font-size: 1rem; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
         #result-cat-display {
             font-size: 3rem; font-weight: 900; color: white; 
             margin: 10px 0 30px 0; text-transform: uppercase;
             text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
-        /* === TELA INICIAL (COMPACTA) === */
-        #screen-home { gap: 10px; justify-content: center; } 
+        /* === TELA INICIAL === */
+        #screen-home { gap: 20px; }
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
         .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
-        .teams-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 500px; }
+        
+        /* === TELA TIMES (OTIMIZADA) === */
+        .teams-container { 
+            display: flex; flex-direction: column; gap: 1vh; 
+            width: 100%; max-width: 600px; justify-content: center;
+            margin-bottom: 2vh;
+        }
 
         /* === TELA JOGO === */
         #screen-game { background: transparent; padding: 0; }
         .timer-wrapper {
-            position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%;
+            position: absolute; top: 3vh; right: 3vh; width: 12vh; height: 12vh; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20;
         }
-        .timer-wrapper::after { content: ''; position: absolute; inset: 8px; background: #1e1b4b; border-radius: 50%; z-index: 1; }
-        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 2rem; font-weight: 900; }
+        .timer-wrapper::after { content: ''; position: absolute; inset: 10%; background: #1e1b4b; border-radius: 50%; z-index: 1; }
+        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 5vh; font-weight: 900; }
 
         #word-disp {
-            font-family: 'Montserrat'; font-weight: 900; font-size: 18vmin;
+            font-family: 'Montserrat'; font-weight: 900; 
+            font-size: clamp(3rem, 18vmin, 8rem); /* Fonte Segura */
             text-align: center; line-height: 0.9; text-transform: uppercase;
-            width: 95%; z-index: 5;
+            width: 90%; z-index: 5; word-wrap: break-word;
         }
 
         .hud-bar {
-            position: absolute; bottom: 40px; width: 90%; display: flex; justify-content: space-between;
-            font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem; z-index: 10;
+            position: absolute; bottom: 3vh; width: 90%; display: flex; justify-content: space-between;
+            font-family: 'Montserrat'; font-weight: 800; font-size: 3vh; z-index: 10;
         }
         .hud-left { color: var(--success); }
         .hud-right { color: var(--danger); }
@@ -141,27 +159,26 @@
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === SELETOR === */
-        #screen-wheel { flex-direction: column; justify-content: center; align-items: center; }
-
-        /* 1. ESTILO ROLETA (MOBILE OPTIMIZED) */
-        #wheel-container { 
-            display:none; 
-            width: 85vh; height: 85vh; /* Ocupa verticalmente */
-            position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; 
+        /* === SELETOR: LAYOUT DUAL === */
+        #screen-wheel { flex-direction: row; gap: 5vw; }
+        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
+        
+        #res-cat {
+            font-size: 5vh; font-weight: 900; margin-bottom: 2vh; 
+            color: #22c55e; text-transform: uppercase; line-height:1.1;
+            word-wrap: break-word;
         }
+
+        /* 1. ESTILO ROLETA */
+        #wheel-container { display:none; width: 85vh; height: 85vh; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
-        
         .slice-text { 
-            position: absolute; top: 0; left: 0; transform: translateY(-50%); 
-            padding-left: 16vh; /* MARGEM DO CENTRO */
+            position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 16vh; 
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; line-height: 0.9;
-            font-size: 4vh; /* Fonte base aumentada */
+            display: flex; flex-direction: column; line-height: 0.95; font-size: 3.5vh;
         }
-        
-        #pointer { position: absolute; top: -4vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        #pointer { position: absolute; top: -3vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
         /* 2. ESTILO JACKPOT */
@@ -238,7 +255,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v20.0</div>
+        <div class="version-tag">v20.1</div>
     </div>
     
     <!-- HOME ICON (CUSTOM ACTION) -->
@@ -249,7 +266,7 @@
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
         <h1>PALAVRA NA TESTA</h1>
-        <button class="btn" onclick="app.enterSetup()">INICIAR JOGO</button>
+        <button class="btn" onclick="app.to('teams')">INICIAR JOGO</button>
         <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
     </div>
 
@@ -300,15 +317,14 @@
         </div>
     </div>
 
-    <!-- TELA 1: TIMES -->
+    <!-- TELA 1: TIMES (SEM VOLTAR) -->
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
             <div class="input-group"><label style="color: #6366f1;">Time Azul</label><input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1" onchange="storage.save()"></div>
             <div class="input-group"><label style="color: #ec4899;">Time Rosa</label><input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899" onchange="storage.save()"></div>
+            <button class="btn" onclick="app.confirmTeams()">JOGAR AGORA</button>
         </div>
-        <button class="btn" onclick="app.start()">JOGAR AGORA</button>
-        <button class="btn btn-outline" onclick="app.to('home')">VOLTAR</button>
     </div>
 
     <!-- TELA 2: INTRO -->
@@ -422,4 +438,450 @@
             const words = clean.split(' ');
             if (words.length === 1) return { text: clean, lines: 1 };
             let best=0, min=Infinity, cur=0, tot=clean.length;
-            for(let i=0; i<words.length-1; i++) { cur+=words[i].length; const d=Math.abs(cur-(tot-cur)); if(d<min){min
+            for(let i=0; i<words.length-1; i++) { cur+=words[i].length; const d=Math.abs(cur-(tot-cur)); if(d<min){min=d; best=i;} }
+            return { text: `${words.slice(0, best+1).join(' ')}<br>${words.slice(best+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, best+1).join(' ').length, words.slice(best+1).join(' ').length) };
+        }
+
+        /* STORAGE & DATA */
+        const storage = {
+            save: () => {
+                const data = {
+                    cats: GLOBAL_SHEETS_DATA[0], source: SOURCE_TYPE,
+                    t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
+                    time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
+                };
+                localStorage.setItem('pnt_data_v20', JSON.stringify(data));
+            },
+            load: () => {
+                try {
+                    const data = JSON.parse(localStorage.getItem('pnt_data_v20'));
+                    if(data) {
+                        if(data.cats && Array.isArray(data.cats) && data.cats.length > 0) GLOBAL_SHEETS_DATA = [data.cats];
+                        if(data.source) SOURCE_TYPE = data.source;
+                        if(data.t1) document.getElementById('t1').value = data.t1;
+                        if(data.t2) document.getElementById('t2').value = data.t2;
+                        if(data.time) document.getElementById('opt-time').value = data.time;
+                        if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
+                    }
+                } catch(e) { localStorage.removeItem('pnt_data_v20'); }
+            }
+        };
+
+        const dataMgr = {
+            isTableMode: true,
+            init: () => { 
+                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2); 
+                dataMgr.renderTable();
+            },
+            toggleView: () => {
+                dataMgr.isTableMode = !dataMgr.isTableMode;
+                document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode);
+                document.getElementById('view-table').classList.toggle('active', dataMgr.isTableMode);
+                if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable();
+            },
+            markDirty: () => {},
+            syncFromJSON: () => { try { GLOBAL_SHEETS_DATA[0] = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); } catch(e) {} },
+            syncFromTable: () => {
+                const rows = document.querySelectorAll('.table-row'); const newCats = [];
+                rows.forEach(r => {
+                    const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
+                    if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
+                });
+                GLOBAL_SHEETS_DATA[0] = newCats; document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2);
+            },
+            renderTable: () => {
+                const container = document.getElementById('table-rows'); container.innerHTML = '';
+                GLOBAL_SHEETS_DATA[0].forEach((cat, idx) => {
+                    const row = document.createElement('div'); row.className = 'table-row';
+                    row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                    container.appendChild(row);
+                });
+            },
+            addTableRow: () => {
+                const container = document.getElementById('table-rows'); const row = document.createElement('div'); row.className = 'table-row';
+                row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                container.appendChild(row);
+            },
+            save: () => {
+                if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
+                SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
+            },
+            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
+            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
+            loadSheet: async () => {
+                const url = document.getElementById('sheet-input').value;
+                if(!url) return;
+                try {
+                    let exportUrl = url;
+                    if (url.includes('docs.google.com/spreadsheets')) {
+                         const id = url.match(/\/d\/(.*?)\//)[1];
+                         exportUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
+                    }
+                    const response = await fetch(exportUrl);
+                    if (!response.ok) throw new Error("Network");
+                    const blob = await response.blob();
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const parsedSheets = [];
+                        workbook.SheetNames.forEach(sheetName => {
+                            const sheet = workbook.Sheets[sheetName];
+                            const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                            const cats = [];
+                            if (json.length > 0) {
+                                const headers = json[0];
+                                for (let c = 0; c < headers.length; c++) {
+                                    const name = headers[c]; if (!name) continue;
+                                    const words = [];
+                                    for (let r = 1; r < json.length; r++) { if (json[r] && json[r][c]) words.push(String(json[r][c]).trim()); }
+                                    if (words.length > 0) cats.push({n: name, w: words});
+                                }
+                            }
+                            if (cats.length > 0) parsedSheets.push(cats);
+                        });
+                        if (parsedSheets.length > 0) {
+                            GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
+                            dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas.`);
+                        } else { ui.alert("Nenhuma categoria encontrada."); }
+                    };
+                    reader.readAsArrayBuffer(blob);
+                } catch(e) { ui.alert("Erro ao ler planilha."); }
+            }
+        };
+
+        /* SENSOR (HISTERESE) */
+        const sensor = {
+            z: 0, wait: false,
+            resetState: true, 
+            init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
+            handle: (e) => {
+                const acc = e.accelerationIncludingGravity; if (!acc) return;
+                sensor.z = acc.z || 0;
+                if (st.on && !sensor.wait) {
+                    if (sensor.resetState) {
+                        if (sensor.z < -8.0) { 
+                            game.act(true); 
+                            sensor.pause(); 
+                            sensor.resetState = false;
+                        } else if (sensor.z > 8.0) { 
+                            game.act(false); 
+                            sensor.pause(); 
+                            sensor.resetState = false; 
+                        }
+                    } else {
+                        if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
+                    }
+                }
+            },
+            pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
+        };
+        sensor.init();
+
+        /* NAV */
+        const app = {
+            to: (id) => {
+                if(document.querySelector('#screen-game.active')) game.stop();
+                document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+                document.getElementById('screen-'+id).classList.add('active');
+                if(id === 'options') dataMgr.init();
+                const homeBtn = document.getElementById('home-btn');
+                if(id === 'home') homeBtn.style.display = 'none'; else homeBtn.style.display = 'block';
+            },
+            tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
+            confirmTeams: () => {
+                // Validar e ir para intro
+                try {
+                    st.t[0].n = document.getElementById('t1').value || "Time 1";
+                    st.t[1].n = document.getElementById('t2').value || "Time 2";
+                    st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
+                    st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
+                    storage.save();
+                    app.prep();
+                } catch(e) {
+                    ui.alert("Erro ao iniciar. Reiniciando...");
+                    localStorage.clear();
+                    location.reload();
+                }
+            },
+            start: () => {
+                try {
+                    aud.p('click');
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(()=>{});
+                    } else if (document.documentElement.webkitRequestFullscreen) {
+                        document.documentElement.webkitRequestFullscreen();
+                    }
+                    
+                    if(!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0) {
+                         GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
+                    }
+                    
+                    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') { 
+                        DeviceMotionEvent.requestPermission().catch(()=>{}); 
+                    }
+                    
+                    st.t[0].n = document.getElementById('t1').value || "Time 1";
+                    st.t[1].n = document.getElementById('t2').value || "Time 2";
+                    st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
+                    st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
+                    
+                    storage.save();
+                    app.to('teams');
+                } catch(e) {
+                    ui.alert("Erro. Resetando...");
+                    localStorage.removeItem('pnt_data_v20');
+                    location.reload();
+                }
+            },
+            prep: () => {
+                if(st.rd > st.cfg.r) { app.end(); return; }
+                const turnIdx = (st.rd - 1) * 2 + st.trn;
+                const numSheets = GLOBAL_SHEETS_DATA.length;
+                let effectiveSheets = numSheets;
+                if (numSheets > 1 && numSheets % 2 !== 0) effectiveSheets = numSheets - 1;
+                const sheetIdx = turnIdx % effectiveSheets;
+                CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
+                const t = st.t[st.trn];
+                document.getElementById('lbl-rd').innerText = st.rd;
+                document.getElementById('lbl-tm').innerText = t.n;
+                document.getElementById('lbl-tm').style.color = t.c;
+                app.to('intro');
+            },
+            toWheel: () => { aud.p('click'); wheel.init(); app.to('wheel'); },
+            next: () => { aud.p('click'); st.trn++; if(st.trn>1){st.trn=0; st.rd++} app.prep(); },
+            end: () => {
+                const t1=st.t[0], t2=st.t[1];
+                document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s;
+                document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s;
+                const w=document.getElementById('winner');
+                if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=t1.c;}
+                else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=t2.c;}
+                else {w.innerText="EMPATE"; w.style.color="white";}
+                aud.p('win'); app.to('final');
+            }
+        };
+
+        /* WHEEL & JACKPOT (DETERMINISTIC) */
+        const wheel = {
+            el: document.getElementById('wheel-spinner'),
+            jackpot: document.getElementById('jackpot-strip'),
+            mode: 'wheel',
+            ang: 0, offsetY: 0, spin: false, velocity: 0, lastVal: 0, lastTime: 0,
+            
+            init: () => {
+                wheel.mode = CURRENT_ROUND_CATS.length > 12 ? 'jackpot' : 'wheel';
+                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
+                document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                wheel.spin = false;
+
+                if (wheel.mode === 'wheel') wheel.setupWheel();
+                else wheel.setupJackpot();
+                
+                const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
+                const newEl = target.cloneNode(true);
+                target.parentNode.replaceChild(newEl, target);
+                
+                if(wheel.mode==='wheel') wheel.el = document.getElementById('wheel-spinner');
+                else wheel.jackpot = document.getElementById('jackpot-strip');
+                
+                wheel.attachPhysics(document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container'));
+            },
+
+            setupWheel: () => {
+                let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
+                CURRENT_ROUND_CATS.forEach((c, i) => {
+                    const color = COLORS[i % COLORS.length];
+                    const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
+                    g += `${color} ${start}deg ${end}deg,`;
+                    const mid = start + (sliceDeg / 2);
+                    const split = smartSplit(c.n);
+                    let fontSize = 4; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
+                    if(refLen > 8) fontSize = 4 * (8 / refLen);
+                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
+                });
+                wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
+                wheel.el.style.transform = `rotate(0deg)`;
+            },
+
+            setupJackpot: () => {
+                let h = "";
+                const list = [...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS]; 
+                list.forEach((c, i) => {
+                     const color = COLORS[i % COLORS.length];
+                     h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
+                });
+                wheel.jackpot.innerHTML = h;
+                wheel.offsetY = 0; wheel.jackpot.style.transform = `translateY(0px)`;
+            },
+
+            attachPhysics: (target) => {
+                const track = (e) => {
+                    const now = Date.now();
+                    let currentVal, delta;
+                    if (wheel.mode === 'wheel') {
+                        const rect = target.getBoundingClientRect();
+                        const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
+                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                        const angleDeg = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+                        if (wheel.lastVal !== null) {
+                            delta = angleDeg - wheel.lastVal;
+                            if (delta > 180) delta -= 360; if (delta < -180) delta += 360;
+                            wheel.ang += delta;
+                            wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                        }
+                        currentVal = angleDeg;
+                    } else {
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                        currentVal = clientY;
+                        if (wheel.lastVal !== null) {
+                            delta = currentVal - wheel.lastVal;
+                            wheel.offsetY += delta;
+                            wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                        }
+                    }
+                    const dt = now - wheel.lastTime;
+                    if(dt > 0 && delta !== undefined) { wheel.velocity = (delta / dt) * 15; if (wheel.mode === 'jackpot') wheel.velocity *= 1.5; }
+                    wheel.lastVal = currentVal; wheel.lastTime = now;
+                };
+                const start = (e) => {
+                    if(wheel.spin) return;
+                    wheel.lastVal = null; wheel.lastTime = Date.now(); wheel.velocity = 0;
+                    if (wheel.mode === 'wheel') { 
+                        const rect = target.getBoundingClientRect();
+                        const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
+                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                        wheel.lastVal = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+                    } else { wheel.lastVal = e.touches ? e.touches[0].clientY : e.clientY; }
+                    document.addEventListener('touchmove', onMove, {passive: false});
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('touchend', onEnd);
+                    document.addEventListener('mouseup', onEnd);
+                };
+                const onMove = (e) => { e.preventDefault(); track(e); };
+                const onEnd = () => {
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('touchend', onEnd);
+                    document.removeEventListener('mouseup', onEnd);
+                    if(Math.abs(wheel.velocity) > 0.5) wheel.go(wheel.velocity);
+                };
+                target.onmousedown = start; target.ontouchstart = start;
+            },
+
+            go: (v) => {
+                wheel.spin=true; aud.l('spin',true);
+                let winnerIdx = -1;
+                const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
+                if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
+                else winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
+                st.cat = CURRENT_ROUND_CATS[winnerIdx];
+                let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
+
+                const loop=()=>{
+                    if(!wheel.spin) return;
+                    vel *= 0.985;
+                    if (wheel.mode === 'wheel') {
+                         wheel.ang += vel; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                    } else {
+                         wheel.offsetY += vel * 5;
+                         const stripH = wheel.jackpot.clientHeight / 3; 
+                         if (wheel.offsetY > 0) wheel.offsetY -= stripH;
+                         if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
+                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                    }
+                    if(Math.abs(vel)<0.1) { wheel.spin = false; wheel.snapToWinner(winnerIdx); } 
+                    else { requestAnimationFrame(loop); }
+                }
+                loop();
+            },
+
+            snapToWinner: (idx) => {
+                if (wheel.mode === 'wheel') {
+                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
+                    const currentFull = Math.floor(wheel.ang / 360);
+                    const targetAngle = (currentFull * 360) + 360 + (360 - (idx * sliceDeg) - (sliceDeg/2)); 
+                    wheel.el.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
+                    wheel.el.style.transform = `rotate(${targetAngle}deg)`;
+                    setTimeout(() => wheel.finish(idx), 3000);
+                } else {
+                    const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
+                    const itemH = 15 * vmin; 
+                    const containerH = 85 * vmin; 
+                    const centerLine = containerH / 2;
+                    const targetItemIndex = idx + CURRENT_ROUND_CATS.length;
+                    const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
+                    wheel.jackpot.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
+                    wheel.jackpot.style.transform = `translateY(${targetY}px)`;
+                    setTimeout(() => wheel.finish(idx), 3000);
+                }
+            },
+
+            finish: (idx) => {
+                aud.l('spin', false); aud.p('win');
+                const cat = CURRENT_ROUND_CATS[idx];
+                ui.showResult(cat.n.replace('*', ''), COLORS[idx % COLORS.length], () => game.pre());
+            }
+        };
+
+        /* GAME */
+        const game = {
+            tmr: null,
+            stop: () => { if(game.tmr) clearInterval(game.tmr); },
+            pre: () => {
+                app.to('game'); 
+                document.getElementById('timer-num').innerText = st.cfg.t;
+                document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
+                const d=document.getElementById('word-disp'); 
+                let c=3; d.innerText=c; 
+                const i=setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(i); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
+            },
+            run: () => {
+                game.stop(); 
+                st.on=true; st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
+                game.next();
+                let totalT=st.cfg.t; let t=totalT;
+                const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
+                game.tmr = setInterval(()=>{
+                    t--; tn.innerText=t;
+                    const pct=((totalT-t)/totalT)*360;
+                    tw.style.background=`conic-gradient(var(--secondary) ${pct}deg, #333 ${pct}deg)`;
+                    if(t<=0) { game.stop(); game.end(); }
+                },1000);
+            },
+            next: () => {
+                if(st.q.length === 0) {
+                    if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } 
+                    else { game.stop(); game.end(); return; }
+                }
+                st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw;
+            },
+            act: (win) => {
+                if(!st.on) return;
+                if(win){ aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); }
+                else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); }
+                game.next();
+            },
+            flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
+            end: () => {
+                st.on=false; game.stop();
+                st.t[st.trn].s += st.pts; document.getElementById('res-score').innerText=st.pts;
+                const l=document.getElementById('res-list'); l.innerHTML="";
+                st.h.forEach(x=>{
+                    const d=document.createElement('div');
+                    d.innerHTML=`<b style="color:${x.ok?'#22c55e':'#ef4444'}">${x.ok?'✓':'✗'}</b> ${x.w}`;
+                    d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)"; l.appendChild(d);
+                });
+                app.to('res');
+            }
+        };
+
+        window.onload = () => {
+            storage.load();
+            sensor.init();
+        };
+    </script>
+</body>
+</html>
