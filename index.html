@@ -73,7 +73,6 @@
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
-        .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
 
         .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; position: relative; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
@@ -96,21 +95,7 @@
         .table-input-words { width: 60%; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; }
         
-        /* === DATA SOURCE INDICATOR === */
-        #source-indicator {
-            position: absolute; bottom: 20px; left: 20px; z-index: 100;
-            display: flex; align-items: center; gap: 10px;
-            background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1); pointer-events: none;
-            opacity: 0.8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
-            transition: opacity 0.3s;
-        }
-        #source-icon svg { width: 20px; height: 20px; fill: white; }
-        .source-sheet #source-icon svg { fill: #22c55e; }
-        /* Esconde durante o jogo */
-        body.game-active #source-indicator { opacity: 0; }
-
-        /* === MODAL (CUSTOM POPUP) === */
+        /* === MODAL === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -119,11 +104,21 @@
         .modal-box {
             background: #1e1b4b; border: 1px solid rgba(255,255,255,0.2);
             padding: 30px; border-radius: 20px; text-align: center;
-            width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 90%; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
-        .modal-msg { margin-bottom: 20px; font-size: 1rem; line-height: 1.5; }
-        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; text-transform: uppercase;}
+        .modal-msg { margin-bottom: 20px; font-size: 1.2rem; line-height: 1.5; color: white; }
+        .modal-actions { display: flex; gap: 10px; justify-content: center; width: 100%; }
+
+        /* RESULT MODAL SPECIFIC */
+        #result-cat-display {
+            font-size: 3rem; font-weight: 900; color: white; 
+            margin: 10px 0 30px 0; text-transform: uppercase;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
         
         /* === TELA INICIAL === */
         #screen-home { gap: 20px; }
@@ -157,31 +152,37 @@
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === SELETOR: LAYOUT DUAL === */
-        #screen-wheel { flex-direction: row; gap: 5vw; }
-        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
-        
-        #res-cat {
-            font-size: 5vh; font-weight: 900; margin-bottom: 2vh; 
-            color: #22c55e; text-transform: uppercase; line-height:1.1;
-            word-wrap: break-word;
+        /* === SELETOR: ROLETA CENTRALIZADA === */
+        #screen-wheel { 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
         }
 
-        /* 1. ESTILO ROLETA */
-        #wheel-container { display:none; width: 65vmin; height: 65vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
+        /* 1. ESTILO ROLETA (MAXIMIZADA) */
+        #wheel-container { 
+            display:none; 
+            /* Ajuste para Mobile Landscape: 85vh é um bom tamanho seguro */
+            width: 85vh; height: 85vh; 
+            position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; 
+        }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
+        
         .slice-text { 
-            position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 14vmin; 
+            position: absolute; top: 0; left: 0; transform: translateY(-50%); 
+            padding-left: 16vh; /* Aumentei um pouco para afastar do centro */
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; line-height: 0.95;
+            display: flex; flex-direction: column; line-height: 0.9;
+            font-size: 4vh; /* Fonte Maior */
         }
-        #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
+        
+        #pointer { position: absolute; top: -4vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
-        /* 2. ESTILO JACKPOT (CORRIGIDO) */
+        /* 2. ESTILO JACKPOT */
         #jackpot-container { 
-            display:none; width: 50vmin; height: 50vmin; 
+            display:none; width: 85vh; height: 85vh; 
             position: relative; flex-shrink: 0;
             background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
             overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
@@ -190,37 +191,29 @@
         }
         #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
-            height: 12vmin; 
+            height: 15vh; 
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin;
+            font-family: 'Montserrat'; font-weight: 900; font-size: 5vh; /* Fonte Maior */
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             text-align: center; padding: 0 10px;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
-        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
+        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 15vh; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
         .jackpot-arrow { position: absolute; top: 50%; left: -20px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
         .jackpot-arrow-right { left: auto; right: -20px; transform: translateY(-50%) rotate(180deg); }
 
         /* === RESULTADOS === */
         #screen-res, #screen-final { background: #1e1b4b; }
 
-        /* === RESPONSIVO === */
-        @media (max-width: 900px) {
-            #screen-wheel { flex-direction: column; gap: 20px; }
-            .wheel-info { align-items: center; text-align: center; width: 90%; }
-            #wheel-container { width: 70vw; height: 70vw; }
-            #jackpot-container { width: 70vw; height: 70vw; }
-            h1 { font-size: 3rem; }
+        /* === RESPONSIVO MOBILE LANDSCAPE === */
+        @media (orientation: landscape) and (max-height: 600px) {
+            #wheel-container, #jackpot-container { width: 90vh; height: 90vh; }
+            .slice-text { font-size: 4.5vh; padding-left: 18vh; }
+            .jackpot-item { font-size: 6vh; }
         }
-
-        @media (orientation: landscape) {
-             #wheel-container { width: 85vh; height: 85vh; }
-             #jackpot-container { width: 85vh; height: 85vh; }
-             .slice-text { padding-left: 15vh; font-size: 3.5vh; }
-             .wheel-info { width: 40vw; max-width: 450px; flex-shrink: 0; }
-        }
-
+        
+        /* Fallback Portrait */
         #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
         @media screen and (orientation: portrait) { 
             #lock { display: flex; } .screen:not(.allow-portrait) { display: none !important; } 
@@ -231,9 +224,9 @@
 </head>
 <body>
 
-    <!-- MODAL -->
+    <!-- MODAL GERAL -->
     <div id="modal-overlay">
-        <div class="modal-box">
+        <div class="modal-box" id="modal-box">
             <div class="modal-title" id="modal-title">Atenção</div>
             <div class="modal-msg" id="modal-msg">Mensagem</div>
             <div class="modal-actions" id="modal-actions"></div>
@@ -249,7 +242,7 @@
 
     <div id="lock"><h2 style="margin-top:20px">GIRE A TELA</h2></div>
     
-    <!-- HOME ICON (CUSTOM ACTION) -->
+    <!-- HOME ICON -->
     <div id="home-btn" style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     </div>
@@ -270,36 +263,28 @@
                 <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
             </div>
-            
             <div class="section-box">
                 <h2>Google Sheets</h2>
-                <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública).</p>
                 <div class="input-row">
                     <input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/...">
                     <button class="btn btn-small" style="background: #22c55e;" onclick="dataMgr.loadSheet()">CARREGAR</button>
                 </div>
             </div>
-
             <div class="section-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                     <h2 style="margin:0">Editor</h2>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.toggleView()">Alternar Tabela/JSON</button>
                 </div>
-
                 <div id="editor-container">
                     <div id="view-table" class="editor-view active">
-                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite como tabela. Palavras separadas por vírgula.</p>
                         <div id="table-rows"></div>
                         <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Nova Categoria</button>
                     </div>
                     <div id="view-json" class="editor-view">
-                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite o JSON diretamente.</p>
                         <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
                     </div>
                 </div>
-
                 <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px">
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
                     <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar Tudo</button>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar</button>
                 </div>
@@ -339,11 +324,6 @@
             <div class="jackpot-arrow"></div>
             <div class="jackpot-arrow jackpot-arrow-right"></div>
             <div id="jackpot-strip"></div>
-        </div>
-        <div class="wheel-info">
-            <h3 style="color: #fbbf24; font-size: 3vh; text-transform: uppercase; margin-bottom: 1vh;">Categoria</h3>
-            <div id="res-cat" style="opacity:0">...</div>
-            <button id="btn-go" class="btn" style="display:none" onclick="game.pre()">COMEÇAR</button>
         </div>
     </div>
 
@@ -393,33 +373,40 @@
         ];
         
         let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
-        let SOURCE_TYPE = 'default';
-
+        
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
         /* UI UTILS */
         const ui = {
-            alert: (msg, title="Atenção") => {
+            modal: (title, html, actions) => {
                 document.getElementById('modal-title').innerText = title;
-                document.getElementById('modal-msg').innerText = msg;
-                document.getElementById('modal-actions').innerHTML = `<button class="btn btn-small" onclick="document.getElementById('modal-overlay').style.display='none'">OK</button>`;
+                document.getElementById('modal-msg').innerHTML = html;
+                const actionBox = document.getElementById('modal-actions');
+                actionBox.innerHTML = '';
+                actions.forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.className = a.cls || 'btn btn-small';
+                    btn.innerText = a.txt;
+                    btn.onclick = () => {
+                        if(a.close !== false) document.getElementById('modal-overlay').style.display = 'none';
+                        if(a.fn) a.fn();
+                    };
+                    actionBox.appendChild(btn);
+                });
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
-            confirm: (msg, cb) => {
-                document.getElementById('modal-title').innerText = "Confirmação";
-                document.getElementById('modal-msg').innerText = msg;
-                const btns = document.getElementById('modal-actions');
-                btns.innerHTML = '';
-                const yes = document.createElement('button'); yes.className='btn btn-small'; yes.innerText='Sim'; yes.onclick=()=>{document.getElementById('modal-overlay').style.display='none'; cb();};
-                const no = document.createElement('button'); no.className='btn btn-small btn-outline'; no.innerText='Não'; no.onclick=()=>{document.getElementById('modal-overlay').style.display='none';};
-                btns.appendChild(yes); btns.appendChild(no);
-                document.getElementById('modal-overlay').style.display = 'flex';
+            alert: (msg) => { ui.modal("Atenção", msg, [{txt:"OK"}]); },
+            confirm: (msg, cb) => { ui.modal("Confirmação", msg, [{txt:"Sim", fn:cb}, {txt:"Não", cls:'btn btn-small btn-outline'}]); },
+            showResult: (catName, catColor, cb) => {
+                // Custom Result Modal
+                const html = `<div id="result-cat-display" style="color:${catColor}; font-size:2.5rem; font-weight:900; text-transform:uppercase; line-height:1.1; margin-bottom:20px">${catName}</div>`;
+                ui.modal("CATEGORIA", html, [{txt:"COMEÇAR", fn:cb}]);
             }
         };
 
         function smartSplit(text) {
-            if (text.length <= 10) return { text: text, lines: 1 };
+            if (text.length <= 12) return { text: text, lines: 1 };
             const words = text.split(' ');
             if (words.length === 1) return { text: text, lines: 1 };
             let bestIdx=0, minDiff=Infinity, curLen=0, total=text.length;
@@ -435,17 +422,16 @@
         const storage = {
             save: () => {
                 const data = {
-                    cats: CURRENT_CATS, source: SOURCE_TYPE,
+                    cats: CURRENT_CATS,
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v12', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v15', JSON.stringify(data));
             },
             load: () => {
-                const data = JSON.parse(localStorage.getItem('pnt_data_v12'));
+                const data = JSON.parse(localStorage.getItem('pnt_data_v15'));
                 if(data) {
                     if(data.cats) CURRENT_CATS = data.cats;
-                    if(data.source) SOURCE_TYPE = data.source;
                     if(data.t1) document.getElementById('t1').value = data.t1;
                     if(data.t2) document.getElementById('t2').value = data.t2;
                     if(data.time) document.getElementById('opt-time').value = data.time;
@@ -491,9 +477,9 @@
             },
             save: () => {
                 if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
-                SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
+                storage.save(); ui.alert("Salvo com sucesso!");
             },
-            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
+            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); dataMgr.init(); storage.save(); }); },
             copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
             loadSheet: () => {
                 const url = document.getElementById('sheet-input').value;
@@ -507,7 +493,7 @@
                         const w = []; for(let r=1; r<rows.length; r++) { if(rows[r] && rows[r][c]) { const word = rows[r][c].replace(/"/g,'').trim(); if(word) w.push(word); } }
                         if(w.length) newCats.push({n:name, w:w});
                     }
-                    if(newCats.length){ CURRENT_CATS=newCats; SOURCE_TYPE='sheets'; dataMgr.init(); storage.save(); ui.alert("Planilha carregada!"); }
+                    if(newCats.length){ CURRENT_CATS=newCats; dataMgr.init(); storage.save(); ui.alert("Planilha carregada!"); }
                 }).catch(e=>ui.alert("Erro! A planilha precisa ser pública na web."));
             }
         };
@@ -535,14 +521,11 @@
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
                 document.getElementById('screen-'+id).classList.add('active');
                 if(id === 'options') dataMgr.init();
-                
                 const homeBtn = document.getElementById('home-btn');
                 if(id === 'home') homeBtn.style.display = 'none';
                 else homeBtn.style.display = 'block';
             },
-            tryHome: () => {
-                ui.confirm("Voltar ao menu?", () => { app.to('home'); });
-            },
+            tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
             start: () => {
                 aud.p('click');
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
@@ -574,33 +557,31 @@
             }
         };
 
-        /* WHEEL & JACKPOT (DETERMINISTIC) */
+        /* WHEEL & JACKPOT (VECTOR PHYSICS) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
             mode: 'wheel',
-            ang: 0, offsetY: 0, spin: false, 
+            ang: 0, offsetY: 0, spin: false, velocity: 0, lastVal: 0, lastTime: 0,
             
             init: () => {
                 wheel.mode = CURRENT_CATS.length > 12 ? 'jackpot' : 'wheel';
                 document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
-                document.getElementById('btn-go').style.display='none'; 
-                document.getElementById('res-cat').innerText = "..."; document.getElementById('res-cat').style.opacity=0;
                 wheel.spin = false;
 
                 if (wheel.mode === 'wheel') wheel.setupWheel();
                 else wheel.setupJackpot();
                 
                 const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
+                // Reset listeners
                 const newEl = target.cloneNode(true);
                 target.parentNode.replaceChild(newEl, target);
                 
                 if(wheel.mode==='wheel') wheel.el = document.getElementById('wheel-spinner');
                 else wheel.jackpot = document.getElementById('jackpot-strip');
                 
-                const activeTarget = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
-                activeTarget.onclick = () => { if(!wheel.spin) wheel.go(); };
+                wheel.attachPhysics(document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container'));
             },
 
             setupWheel: () => {
@@ -611,12 +592,13 @@
                     g += `${color} ${start}deg ${end}deg,`;
                     const mid = start + (sliceDeg / 2);
                     const split = smartSplit(c.n);
-                    let fontSize = 3.5; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
-                    if(refLen > 8) fontSize = 3.5 * (8 / refLen);
-                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vmin">${split.text}</span></div>`;
+                    let fontSize = 4; 
+                    const refLen = split.lines === 1 ? c.n.length : split.maxLen;
+                    if(refLen > 8) fontSize = 4 * (8 / refLen);
+                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
-                wheel.el.style.transform = `rotate(0deg)`;
+                wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
             },
 
             setupJackpot: () => {
@@ -627,44 +609,150 @@
                      h += `<div class="jackpot-item" style="background:${color}">${c.n}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
-                wheel.offsetY = 0; 
-                wheel.jackpot.style.transform = `translateY(0px)`;
+                wheel.offsetY = 0; wheel.jackpot.style.transform = `translateY(0px)`;
             },
 
-            go: () => {
+            attachPhysics: (target) => {
+                const track = (e) => {
+                    const now = Date.now();
+                    let currentVal, delta;
+                    
+                    if (wheel.mode === 'wheel') {
+                        // Vector Math for Rotation
+                        const rect = target.getBoundingClientRect();
+                        const cx = rect.left + rect.width/2;
+                        const cy = rect.top + rect.height/2;
+                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                        const angleRad = Math.atan2(clientY - cy, clientX - cx);
+                        const angleDeg = angleRad * (180 / Math.PI);
+                        
+                        if (wheel.lastVal !== null) {
+                            delta = angleDeg - wheel.lastVal;
+                            // Fix jumps between 180 and -180
+                            if (delta > 180) delta -= 360;
+                            if (delta < -180) delta += 360;
+                            wheel.ang += delta;
+                            wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                        }
+                        currentVal = angleDeg;
+                    } else {
+                        // Linear Math for Jackpot
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                        currentVal = clientY;
+                        if (wheel.lastVal !== null) {
+                            delta = currentVal - wheel.lastVal;
+                            wheel.offsetY += delta;
+                            wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                        }
+                    }
+
+                    const dt = now - wheel.lastTime;
+                    if(dt > 0 && delta !== undefined) {
+                         wheel.velocity = (delta / dt) * 15; // Scale velocity
+                         if (wheel.mode === 'jackpot') wheel.velocity *= 1.5; // Boost jackpot speed
+                    }
+
+                    wheel.lastVal = currentVal;
+                    wheel.lastTime = now;
+                };
+
+                const start = (e) => {
+                    if(wheel.spin) return;
+                    wheel.lastVal = null; 
+                    wheel.lastTime = Date.now();
+                    wheel.velocity = 0;
+                    if (wheel.mode === 'wheel') { // Initial calc for wheel to prevent jump
+                        const rect = target.getBoundingClientRect();
+                        const cx = rect.left + rect.width/2;
+                        const cy = rect.top + rect.height/2;
+                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                        wheel.lastVal = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+                    } else {
+                        wheel.lastVal = e.touches ? e.touches[0].clientY : e.clientY;
+                    }
+                    
+                    document.addEventListener('touchmove', onMove, {passive: false});
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('touchend', onEnd);
+                    document.addEventListener('mouseup', onEnd);
+                };
+
+                const onMove = (e) => { e.preventDefault(); track(e); };
+                
+                const onEnd = () => {
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('touchend', onEnd);
+                    document.removeEventListener('mouseup', onEnd);
+                    if(Math.abs(wheel.velocity) > 0.5) wheel.go(wheel.velocity);
+                };
+
+                target.onmousedown = start;
+                target.ontouchstart = start;
+            },
+
+            go: (v) => {
                 wheel.spin=true; aud.l('spin',true);
-                const winnerIdx = Math.floor(Math.random() * CURRENT_CATS.length);
-                st.cat = CURRENT_CATS[winnerIdx];
+                let vel = v;
+                // Clamp
+                if(vel > 50) vel=50; if(vel < -50) vel=-50;
 
-                if (wheel.mode === 'wheel') {
-                    const sliceDeg = 360 / CURRENT_CATS.length;
-                    const targetAngle = 360 * 5 + (360 - (winnerIdx * sliceDeg) - (sliceDeg/2)); 
-                    wheel.el.style.transition = "transform 4s cubic-bezier(0.25, 1, 0.5, 1)";
-                    wheel.el.style.transform = `rotate(${targetAngle}deg)`;
-                    setTimeout(() => wheel.finish(winnerIdx), 4000);
-                } else {
-                    const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
-                    const itemH = 12 * vmin; 
-                    const containerH = 50 * vmin; 
-                    const centerLine = containerH / 2;
+                const loop=()=>{
+                    if(!wheel.spin) return;
+                    vel *= 0.985; // Friction
                     
-                    const targetItemIndex = winnerIdx + CURRENT_CATS.length;
-                    const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
+                    if (wheel.mode === 'wheel') {
+                        wheel.ang += vel;
+                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                    } else {
+                        wheel.offsetY += vel * 5;
+                        // Loop logic
+                        const stripH = wheel.jackpot.clientHeight / 3; 
+                        if (wheel.offsetY > 0) wheel.offsetY -= stripH;
+                        if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
+                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                    }
                     
-                    wheel.jackpot.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
-                    wheel.jackpot.style.transform = `translateY(${targetY}px)`;
-                    setTimeout(() => wheel.finish(winnerIdx), 3000);
+                    if(Math.abs(vel)<0.1) {
+                        wheel.spin=false; aud.l('spin',false);
+                        wheel.finish();
+                    } else requestAnimationFrame(loop);
                 }
+                loop();
             },
 
-            finish: (idx) => {
-                wheel.spin = false; aud.l('spin', false); aud.p('win');
-                const cat = CURRENT_CATS[idx];
-                const el = document.getElementById('res-cat');
-                el.innerText = cat.n; 
-                el.style.color = COLORS[idx % COLORS.length];
-                el.style.opacity = 1;
-                document.getElementById('btn-go').style.display='inline-block';
+            finish: () => {
+                let cat, idx;
+                if (wheel.mode === 'wheel') {
+                    const norm = (wheel.ang % 360 + 360) % 360;
+                    const winAngle = (360 - norm) % 360;
+                    const sliceDeg = 360 / CURRENT_CATS.length;
+                    idx = Math.floor(winAngle / sliceDeg);
+                } else {
+                    const vh = window.innerHeight;
+                    const itemH = vh * 0.15; 
+                    const containerH = vh * 0.85; 
+                    const centerLine = containerH / 2;
+                    const relativeY = centerLine - (itemH/2) - wheel.offsetY;
+                    let rawIndex = Math.round(relativeY / itemH);
+                    
+                    const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
+                    wheel.jackpot.style.transition = "transform 0.3s ease-out";
+                    wheel.jackpot.style.transform = `translateY(${targetY}px)`;
+                    wheel.offsetY = targetY;
+                    setTimeout(() => wheel.jackpot.style.transition = "none", 300);
+
+                    idx = ((rawIndex % CURRENT_CATS.length) + CURRENT_CATS.length) % CURRENT_CATS.length;
+                }
+                
+                cat = CURRENT_CATS[idx];
+                st.cat = cat;
+                aud.p('win'); 
+                
+                // POPUP DIRECTLY
+                ui.showResult(cat.n, COLORS[idx % COLORS.length], () => game.pre());
             }
         };
 
@@ -674,10 +762,8 @@
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
             pre: () => {
                 app.to('game'); 
-                // Force Reset Timer
                 document.getElementById('timer-num').innerText = st.cfg.t;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
-                
                 const d=document.getElementById('word-disp'); 
                 let c=3; d.innerText=c; 
                 const i=setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(i); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
