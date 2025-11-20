@@ -30,6 +30,7 @@
             background-color: #1e1b4b;
             background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
             height: 100%;
+            overflow: hidden;
         }
 
         body {
@@ -44,6 +45,7 @@
             position: absolute; inset: 0;
             display: none; flex-direction: column; align-items: center; justify-content: center;
             padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
+            width: 100%; height: 100%;
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
@@ -52,7 +54,7 @@
         /* === TYPOGRAPHY === */
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2.5rem, 6vw, 4.5rem); text-transform: uppercase; 
+            font-size: clamp(2rem, 6vw, 4rem); text-transform: uppercase; 
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-align: center; letter-spacing: -1px; margin-bottom: 20px;
@@ -64,15 +66,16 @@
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             color: white; border: none; border-radius: 50px;
-            padding: 18px 40px; font-size: 1.5rem; font-weight: 900;
+            padding: 15px 40px; font-size: 1.4rem; font-weight: 900;
             text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
-            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 10px 0;
+            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 8px 0;
             font-family: 'Montserrat';
         }
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
+        .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
 
         .input-group { margin-bottom: 15px; width: 100%; max-width: 600px; position: relative; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
@@ -85,7 +88,7 @@
         }
         textarea { min-height: 150px; resize: vertical; font-size: 0.9rem; font-family: monospace; }
 
-        /* === TABLE EDITOR (CORREÇÃO DE LAYOUT) === */
+        /* === TABLE EDITOR FIX === */
         #editor-container { width: 100%; }
         .editor-view { display: none; width: 100%; }
         .editor-view.active { display: block; animation: fadeIn 0.3s; }
@@ -96,26 +99,18 @@
             background: rgba(255,255,255,0.03); padding: 8px; border-radius: 12px;
         }
         
-        /* Força inputs da tabela a serem menores e alinhados */
-        .table-row input {
-            margin: 0; padding: 10px; font-size: 1rem;
-        }
+        .table-row input { margin: 0; padding: 10px; font-size: 1rem; }
         
+        /* Aumentei a largura da categoria */
         .table-input-cat { 
-            flex: 0 0 100px; /* Largura fixa para categoria */
+            flex: 0 0 140px; /* Mais largo */
             font-weight: bold; color: var(--accent); 
         }
-        .table-input-words { 
-            flex: 1; /* Ocupa o resto */
-            font-size: 0.9rem; 
-        }
+        .table-input-words { flex: 1; font-size: 0.9rem; }
         
-        /* Correção do botão DELETE para não ocupar 100% */
         .btn-del { 
             background: var(--danger); 
-            flex: 0 0 40px !important; /* Força largura fixa */
-            width: 40px !important; 
-            height: 40px; 
+            flex: 0 0 40px !important; width: 40px !important; height: 40px; 
             padding: 0; font-size: 1.2rem; border-radius: 8px; box-shadow: none; margin: 0; 
             display: flex; align-items: center; justify-content: center;
         }
@@ -192,7 +187,7 @@
             display: flex; flex-direction: column; line-height: 0.95;
         }
         #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
+        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
         /* 2. ESTILO JACKPOT */
         #jackpot-container { 
@@ -227,15 +222,14 @@
             #wheel-container { width: 85vw; height: 85vw; }
             #jackpot-container { width: 85vw; height: 85vw; }
             h1 { font-size: 3rem; }
-            .table-input-cat { flex: 0 0 80px; font-size: 0.8rem; }
         }
         @media (orientation: landscape) {
             #wheel-container { width: 85vh; height: 85vh; }
             #jackpot-container { width: 85vh; height: 85vh; }
-            .slice-text { padding-left: 16vh; font-size: 3.5vh; }
+            .slice-text { padding-left: 15vh; font-size: 3.5vh; }
         }
 
-        /* Lock & Version */
+        /* LOCK & VERSION */
         #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
         .rotate-phone-icon { width: 80px; height: 80px; fill: white; animation: rotateAnim 2s infinite ease-in-out; }
         @keyframes rotateAnim { 0% { transform: rotate(0deg); } 30% { transform: rotate(-90deg); } 70% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
@@ -250,7 +244,6 @@
 </head>
 <body>
 
-    <!-- MODAL -->
     <div id="modal-overlay">
         <div class="modal-box">
             <div class="modal-title" id="modal-title">Atenção</div>
@@ -259,7 +252,6 @@
         </div>
     </div>
 
-    <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
@@ -269,7 +261,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v20.0</div>
+        <div class="version-tag">v21.0</div>
     </div>
     
     <!-- HOME ICON -->
@@ -399,6 +391,9 @@
         <button class="btn" style="width:auto; margin-top: 3vh;" onclick="location.reload()">MENU PRINCIPAL</button>
     </div>
 
+    <!-- SHEET JS -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
     <script>
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
         const DEFAULT_CATS = [
@@ -462,11 +457,11 @@
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v20', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v21', JSON.stringify(data));
             },
             load: () => {
                 try {
-                    const data = JSON.parse(localStorage.getItem('pnt_data_v20'));
+                    const data = JSON.parse(localStorage.getItem('pnt_data_v21'));
                     if(data) {
                         if(data.cats && Array.isArray(data.cats) && data.cats.length > 0) GLOBAL_SHEETS_DATA = [data.cats];
                         if(data.source) SOURCE_TYPE = data.source;
@@ -475,7 +470,7 @@
                         if(data.time) document.getElementById('opt-time').value = data.time;
                         if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
                     }
-                } catch(e) { localStorage.removeItem('pnt_data_v20'); }
+                } catch(e) { localStorage.removeItem('pnt_data_v21'); }
             }
         };
 
@@ -573,18 +568,9 @@
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
                     if (sensor.resetState) {
-                        if (sensor.z < -8.0) { 
-                            game.act(true); 
-                            sensor.pause(); 
-                            sensor.resetState = false;
-                        } else if (sensor.z > 8.0) { 
-                            game.act(false); 
-                            sensor.pause(); 
-                            sensor.resetState = false; 
-                        }
-                    } else {
-                        if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
-                    }
+                        if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; }
+                        else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; }
+                    } else { if (Math.abs(sensor.z) < 2.0) sensor.resetState = true; }
                 }
             },
             pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
@@ -628,7 +614,7 @@
                     app.prep();
                 } catch(e) {
                     ui.alert("Erro ao iniciar. Reiniciando dados...");
-                    localStorage.removeItem('pnt_data_v20');
+                    localStorage.removeItem('pnt_data_v21');
                     location.reload();
                 }
             },
@@ -778,48 +764,54 @@
                 st.cat = CURRENT_ROUND_CATS[winnerIdx];
                 let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
 
-                const loop=()=>{
-                    if(!wheel.spin) return;
-                    vel *= 0.985;
-                    if (wheel.mode === 'wheel') {
-                         wheel.ang += vel; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                    } else {
-                         wheel.offsetY += vel * 5;
-                         const stripH = wheel.jackpot.clientHeight / 3; 
-                         if (wheel.offsetY > 0) wheel.offsetY -= stripH;
-                         if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
-                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                    }
-                    if(Math.abs(vel)<0.1) { wheel.spin = false; wheel.snapToWinner(winnerIdx); } 
-                    else { requestAnimationFrame(loop); }
-                }
-                loop();
-            },
-
-            snapToWinner: (idx) => {
+                // Deterministic Animation (V19 Fix: No Double Spin)
+                // Calculate total rotation needed immediately
                 if (wheel.mode === 'wheel') {
-                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
-                    const currentFull = Math.floor(wheel.ang / 360);
-                    const targetAngle = (currentFull * 360) + 360 + (360 - (idx * sliceDeg) - (sliceDeg/2)); 
-                    wheel.el.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
-                    wheel.el.style.transform = `rotate(${targetAngle}deg)`;
-                    setTimeout(() => wheel.finish(idx), 3000);
+                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
+                     // Current angle normalized to positive
+                     let currentAng = wheel.ang;
+                     // Calculate target angle to land winner at 0deg (top)
+                     // Target = 0deg. The slice is at (winnerIdx * sliceDeg)
+                     // We need rotation R such that: (idx * sliceDeg + R) % 360 = 270 (CSS top is 270/ -90 if we consider 0 as 3 o'clock)
+                     // Simplified: Target absolute angle
+                     // Add extra spins based on velocity
+                     const extraSpins = Math.max(5, Math.abs(Math.round(vel / 5)));
+                     const direction = vel > 0 ? 1 : -1;
+                     
+                     const targetRot = (Math.floor(currentAng / 360) + (extraSpins * direction)) * 360 
+                                       + (360 - (winnerIdx * sliceDeg) - (sliceDeg/2));
+                                       
+                     wheel.el.style.transition = "transform 4s cubic-bezier(0.25, 1, 0.5, 1)";
+                     wheel.el.style.transform = `rotate(${targetRot}deg)`;
+                     wheel.ang = targetRot; // Sync state
+                     
+                     setTimeout(() => wheel.finish(winnerIdx), 4000);
+                     
                 } else {
-                    const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
-                    const itemH = 15 * vmin; 
-                    const containerH = 85 * vmin; 
-                    const centerLine = containerH / 2;
-                    const targetItemIndex = idx + CURRENT_ROUND_CATS.length;
-                    const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
-                    wheel.jackpot.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
-                    wheel.jackpot.style.transform = `translateY(${targetY}px)`;
-                    setTimeout(() => wheel.finish(idx), 3000);
+                     // Jackpot
+                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
+                     const itemH = 15 * vmin; 
+                     const centerLine = (85 * vmin) / 2;
+                     
+                     const targetItemIndex = winnerIdx + CURRENT_ROUND_CATS.length; // Middle set
+                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
+                     
+                     wheel.jackpot.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
+                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
+                     wheel.offsetY = targetY;
+                     
+                     setTimeout(() => wheel.finish(winnerIdx), 3000);
                 }
             },
 
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
                 const cat = CURRENT_ROUND_CATS[idx];
+                // Reset CSS transition to allow next drag
+                setTimeout(() => {
+                    if(wheel.mode === 'wheel') wheel.el.style.transition = 'none';
+                    else wheel.jackpot.style.transition = 'none';
+                }, 100);
                 ui.showResult(cat.n.replace('*', ''), COLORS[idx % COLORS.length], () => game.pre());
             }
         };
