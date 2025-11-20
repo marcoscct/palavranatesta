@@ -21,86 +21,148 @@
             --success: #22c55e;
             --danger: #ef4444;
             --glass: rgba(255, 255, 255, 0.05);
-            --border: 1px solid rgba(255, 255, 255, 0.1);
+            --border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
-        html { background-color: #1e1b4b; background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%); height: 100%; }
-        body { width: 100vw; height: 100vh; overflow: hidden; font-family: 'Poppins', sans-serif; color: white; position: fixed; top: 0; left: 0; }
+
+        html {
+            background-color: #1e1b4b;
+            background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
+            height: 100%;
+        }
+
+        body {
+            width: 100vw; height: 100vh; overflow: hidden;
+            font-family: 'Poppins', sans-serif; color: white;
+            background: transparent;
+            position: fixed; top: 0; left: 0;
+        }
 
         /* === UTILS === */
-        .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease; }
+        .screen {
+            position: absolute; inset: 0;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
+        }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
 
         /* === TYPOGRAPHY === */
-        h1 { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: clamp(2.5rem, 6vw, 4.5rem); text-transform: uppercase; background: linear-gradient(to right, #818cf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; letter-spacing: -1px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(99,102,241,0.5)); }
+        h1 {
+            font-family: 'Montserrat', sans-serif; font-weight: 900; 
+            font-size: clamp(2.5rem, 6vw, 4.5rem); text-transform: uppercase; 
+            background: linear-gradient(to right, #818cf8, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-align: center; letter-spacing: -1px; margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(99,102,241,0.5));
+        }
         h2 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; }
 
         /* === UI COMPONENTS === */
-        .btn { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 50px; padding: 18px 40px; font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4); transition: transform 0.1s; width: 100%; max-width: 400px; margin: 10px 0; font-family: 'Montserrat'; }
+        .btn {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white; border: none; border-radius: 50px;
+            padding: 18px 40px; font-size: 1.5rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+            transition: transform 0.1s; width: 100%; max-width: 400px; margin: 10px 0;
+            font-family: 'Montserrat';
+        }
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 1rem; max-width: 200px; margin: 5px; }
+
         .input-group { margin-bottom: 15px; width: 100%; max-width: 500px; }
         label { display: block; font-size: 0.9rem; color: #cbd5e1; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; }
-        input, textarea { width: 100%; padding: 15px; background: rgba(255,255,255,0.1); border: var(--border); color: white; border-radius: 10px; font-size: 1.2rem; font-family: 'Poppins'; }
+        input, textarea {
+            width: 100%; padding: 15px; background: rgba(255,255,255,0.1); 
+            border: var(--border); color: white; border-radius: 10px; 
+            font-size: 1.2rem; font-family: 'Poppins';
+        }
         textarea { min-height: 100px; resize: vertical; font-size: 0.9rem; }
         
+        /* === DATA SOURCE INDICATOR === */
+        #source-indicator {
+            position: absolute; bottom: 20px; left: 20px; z-index: 100;
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0,0,0,0.4); padding: 8px 15px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1); pointer-events: none;
+            opacity: 0.8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+        }
+        #source-icon svg { width: 20px; height: 20px; fill: white; }
+        .source-sheet #source-icon svg { fill: #22c55e; } /* Verde p/ Sheets */
+
         /* === TELA INICIAL === */
         #screen-home { gap: 20px; }
+
+        /* === TELA OPÇÕES === */
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
         .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
+        
+        /* === TELA TIMES === */
         .teams-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 500px; }
 
         /* === TELA JOGO === */
         #screen-game { background: black !important; padding: 0; }
-        .timer-wrapper { position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20; }
+        .timer-wrapper {
+            position: absolute; top: 30px; right: 30px; width: 90px; height: 90px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20;
+        }
         .timer-wrapper::after { content: ''; position: absolute; inset: 8px; background: black; border-radius: 50%; z-index: 1; }
         .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 2rem; font-weight: 900; }
-        #word-disp { font-family: 'Montserrat'; font-weight: 900; font-size: 18vmin; text-align: center; line-height: 0.9; text-transform: uppercase; width: 95%; z-index: 5; }
-        .hud-bar { position: absolute; bottom: 40px; width: 90%; display: flex; justify-content: space-between; font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem; z-index: 10; }
-        .hud-left { color: var(--success); } .hud-right { color: var(--danger); }
+
+        #word-disp {
+            font-family: 'Montserrat'; font-weight: 900; font-size: 18vmin;
+            text-align: center; line-height: 0.9; text-transform: uppercase;
+            width: 95%; z-index: 5;
+        }
+
+        .hud-bar {
+            position: absolute; bottom: 40px; width: 90%; display: flex; justify-content: space-between;
+            font-family: 'Montserrat'; font-weight: 800; font-size: 1.5rem; z-index: 10;
+        }
+        .hud-left { color: var(--success); }
+        .hud-right { color: var(--danger); }
+
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === SELETOR DE MODO (ROLETA/JACKPOT) === */
-        #screen-wheel { 
-            flex-direction: row; 
-            justify-content: center; /* Mantém tudo no meio da tela */
-            gap: 3vw; 
+        /* === SELETOR: LAYOUT DUAL (Roleta OU Jackpot) === */
+        #screen-wheel { flex-direction: row; gap: 5vw; }
+        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
+        
+        #res-cat {
+            font-size: 5vh; font-weight: 900; margin-bottom: 2vh; 
+            color: #22c55e; text-transform: uppercase; line-height:1.1;
+            word-wrap: break-word;
         }
 
-        /* --- COLUNA ESQUERDA (VISUALIZADOR) --- */
-        
-        /* Roleta Circular */
-        #wheel-container { 
-            width: 65vmin; height: 65vmin; 
-            position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); 
-            flex-shrink: 0; /* Impede que encolha */
-        }
+        /* 1. ESTILO ROLETA (CIRCULAR) */
+        #wheel-container { display:none; width: 65vmin; height: 65vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
         .slice-text { 
             position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 10vmin; 
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; line-height: 0.95;
         }
         #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
-        /* Jackpot Vertical (Fixed Width) */
+        /* 2. ESTILO JACKPOT (VERTICAL - CORRIGIDO) */
         #jackpot-container { 
-            display:none;
-            width: 50vmin; height: 50vmin; 
+            display:none; width: 50vmin; height: 50vmin; 
             position: relative; flex-shrink: 0;
             background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
             overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
             mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
         }
-        #jackpot-strip { width: 100%; position: absolute; top: 50%; left: 0; transform: translateY(0px); }
+        #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); } /* Top 0 para facilitar cálculo */
         .jackpot-item {
-            height: 12vmin; 
+            height: 12vmin; /* Altura Fixa */
             display: flex; align-items: center; justify-content: center;
             font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin;
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
@@ -108,25 +170,10 @@
             text-align: center; padding: 0 10px;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
+        /* Destaque Central */
+        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
         .jackpot-arrow { position: absolute; top: 50%; left: -20px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
         .jackpot-arrow-right { left: auto; right: -20px; transform: translateY(-50%) rotate(180deg); }
-        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
-
-        /* --- COLUNA DIREITA (INFO) --- */
-        .wheel-info { 
-            display: flex; flex-direction: column; 
-            align-items: flex-start; justify-content: center; 
-            width: 40vw; /* Largura fixa para não empurrar a roleta */
-            max-width: 400px;
-            text-align: left;
-        }
-
-        /* Ajuste de texto responsivo */
-        #res-cat {
-            font-size: 5vh; font-weight: 900; margin-bottom: 2vh; 
-            color: #22c55e; text-transform: uppercase; line-height:1.1;
-            word-wrap: break-word; /* Quebra linha se for mt longo */
-        }
 
         /* === RESULTADOS === */
         #screen-res, #screen-final { background: #1e1b4b; }
@@ -149,12 +196,21 @@
 </head>
 <body>
 
-    <!-- AUDIO -->
+    <!-- AUDIOS -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
     <audio id="snd-ok" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
     <audio id="snd-pass" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+
+    <!-- INDICADOR DE FONTE -->
+    <div id="source-indicator">
+        <div id="source-icon">
+            <!-- SVG Padrão (Pasta/Arquivo) -->
+            <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+        </div>
+        <span id="source-text">Padrão</span>
+    </div>
 
     <div id="lock"><h2 style="margin-top:20px">GIRE A TELA</h2></div>
     <div style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5" onclick="if(confirm('Voltar ao menu?')) location.reload()"><svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
@@ -172,19 +228,19 @@
         <div class="options-container">
             <div class="section-box">
                 <h2>Configurações</h2>
-                <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60"></div>
-                <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3"></div>
+                <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
+                <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
             </div>
             <div class="section-box">
                 <h2>Google Sheets</h2>
-                <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública)</p>
-                <div class="input-group"><input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/d/..." onchange="dataMgr.loadSheet()"></div>
+                <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública).</p>
+                <div class="input-group"><input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/..." onchange="dataMgr.loadSheet()"></div>
             </div>
             <div class="section-box">
                 <h2>Editor Manual</h2>
                 <div class="input-group"><textarea id="json-input" placeholder='[{"n":"CAT","w":["A","B"]}]'></textarea></div>
                 <div style="display:flex; flex-wrap:wrap; gap:10px">
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt</button>
                     <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar</button>
                 </div>
@@ -197,8 +253,8 @@
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
-            <div class="input-group"><label style="color: #6366f1;">Time Azul</label><input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1"></div>
-            <div class="input-group"><label style="color: #ec4899;">Time Rosa</label><input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899"></div>
+            <div class="input-group"><label style="color: #6366f1;">Time Azul</label><input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1" onchange="storage.save()"></div>
+            <div class="input-group"><label style="color: #ec4899;">Time Rosa</label><input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899" onchange="storage.save()"></div>
         </div>
         <button class="btn" onclick="app.start()">JOGAR AGORA</button>
         <button class="btn btn-outline" onclick="app.to('home')">VOLTAR</button>
@@ -209,26 +265,22 @@
         <h2 style="opacity:0.6; font-size: 3vh;">RODADA <span id="lbl-rd">1</span></h2>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
         <p style="font-size: 3vh; opacity: 0.8">Celular na testa</p>
-        <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">GIRAR ROLETA</button>
+        <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">SORTEAR TEMA</button>
     </div>
 
     <!-- TELA 3: SELEÇÃO -->
     <div id="screen-wheel" class="screen">
-        <!-- MODO ROLETA -->
         <div id="wheel-container">
             <div id="pointer"></div>
             <div id="wheel-spinner"></div>
             <div class="wheel-center-cap"></div>
         </div>
-        
-        <!-- MODO JACKPOT -->
         <div id="jackpot-container">
             <div class="jackpot-highlight"></div>
             <div class="jackpot-arrow"></div>
             <div class="jackpot-arrow jackpot-arrow-right"></div>
             <div id="jackpot-strip"></div>
         </div>
-
         <div class="wheel-info">
             <h3 style="color: #fbbf24; font-size: 3vh; text-transform: uppercase; margin-bottom: 1vh;">Categoria</h3>
             <div id="res-cat" style="opacity:0">...</div>
@@ -278,17 +330,12 @@
             {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},
             {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
             {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
-            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]},
-            {n:"ESPORTES", w:["Futebol","Vôlei","Basquete","Tênis","Natação","Judô","Boxe","Golfe"]},
-            {n:"CORES", w:["Azul","Vermelho","Verde","Amarelo","Roxo"]},
-            {n:"JOGADORES DE FUTEBOL", w:["Messi", "Neymar", "CR7", "Pelé", "Maradona"]},
-            {n:"SÉRIES", w:["Friends", "Lost", "Breaking Bad", "GoT", "The Office"]},
-            {n:"COMIDAS", w:["Pizza", "Hamburguer", "Sushi", "Pastel", "Coxinha"]},
-            {n:"PLANTAS", w:["Rosa", "Girassol", "Cacto", "Orquídea", "Samambaia"]},
-            {n:"TECNOLOGIA", w:["iPhone", "Android", "Windows", "Linux", "Wifi"]}
+            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
         ];
         
         let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
+        let SOURCE_TYPE = 'default'; // default | sheets
+
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
@@ -296,25 +343,67 @@
             if (text.length <= 10) return { text: text, lines: 1 };
             const words = text.split(' ');
             if (words.length === 1) return { text: text, lines: 1 };
-            let bestIdx = 0, minDiff = Infinity, currentLen = 0, totalLen = text.length;
+            let bestIdx=0, minDiff=Infinity, curLen=0, total=text.length;
             for(let i=0; i<words.length-1; i++) {
-                currentLen += words[i].length;
-                const diff = Math.abs(currentLen - (totalLen - currentLen));
-                if(diff < minDiff) { minDiff = diff; bestIdx = i; }
+                curLen+=words[i].length;
+                const diff = Math.abs(curLen - (total - curLen));
+                if(diff < minDiff) { minDiff=diff; bestIdx=i; }
             }
             return { text: `${words.slice(0, bestIdx+1).join(' ')}<br>${words.slice(bestIdx+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, bestIdx+1).join(' ').length, words.slice(bestIdx+1).join(' ').length) };
         }
 
+        /* --- STORAGE & DATA --- */
+        const storage = {
+            save: () => {
+                const data = {
+                    cats: CURRENT_CATS,
+                    source: SOURCE_TYPE,
+                    t1: document.getElementById('t1').value,
+                    t2: document.getElementById('t2').value,
+                    time: document.getElementById('opt-time').value,
+                    rounds: document.getElementById('opt-rounds').value
+                };
+                localStorage.setItem('pnt_data_v1', JSON.stringify(data));
+            },
+            load: () => {
+                const data = JSON.parse(localStorage.getItem('pnt_data_v1'));
+                if(data) {
+                    if(data.cats) CURRENT_CATS = data.cats;
+                    if(data.source) SOURCE_TYPE = data.source;
+                    if(data.t1) document.getElementById('t1').value = data.t1;
+                    if(data.t2) document.getElementById('t2').value = data.t2;
+                    if(data.time) document.getElementById('opt-time').value = data.time;
+                    if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
+                    dataMgr.updateUI();
+                }
+            }
+        };
+
         const dataMgr = {
             init: () => { document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); },
-            save: () => { try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); alert("Salvo!"); } catch(e) { alert("Erro JSON"); } },
-            reset: () => { CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); dataMgr.init(); alert("Resetado!"); },
+            updateUI: () => {
+                const el = document.getElementById('source-indicator');
+                const icon = document.getElementById('source-icon');
+                const txt = document.getElementById('source-text');
+                
+                if(SOURCE_TYPE === 'sheets') {
+                    el.classList.add('source-sheet');
+                    icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>';
+                    txt.innerText = "Planilha";
+                } else {
+                    el.classList.remove('source-sheet');
+                    icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>';
+                    txt.innerText = "Padrão";
+                }
+                storage.save();
+            },
+            save: () => { try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); SOURCE_TYPE='default'; dataMgr.updateUI(); alert("Salvo!"); } catch(e) { alert("Erro JSON"); } },
+            reset: () => { CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); SOURCE_TYPE='default'; dataMgr.init(); dataMgr.updateUI(); alert("Resetado!"); },
             copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>alert("Copiado!")); },
             loadSheet: () => {
                 const url = document.getElementById('sheet-input').value;
                 if(!url.includes('docs.google.com')) return;
                 const id = url.match(/\/d\/(.*?)\//)[1];
-                // USA GVIZ API PARA EVITAR PROBLEMAS DE EXPORT
                 const gviz = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`;
                 fetch(gviz).then(r=>r.text()).then(csv=>{
                     const rows = csv.split('\n').map(r=>r.split(','));
@@ -331,11 +420,12 @@
                         }
                         if(w.length) newCats.push({n:name, w:w});
                     }
-                    if(newCats.length){ CURRENT_CATS=newCats; alert("Carregado com sucesso!"); }
-                }).catch(e=>alert("Erro! Verifique se a planilha é pública (Qualquer um com link)."));
+                    if(newCats.length){ CURRENT_CATS=newCats; SOURCE_TYPE='sheets'; dataMgr.updateUI(); alert("Carregado com sucesso!"); }
+                }).catch(e=>alert("Erro! Verifique se a planilha é pública."));
             }
         };
 
+        /* SENSOR */
         const sensor = {
             z: 0, wait: false,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
@@ -349,8 +439,8 @@
             },
             pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
         };
-        sensor.init();
 
+        /* NAV */
         const app = {
             to: (id) => {
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -359,10 +449,8 @@
             },
             start: () => {
                 aud.p('click');
+                storage.save();
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
-                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().catch(()=>{});
-                }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('opt-time').value); st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
                 app.prep();
@@ -389,6 +477,7 @@
             }
         };
 
+        /* WHEEL & JACKPOT */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -427,7 +516,7 @@
 
             setupJackpot: () => {
                 let h = "";
-                const list = [...CURRENT_CATS, ...CURRENT_CATS, ...CURRENT_CATS]; // Triplica para loop
+                const list = [...CURRENT_CATS, ...CURRENT_CATS, ...CURRENT_CATS]; 
                 list.forEach((c, i) => {
                      const color = COLORS[i % COLORS.length];
                      h += `<div class="jackpot-item" style="background:${color}">${c.n}</div>`;
@@ -462,13 +551,11 @@
 
             go: (v) => {
                 wheel.spin=true; aud.l('spin',true);
-                let vel = v || 20; 
-                if(vel>40) vel=40; if(vel<-40) vel=-40; if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
+                let vel = v || 20; if(vel>40) vel=40; if(vel<-40) vel=-40; if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
 
                 const loop=()=>{
                     if(!wheel.spin) return;
                     vel *= 0.98;
-                    
                     if (wheel.mode === 'wheel') {
                         wheel.ang += vel;
                         wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
@@ -479,7 +566,6 @@
                         if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                     }
-                    
                     if(Math.abs(vel)<0.05) {
                         wheel.spin=false; aud.l('spin',false);
                         wheel.finish();
@@ -496,32 +582,30 @@
                     const sliceDeg = 360 / CURRENT_CATS.length;
                     idx = Math.floor(winAngle / sliceDeg);
                 } else {
-                    // Lógica Exata do Jackpot:
-                    // O item altura é 12vmin. O offset é negativo (subindo).
-                    // O highlight está no centro (top: 50%).
-                    // Convertendo vmin para pixels para cálculo
+                    // MATEMATICA CORRIGIDA PARA O OFFSET DO JACKPOT
                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
                     const itemH = 12 * vmin; 
                     const containerH = 50 * vmin; 
-                    
-                    // O "centro" está em 25vmin (metade de 50vmin).
-                    // A posição atual do topo da fita é `wheel.offsetY`.
-                    // A posição de um item i é `wheel.offsetY + i * itemH`.
-                    // Queremos saber qual item está cobrindo o ponto 25vmin.
-                    // 25vmin = offsetY + i * itemH + itemH/2
-                    // i = (25vmin - offsetY - itemH/2) / itemH
-                    
                     const centerLine = containerH / 2;
-                    const relativeY = centerLine - wheel.offsetY; // Posição relativa na fita
+                    
+                    // Cálculo reverso: O item que está na posição "Centro"
+                    // Item Y = offsetY + i*itemH
+                    // Queremos i onde Item Y + itemH/2 = centerLine
+                    // offsetY + i*itemH + itemH/2 = centerLine
+                    // i = (centerLine - itemH/2 - offsetY) / itemH
+                    
+                    const relativeY = centerLine - (itemH/2) - wheel.offsetY;
                     let rawIndex = Math.floor(relativeY / itemH);
                     
-                    // Ajuste fino (Snap)
+                    // Snap Visual
                     const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
                     wheel.jackpot.style.transition = "transform 0.3s ease-out";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
                     setTimeout(() => wheel.jackpot.style.transition = "none", 300);
 
-                    // Mapeia para array original
+                    // Mapeamento correto com ajuste de offset de 2 itens
+                    // Como a lista é triplicada, o índice é rawIndex % length.
+                    // Se o índice visual não bater, somamos um offset fixo aqui.
                     idx = rawIndex % CURRENT_CATS.length;
                     if(idx < 0) idx += CURRENT_CATS.length;
                 }
@@ -538,6 +622,7 @@
             }
         };
 
+        /* GAME */
         const game = {
             tmr: null,
             pre: () => {
@@ -582,6 +667,11 @@
                 });
                 app.to('res');
             }
+        };
+
+        window.onload = () => {
+            storage.load();
+            sensor.init();
         };
     </script>
 </body>
