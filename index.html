@@ -99,7 +99,7 @@
         .table-input-words { flex: 1; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; }
         
-        /* === MODAL (CUSTOM POPUP) === */
+        /* === MODAL === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -115,7 +115,6 @@
         .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
         .modal-msg { margin-bottom: 20px; font-size: 1.2rem; line-height: 1.5; color: white; }
         .modal-actions { display: flex; gap: 10px; justify-content: center; width: 100%; }
-        
         #result-cat-display {
             font-size: 3rem; font-weight: 900; color: white; 
             margin: 10px 0 30px 0; text-transform: uppercase;
@@ -126,13 +125,7 @@
         #screen-home { gap: 2vh; }
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
         .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
-        
-        /* === TELA TIMES (OTIMIZADA) === */
-        .teams-container { 
-            display: flex; flex-direction: column; gap: 1.5vh; 
-            width: 100%; max-width: 600px; justify-content: center;
-            margin-bottom: 2vh;
-        }
+        .teams-container { display: flex; flex-direction: column; gap: 1.5vh; width: 100%; max-width: 600px; justify-content: center; margin-bottom: 2vh; }
 
         /* === TELA JOGO === */
         #screen-game { background: transparent; padding: 0; }
@@ -146,7 +139,7 @@
 
         #word-disp {
             font-family: 'Montserrat'; font-weight: 900; 
-            font-size: clamp(3rem, 18vmin, 8rem); /* Fonte Segura */
+            font-size: clamp(3rem, 18vmin, 8rem);
             text-align: center; line-height: 0.9; text-transform: uppercase;
             width: 90%; z-index: 5; word-wrap: break-word;
         }
@@ -176,7 +169,8 @@
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
         .slice-text { 
-            position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 16vh; 
+            position: absolute; top: 0; left: 0; transform: translateY(-50%); 
+            padding-left: 16vh; /* MARGEM AFASTADA DO CENTRO */
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; line-height: 0.95; font-size: 3.5vh;
         }
@@ -194,7 +188,7 @@
         }
         #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
-            height: 15vh; 
+            height: 15vh; /* Altura definida */
             display: flex; align-items: center; justify-content: center;
             font-family: 'Montserrat'; font-weight: 900; font-size: 5vh;
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
@@ -220,7 +214,7 @@
         @media (orientation: landscape) {
             #wheel-container { width: 85vh; height: 85vh; }
             #jackpot-container { width: 85vh; height: 85vh; }
-            .slice-text { padding-left: 16vh; font-size: 3.5vh; }
+            .slice-text { padding-left: 17vh; font-size: 3.5vh; }
         }
 
         /* Lock & Version */
@@ -257,7 +251,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v21.0</div>
+        <div class="version-tag">v22.0</div>
     </div>
     
     <!-- HOME ICON -->
@@ -281,7 +275,6 @@
                 <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
             </div>
-            
             <div class="section-box">
                 <h2>Google Sheets</h2>
                 <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública).</p>
@@ -290,25 +283,20 @@
                     <button class="btn btn-small" style="background: #22c55e;" onclick="dataMgr.loadSheet()">CARREGAR</button>
                 </div>
             </div>
-
             <div class="section-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                     <h2 style="margin:0">Editor</h2>
                     <button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Alternar Tabela/JSON</button>
                 </div>
-
                 <div id="editor-container">
-                    <!-- TABLE VIEW -->
                     <div id="view-table" class="editor-view active">
                         <div id="table-rows"></div>
                         <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Nova Categoria</button>
                     </div>
-                    <!-- JSON VIEW -->
                     <div id="view-json" class="editor-view">
                         <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
                     </div>
                 </div>
-
                 <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px">
                     <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
                     <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar Tudo</button>
@@ -325,8 +313,8 @@
         <div class="teams-container">
             <div class="input-group"><label style="color: #6366f1;">Time Azul</label><input type="text" id="t1" value="Time Azul" style="border-left: 6px solid #6366f1" onchange="storage.save()"></div>
             <div class="input-group"><label style="color: #ec4899;">Time Rosa</label><input type="text" id="t2" value="Time Rosa" style="border-left: 6px solid #ec4899" onchange="storage.save()"></div>
-            <button class="btn" onclick="app.confirmTeams()">JOGAR AGORA</button>
         </div>
+        <button class="btn" onclick="app.confirmTeams()">JOGAR AGORA</button>
     </div>
 
     <!-- TELA 2: INTRO -->
@@ -452,11 +440,11 @@
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v21', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v22', JSON.stringify(data));
             },
             load: () => {
                 try {
-                    const data = JSON.parse(localStorage.getItem('pnt_data_v21'));
+                    const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
                     if(data) {
                         if(data.cats && Array.isArray(data.cats) && data.cats.length > 0) GLOBAL_SHEETS_DATA = [data.cats];
                         if(data.source) SOURCE_TYPE = data.source;
@@ -465,7 +453,7 @@
                         if(data.time) document.getElementById('opt-time').value = data.time;
                         if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
                     }
-                } catch(e) { localStorage.removeItem('pnt_data_v21'); }
+                } catch(e) { localStorage.removeItem('pnt_data_v22'); }
             }
         };
 
@@ -593,7 +581,6 @@
             },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
             confirmTeams: () => {
-                // Validar e ir para intro
                 try {
                     st.t[0].n = document.getElementById('t1').value || "Time 1";
                     st.t[1].n = document.getElementById('t2').value || "Time 2";
@@ -633,7 +620,7 @@
                     app.to('teams');
                 } catch(e) {
                     // Fallback
-                    localStorage.removeItem('pnt_data_v21');
+                    localStorage.removeItem('pnt_data_v22');
                     location.reload();
                 }
             },
@@ -665,7 +652,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (DETERMINISTIC) */
+        /* WHEEL & JACKPOT (PHYSICS & MATH FIX) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -776,16 +763,17 @@
 
             go: (v) => {
                 wheel.spin=true; aud.l('spin',true);
+                let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
                 let winnerIdx = -1;
+
+                // Check for cheats
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
-                else winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
-                st.cat = CURRENT_ROUND_CATS[winnerIdx];
-                let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
 
                 const loop=()=>{
                     if(!wheel.spin) return;
-                    vel *= 0.985;
+                    vel *= 0.985; // Friction
+                    
                     if (wheel.mode === 'wheel') {
                          wheel.ang += vel; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
                     } else {
@@ -795,8 +783,21 @@
                          if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
                          wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                     }
-                    if(Math.abs(vel)<0.1) { wheel.spin = false; wheel.snapToWinner(winnerIdx); } 
-                    else { requestAnimationFrame(loop); }
+
+                    // Stop condition
+                    if(Math.abs(vel)<0.1) {
+                         wheel.spin = false;
+                         
+                         // FORCE CHEAT IF EXISTS
+                         if (winnerIdx !== -1) {
+                             wheel.snapToWinner(winnerIdx);
+                         } else {
+                             // NATURAL STOP & CALC
+                             wheel.calcWinner();
+                         }
+                    } else {
+                         requestAnimationFrame(loop);
+                    }
                 }
                 loop();
             },
@@ -806,26 +807,67 @@
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
                     const currentFull = Math.floor(wheel.ang / 360);
                     const targetAngle = (currentFull * 360) + 360 + (360 - (idx * sliceDeg) - (sliceDeg/2)); 
-                    wheel.el.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
+                    wheel.el.style.transition = "transform 1s ease-out";
                     wheel.el.style.transform = `rotate(${targetAngle}deg)`;
-                    setTimeout(() => wheel.finish(idx), 3000);
+                    setTimeout(() => wheel.finish(idx), 1000);
                 } else {
                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
                     const itemH = 15 * vmin; 
-                    const containerH = 85 * vmin; 
-                    const centerLine = containerH / 2;
+                    const centerLine = (85 * vmin) / 2;
+                    
+                    // Find closest instance of the winner in the visual strip
+                    // Current offset pushes items down (negative offset moves up).
+                    // Y of item i = offsetY + i*itemH
+                    // We need to find 'k' such that k % N == idx and dist is min.
+                    // Simplification: just scroll to the middle set instance of idx
                     const targetItemIndex = idx + CURRENT_ROUND_CATS.length;
                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
-                    wheel.jackpot.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
+                    
+                    wheel.jackpot.style.transition = "transform 1s ease-out";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
-                    setTimeout(() => wheel.finish(idx), 3000);
+                    setTimeout(() => wheel.finish(idx), 1000);
                 }
+            },
+
+            calcWinner: () => {
+                let idx;
+                if (wheel.mode === 'wheel') {
+                    const norm = (wheel.ang % 360 + 360) % 360;
+                    const winAngle = (360 - norm) % 360;
+                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
+                    idx = Math.floor(winAngle / sliceDeg);
+                } else {
+                    const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
+                    const itemH = 15 * vmin; 
+                    const centerLine = (85 * vmin) / 2;
+                    
+                    // Visual adjustment (Snap)
+                    const relativeY = centerLine - (itemH/2) - wheel.offsetY;
+                    let rawIndex = Math.round(relativeY / itemH);
+                    const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
+                    
+                    wheel.jackpot.style.transition = "transform 0.3s ease-out";
+                    wheel.jackpot.style.transform = `translateY(${targetY}px)`;
+                    wheel.offsetY = targetY; // Sync
+                    
+                    // Modulo fix for negative numbers
+                    const n = CURRENT_ROUND_CATS.length;
+                    idx = ((rawIndex % n) + n) % n;
+                }
+                // Add slight delay for visual snap
+                setTimeout(() => wheel.finish(idx), 300);
             },
 
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
                 const cat = CURRENT_ROUND_CATS[idx];
                 ui.showResult(cat.n.replace('*', ''), COLORS[idx % COLORS.length], () => game.pre());
+                
+                // Reset transition for next drag
+                setTimeout(() => {
+                    if (wheel.mode === 'wheel') wheel.el.style.transition = 'none';
+                    else wheel.jackpot.style.transition = 'none';
+                }, 100);
             }
         };
 
