@@ -64,59 +64,68 @@
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === SELETOR: LAYOUT DUAL (Roleta OU Jackpot) === */
-        #screen-wheel { flex-direction: row; gap: 5vw; }
-        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
+        /* === SELETOR DE MODO (ROLETA/JACKPOT) === */
+        #screen-wheel { 
+            flex-direction: row; 
+            justify-content: center; /* Mantém tudo no meio da tela */
+            gap: 3vw; 
+        }
 
-        /* 1. ESTILO ROLETA (CIRCULAR) */
-        #wheel-container { display:none; width: 65vmin; height: 65vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
+        /* --- COLUNA ESQUERDA (VISUALIZADOR) --- */
+        
+        /* Roleta Circular */
+        #wheel-container { 
+            width: 65vmin; height: 65vmin; 
+            position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); 
+            flex-shrink: 0; /* Impede que encolha */
+        }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
         .slice-text { 
             position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 10vmin; 
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; line-height: 0.95;
         }
         #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
-        /* 2. ESTILO JACKPOT (VERTICAL) */
+        /* Jackpot Vertical (Fixed Width) */
         #jackpot-container { 
-            display:none; /* Ativado via JS se > 10 cats */
-            width: 60vmin; height: 60vmin; 
-            position: relative; 
+            display:none;
+            width: 50vmin; height: 50vmin; 
+            position: relative; flex-shrink: 0;
             background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
             overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
             mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
         }
-        #jackpot-strip {
-            width: 100%;
-            /* Altura será dinâmica */
-            position: absolute; top: 50%; left: 0;
-            /* Transform controlado via JS */
-        }
+        #jackpot-strip { width: 100%; position: absolute; top: 50%; left: 0; transform: translateY(0px); }
         .jackpot-item {
-            height: 12vmin; /* Altura de cada item */
+            height: 12vmin; 
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Montserrat'; font-weight: 900; font-size: 4vmin;
+            font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin;
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
             border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center; padding: 0 10px;
+            overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
-        /* Seta do Jackpot */
-        .jackpot-arrow {
-            position: absolute; top: 50%; left: -20px; transform: translateY(-50%);
-            border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white;
-            z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5));
+        .jackpot-arrow { position: absolute; top: 50%; left: -20px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
+        .jackpot-arrow-right { left: auto; right: -20px; transform: translateY(-50%) rotate(180deg); }
+        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
+
+        /* --- COLUNA DIREITA (INFO) --- */
+        .wheel-info { 
+            display: flex; flex-direction: column; 
+            align-items: flex-start; justify-content: center; 
+            width: 40vw; /* Largura fixa para não empurrar a roleta */
+            max-width: 400px;
+            text-align: left;
         }
-        .jackpot-arrow-right {
-            left: auto; right: -20px; transform: translateY(-50%) rotate(180deg);
-        }
-        .jackpot-highlight {
-            position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white;
-            pointer-events: none;
+
+        /* Ajuste de texto responsivo */
+        #res-cat {
+            font-size: 5vh; font-weight: 900; margin-bottom: 2vh; 
+            color: #22c55e; text-transform: uppercase; line-height:1.1;
+            word-wrap: break-word; /* Quebra linha se for mt longo */
         }
 
         /* === RESULTADOS === */
@@ -125,7 +134,9 @@
         /* === RESPONSIVO === */
         @media (max-width: 900px) {
             #screen-wheel { flex-direction: column; gap: 20px; }
-            .wheel-info { align-items: center; text-align: center; }
+            .wheel-info { align-items: center; text-align: center; width: 90%; }
+            #wheel-container { width: 70vw; height: 70vw; }
+            #jackpot-container { width: 70vw; height: 70vw; }
             h1 { font-size: 3rem; }
         }
         #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
@@ -138,6 +149,7 @@
 </head>
 <body>
 
+    <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
     <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
@@ -164,12 +176,15 @@
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3"></div>
             </div>
             <div class="section-box">
-                <h2>Editor</h2>
-                <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px">Cole JSON ou link Google Sheets (Público).</p>
-                <div class="input-group"><input type="text" id="sheet-input" placeholder="Google Sheets Link" onchange="dataMgr.loadSheet()"></div>
+                <h2>Google Sheets</h2>
+                <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px">Link da Planilha (Pública)</p>
+                <div class="input-group"><input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/d/..." onchange="dataMgr.loadSheet()"></div>
+            </div>
+            <div class="section-box">
+                <h2>Editor Manual</h2>
                 <div class="input-group"><textarea id="json-input" placeholder='[{"n":"CAT","w":["A","B"]}]'></textarea></div>
                 <div style="display:flex; flex-wrap:wrap; gap:10px">
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt</button>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
                     <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar</button>
                 </div>
@@ -194,10 +209,10 @@
         <h2 style="opacity:0.6; font-size: 3vh;">RODADA <span id="lbl-rd">1</span></h2>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
         <p style="font-size: 3vh; opacity: 0.8">Celular na testa</p>
-        <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">SORTEAR TEMA</button>
+        <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">GIRAR ROLETA</button>
     </div>
 
-    <!-- TELA 3: SELEÇÃO (ROLETA OU JACKPOT) -->
+    <!-- TELA 3: SELEÇÃO -->
     <div id="screen-wheel" class="screen">
         <!-- MODO ROLETA -->
         <div id="wheel-container">
@@ -216,7 +231,7 @@
 
         <div class="wheel-info">
             <h3 style="color: #fbbf24; font-size: 3vh; text-transform: uppercase; margin-bottom: 1vh;">Categoria</h3>
-            <div id="res-cat" style="font-size: 6vh; font-weight: 900; margin-bottom: 2vh; color: #22c55e; text-transform: uppercase; line-height:1.1">...</div>
+            <div id="res-cat" style="opacity:0">...</div>
             <button id="btn-go" class="btn" style="display:none" onclick="game.pre()">COMEÇAR</button>
         </div>
     </div>
@@ -256,27 +271,27 @@
     </div>
 
     <script>
-        /* CONFIG */
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
         const DEFAULT_CATS = [
-            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão"]},
-            {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie"]},
-            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá"]},
-            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer"]},
-            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa"]},
-            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital"]},
-            {n:"ESPORTES", w:["Futebol","Vôlei","Basquete","Tênis","Natação"]},
+            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
+            {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},
+            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},
+            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
+            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
+            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]},
+            {n:"ESPORTES", w:["Futebol","Vôlei","Basquete","Tênis","Natação","Judô","Boxe","Golfe"]},
             {n:"CORES", w:["Azul","Vermelho","Verde","Amarelo","Roxo"]},
-            {n:"FRUTAS", w:["Maçã","Banana","Uva","Laranja","Morango"]},
-            {n:"PAÍSES", w:["Brasil","Argentina","EUA","Japão","França"]},
-            {n:"PROFISSÕES", w:["Médico","Professor","Policial","Bombeiro","Advogado"]}
+            {n:"JOGADORES DE FUTEBOL", w:["Messi", "Neymar", "CR7", "Pelé", "Maradona"]},
+            {n:"SÉRIES", w:["Friends", "Lost", "Breaking Bad", "GoT", "The Office"]},
+            {n:"COMIDAS", w:["Pizza", "Hamburguer", "Sushi", "Pastel", "Coxinha"]},
+            {n:"PLANTAS", w:["Rosa", "Girassol", "Cacto", "Orquídea", "Samambaia"]},
+            {n:"TECNOLOGIA", w:["iPhone", "Android", "Windows", "Linux", "Wifi"]}
         ];
         
         let CURRENT_CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"",s:0,c:"#6366f1"},{n:"",s:0,c:"#ec4899"}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
-        /* HELPERS */
         function smartSplit(text) {
             if (text.length <= 10) return { text: text, lines: 1 };
             const words = text.split(' ');
@@ -290,7 +305,6 @@
             return { text: `${words.slice(0, bestIdx+1).join(' ')}<br>${words.slice(bestIdx+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, bestIdx+1).join(' ').length, words.slice(bestIdx+1).join(' ').length) };
         }
 
-        /* DATA MGR */
         const dataMgr = {
             init: () => { document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); },
             save: () => { try { CURRENT_CATS = JSON.parse(document.getElementById('json-input').value); alert("Salvo!"); } catch(e) { alert("Erro JSON"); } },
@@ -300,22 +314,28 @@
                 const url = document.getElementById('sheet-input').value;
                 if(!url.includes('docs.google.com')) return;
                 const id = url.match(/\/d\/(.*?)\//)[1];
-                fetch(`https://docs.google.com/spreadsheets/d/${id}/export?format=csv`).then(r=>r.text()).then(csv=>{
+                // USA GVIZ API PARA EVITAR PROBLEMAS DE EXPORT
+                const gviz = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`;
+                fetch(gviz).then(r=>r.text()).then(csv=>{
                     const rows = csv.split('\n').map(r=>r.split(','));
                     const newCats = [];
                     for(let c=0; c<rows[0].length; c++) {
                         const name = rows[0][c].replace(/"/g,'').trim();
                         if(!name) continue;
                         const w = [];
-                        for(let r=1; r<rows.length; r++) if(rows[r][c]) w.push(rows[r][c].replace(/"/g,'').trim());
+                        for(let r=1; r<rows.length; r++) {
+                            if(rows[r] && rows[r][c]) {
+                                const word = rows[r][c].replace(/"/g,'').trim();
+                                if(word) w.push(word);
+                            }
+                        }
                         if(w.length) newCats.push({n:name, w:w});
                     }
-                    if(newCats.length){ CURRENT_CATS=newCats; alert("Carregado!"); }
-                }).catch(()=>alert("Erro Planilha"));
+                    if(newCats.length){ CURRENT_CATS=newCats; alert("Carregado com sucesso!"); }
+                }).catch(e=>alert("Erro! Verifique se a planilha é pública (Qualquer um com link)."));
             }
         };
 
-        /* SENSOR */
         const sensor = {
             z: 0, wait: false,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
@@ -331,7 +351,6 @@
         };
         sensor.init();
 
-        /* NAV */
         const app = {
             to: (id) => {
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -341,6 +360,9 @@
             start: () => {
                 aud.p('click');
                 if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission().catch(()=>{});
+                }
                 st.t[0].n = document.getElementById('t1').value; st.t[1].n = document.getElementById('t2').value;
                 st.cfg.t = parseInt(document.getElementById('opt-time').value); st.cfg.r = parseInt(document.getElementById('opt-rounds').value);
                 app.prep();
@@ -367,20 +389,16 @@
             }
         };
 
-        /* HYBRID SELECTION SYSTEM */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
-            mode: 'wheel', // 'wheel' or 'jackpot'
+            mode: 'wheel',
             ang: 0, offsetY: 0, spin: false, velocity: 0, lastPos: 0, lastTime: 0,
             
             init: () => {
-                // Decide mode based on count
-                wheel.mode = CURRENT_CATS.length > 10 ? 'jackpot' : 'wheel';
-                
+                wheel.mode = CURRENT_CATS.length > 12 ? 'jackpot' : 'wheel';
                 document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
-                
                 document.getElementById('btn-go').style.display='none'; 
                 document.getElementById('res-cat').innerText = "..."; document.getElementById('res-cat').style.opacity=0;
                 wheel.spin = false;
@@ -408,28 +426,20 @@
             },
 
             setupJackpot: () => {
-                // Create infinite-looking strip by repeating array
                 let h = "";
-                // We repeat the list multiple times for the scrolling effect
-                const list = [...CURRENT_CATS, ...CURRENT_CATS, ...CURRENT_CATS]; 
+                const list = [...CURRENT_CATS, ...CURRENT_CATS, ...CURRENT_CATS]; // Triplica para loop
                 list.forEach((c, i) => {
                      const color = COLORS[i % COLORS.length];
                      h += `<div class="jackpot-item" style="background:${color}">${c.n}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
-                
-                // Center initially
-                const itemHeight = wheel.jackpot.firstElementChild.clientHeight || 50; // approx
-                wheel.offsetY = 0; 
-                wheel.jackpot.style.transform = `translateY(0px)`;
+                wheel.offsetY = 0; wheel.jackpot.style.transform = `translateY(0px)`;
             },
 
             attachEvents: () => {
                 const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
-                
                 const track = (pos) => {
                     const now=Date.now(); const delta = pos - wheel.lastPos; const dt=now-wheel.lastTime;
-                    
                     if (wheel.mode === 'wheel') {
                         wheel.ang += delta * 0.5; 
                         wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
@@ -437,21 +447,15 @@
                         wheel.offsetY += delta;
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                     }
-
                     if(dt>0) wheel.velocity = (delta/dt) * 15;
                     wheel.lastPos = pos; wheel.lastTime = now;
                 };
-                
                 const start = (pos) => { if(wheel.spin)return; wheel.lastPos=pos; wheel.lastTime=Date.now(); wheel.velocity=0; };
                 const end = () => { if(wheel.spin)return; if(Math.abs(wheel.velocity)>0.5) wheel.go(wheel.velocity); };
                 
-                // Remove old listeners to avoid dupes
-                target.onmousedown = null; target.ontouchstart = null;
-
                 target.ontouchstart = e => start(e.touches[0].clientY);
                 target.ontouchmove = e => { e.preventDefault(); track(e.touches[0].clientY); };
                 target.ontouchend = end;
-                
                 target.onmousedown = e => { start(e.clientY); target.onmousemove = ev => track(ev.clientY); };
                 window.onmouseup = () => { target.onmousemove = null; end(); };
             },
@@ -460,23 +464,19 @@
                 wheel.spin=true; aud.l('spin',true);
                 let vel = v || 20; 
                 if(vel>40) vel=40; if(vel<-40) vel=-40; if(Math.abs(vel)<5) vel = 10 * (Math.random()<0.5?-1:1);
-                
-                // Jackpot logic moves mainly vertically, wheel rotationally
-                
+
                 const loop=()=>{
                     if(!wheel.spin) return;
-                    vel *= 0.98; // Friction
+                    vel *= 0.98;
                     
                     if (wheel.mode === 'wheel') {
                         wheel.ang += vel;
                         wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
                     } else {
-                        wheel.offsetY += vel * 5; // Translate pixel speed
-                        // Loop effect for jackpot
-                        const stripH = wheel.jackpot.clientHeight / 3; // because we tripled the list
+                        wheel.offsetY += vel * 5;
+                        const stripH = wheel.jackpot.clientHeight / 3; 
                         if (wheel.offsetY > 0) wheel.offsetY -= stripH;
                         if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
-                        
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                     }
                     
@@ -489,41 +489,55 @@
             },
 
             finish: () => {
-                let cat;
+                let cat, idx;
                 if (wheel.mode === 'wheel') {
                     const norm = (wheel.ang % 360 + 360) % 360;
                     const winAngle = (360 - norm) % 360;
                     const sliceDeg = 360 / CURRENT_CATS.length;
-                    const idx = Math.floor(winAngle / sliceDeg);
-                    cat = CURRENT_CATS[idx];
-                    st.cat = cat;
-                    const el = document.getElementById('res-cat');
-                    el.style.color = COLORS[idx % COLORS.length];
+                    idx = Math.floor(winAngle / sliceDeg);
                 } else {
-                    // Jackpot calc
-                    const itemH = wheel.jackpot.firstElementChild.clientHeight;
-                    // Center point of container vs offset
-                    // offset is usually negative moving up
-                    const containerCenter = document.getElementById('jackpot-container').clientHeight / 2;
-                    // Find which item is under center
-                    // This is approximate visual logic
-                    // Simply pick random for simplicity ensures valid gameplay or calc index based on offset
-                    const idx = Math.floor(Math.random() * CURRENT_CATS.length);
-                    cat = CURRENT_CATS[idx];
-                    st.cat = cat;
-                    document.getElementById('res-cat').style.color = COLORS[idx % COLORS.length];
+                    // Lógica Exata do Jackpot:
+                    // O item altura é 12vmin. O offset é negativo (subindo).
+                    // O highlight está no centro (top: 50%).
+                    // Convertendo vmin para pixels para cálculo
+                    const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
+                    const itemH = 12 * vmin; 
+                    const containerH = 50 * vmin; 
                     
-                    // Snap visual (optional complex math, simplified here to just showing result)
+                    // O "centro" está em 25vmin (metade de 50vmin).
+                    // A posição atual do topo da fita é `wheel.offsetY`.
+                    // A posição de um item i é `wheel.offsetY + i * itemH`.
+                    // Queremos saber qual item está cobrindo o ponto 25vmin.
+                    // 25vmin = offsetY + i * itemH + itemH/2
+                    // i = (25vmin - offsetY - itemH/2) / itemH
+                    
+                    const centerLine = containerH / 2;
+                    const relativeY = centerLine - wheel.offsetY; // Posição relativa na fita
+                    let rawIndex = Math.floor(relativeY / itemH);
+                    
+                    // Ajuste fino (Snap)
+                    const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
+                    wheel.jackpot.style.transition = "transform 0.3s ease-out";
+                    wheel.jackpot.style.transform = `translateY(${targetY}px)`;
+                    setTimeout(() => wheel.jackpot.style.transition = "none", 300);
+
+                    // Mapeia para array original
+                    idx = rawIndex % CURRENT_CATS.length;
+                    if(idx < 0) idx += CURRENT_CATS.length;
                 }
                 
-                document.getElementById('res-cat').innerText = cat.n; 
-                document.getElementById('res-cat').style.opacity = 1;
+                cat = CURRENT_CATS[idx];
+                st.cat = cat;
+                const el = document.getElementById('res-cat');
+                el.innerText = cat.n; 
+                el.style.color = COLORS[idx % COLORS.length];
+                el.style.opacity = 1;
+                
                 aud.p('win'); 
                 document.getElementById('btn-go').style.display='inline-block';
             }
         };
 
-        /* GAME */
         const game = {
             tmr: null,
             pre: () => {
@@ -535,6 +549,7 @@
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
                 const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
+                
                 game.tmr = setInterval(()=>{
                     t--; tn.innerText=t;
                     const pct=((totalT-t)/totalT)*360;
