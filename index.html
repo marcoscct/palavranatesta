@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === RESET & VARS === */
+        /* === VARS & RESET === */
         :root {
             --bg-dark: #0f172a;
             --primary: #6366f1;
@@ -30,13 +30,10 @@
             background-color: #1e1b4b;
             background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
             height: 100%;
-            overflow: hidden;
         }
 
         body {
-            width: 100%; /* FIX DA BARRA ROXA: Usar % em vez de vw */
-            height: 100%; 
-            overflow: hidden;
+            width: 100vw; height: 100vh; overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
             background: transparent;
             position: fixed; top: 0; left: 0;
@@ -47,7 +44,6 @@
             position: absolute; inset: 0;
             display: none; flex-direction: column; align-items: center; justify-content: center;
             padding: 20px; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
-            width: 100%; height: 100%; /* Garante preenchimento */
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         .scrollable { overflow-y: auto; justify-content: flex-start; padding-top: 40px; }
@@ -56,7 +52,7 @@
         /* === TYPOGRAPHY === */
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2rem, 6vw, 4.5rem); text-transform: uppercase; 
+            font-size: clamp(2.5rem, 6vw, 4.5rem); text-transform: uppercase; 
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-align: center; letter-spacing: -1px; margin-bottom: 20px;
@@ -94,12 +90,27 @@
         #editor-container { width: 100%; }
         .editor-view { display: none; width: 100%; }
         .editor-view.active { display: block; }
+        
         .table-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .table-input-cat { width: 30%; font-weight: bold; color: var(--accent); }
         .table-input-words { width: 60%; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; }
         
-        /* === MODAL === */
+        /* === DATA SOURCE INDICATOR === */
+        #source-indicator {
+            position: absolute; bottom: 20px; left: 20px; z-index: 100;
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0,0,0,0.6); padding: 8px 15px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1); pointer-events: none;
+            opacity: 0.8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+            transition: opacity 0.3s;
+        }
+        #source-icon svg { width: 20px; height: 20px; fill: white; }
+        .source-sheet #source-icon svg { fill: #22c55e; }
+        /* Esconde durante o jogo */
+        body.game-active #source-indicator { opacity: 0; }
+
+        /* === MODAL (CUSTOM POPUP) === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -146,42 +157,31 @@
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
         .touch-zone { position: absolute; top:0; bottom:0; width: 40%; z-index: 8; } .tz-l { left: 0; } .tz-r { right: 0; }
 
-        /* === SELETOR: LAYOUT DUAL (MOBILE ADJUSTED) === */
-        #screen-wheel { flex-direction: row; gap: 2vw; justify-content: center; align-items: center; }
-        .wheel-info { 
-            display: flex; flex-direction: column; align-items: flex-start; justify-content: center; 
-            width: 35vw; max-width: 450px; flex-shrink: 0; text-align: left; 
-        }
+        /* === SELETOR: LAYOUT DUAL === */
+        #screen-wheel { flex-direction: row; gap: 5vw; }
+        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
         
         #res-cat {
-            font-size: 4vh; font-weight: 900; margin-bottom: 2vh; 
+            font-size: 5vh; font-weight: 900; margin-bottom: 2vh; 
             color: #22c55e; text-transform: uppercase; line-height:1.1;
-            word-wrap: break-word; width: 100%;
+            word-wrap: break-word;
         }
 
-        /* 1. ESTILO ROLETA (MAXIMIZADA PARA MOBILE) */
-        #wheel-container { 
-            display:none; 
-            width: 85vh; height: 85vh; /* Ocupa quase toda a altura da tela */
-            position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; 
-        }
+        /* 1. ESTILO ROLETA */
+        #wheel-container { display:none; width: 65vmin; height: 65vmin; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
-        
-        /* AJUSTE DE POSIÇÃO E TAMANHO DA FONTE */
         .slice-text { 
-            position: absolute; top: 0; left: 0; transform: translateY(-50%); 
-            padding-left: 15vh; /* Afasta baseado na altura da tela (proporcional ao wheel) */
+            position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 14vmin; 
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; line-height: 0.95;
         }
-        
-        #pointer { position: absolute; top: -3vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
+        #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
-        /* 2. ESTILO JACKPOT */
+        /* 2. ESTILO JACKPOT (CORRIGIDO) */
         #jackpot-container { 
-            display:none; width: 80vh; height: 80vh; /* Maximizado */
+            display:none; width: 50vmin; height: 50vmin; 
             position: relative; flex-shrink: 0;
             background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
             overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
@@ -190,35 +190,35 @@
         }
         #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
-            height: 15vh; /* Altura Proporcional */
+            height: 12vmin; 
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Montserrat'; font-weight: 900; font-size: 4vh;
+            font-family: 'Montserrat'; font-weight: 900; font-size: 3.5vmin;
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             text-align: center; padding: 0 10px;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
-        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 15vh; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
+        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 12vmin; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; }
         .jackpot-arrow { position: absolute; top: 50%; left: -20px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
         .jackpot-arrow-right { left: auto; right: -20px; transform: translateY(-50%) rotate(180deg); }
 
         /* === RESULTADOS === */
         #screen-res, #screen-final { background: #1e1b4b; }
 
-        /* === RESPONSIVO (AJUSTES FINAIS) === */
+        /* === RESPONSIVO === */
         @media (max-width: 900px) {
             #screen-wheel { flex-direction: column; gap: 20px; }
             .wheel-info { align-items: center; text-align: center; width: 90%; }
-            /* Fallback se a tela for vertical, mas o jogo força landscape visualmente */
-            #wheel-container { width: 85vw; height: 85vw; }
-            #jackpot-container { width: 85vw; height: 85vw; }
+            #wheel-container { width: 70vw; height: 70vw; }
+            #jackpot-container { width: 70vw; height: 70vw; }
             h1 { font-size: 3rem; }
         }
 
         @media (orientation: landscape) {
-            #wheel-container { width: 85vh; height: 85vh; }
-            #jackpot-container { width: 85vh; height: 85vh; }
-            .slice-text { padding-left: 15vh; font-size: 3.5vh; }
+             #wheel-container { width: 85vh; height: 85vh; }
+             #jackpot-container { width: 85vh; height: 85vh; }
+             .slice-text { padding-left: 15vh; font-size: 3.5vh; }
+             .wheel-info { width: 40vw; max-width: 450px; flex-shrink: 0; }
         }
 
         #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
@@ -439,10 +439,10 @@
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v14', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v12', JSON.stringify(data));
             },
             load: () => {
-                const data = JSON.parse(localStorage.getItem('pnt_data_v14'));
+                const data = JSON.parse(localStorage.getItem('pnt_data_v12'));
                 if(data) {
                     if(data.cats) CURRENT_CATS = data.cats;
                     if(data.source) SOURCE_TYPE = data.source;
@@ -611,13 +611,9 @@
                     g += `${color} ${start}deg ${end}deg,`;
                     const mid = start + (sliceDeg / 2);
                     const split = smartSplit(c.n);
-                    
-                    // Adjusted font calculation for Mobile
-                    let fontSize = 3.5; 
-                    const refLen = split.lines === 1 ? c.n.length : split.maxLen;
+                    let fontSize = 3.5; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
                     if(refLen > 8) fontSize = 3.5 * (8 / refLen);
-                    
-                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
+                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vmin">${split.text}</span></div>`;
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
                 wheel.el.style.transform = `rotate(0deg)`;
@@ -647,18 +643,11 @@
                     wheel.el.style.transform = `rotate(${targetAngle}deg)`;
                     setTimeout(() => wheel.finish(winnerIdx), 4000);
                 } else {
-                    // JACKPOT MATH (Responsive)
-                    // We need to calculate itemH dynamically based on viewport like CSS does
-                    // CSS says height: 15vh.
-                    const vh = window.innerHeight;
-                    const itemH = vh * 0.15; 
-                    const containerH = vh * 0.85; // Approx max height, but actually height is handled by CSS
-                    // Actually the container height is defined in CSS as 85vh (mobile) or 50vmin.
-                    // Let's rely on element properties
-                    const stripEl = document.getElementById('jackpot-container');
-                    const centerLine = stripEl.clientHeight / 2;
+                    const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
+                    const itemH = 12 * vmin; 
+                    const containerH = 50 * vmin; 
+                    const centerLine = containerH / 2;
                     
-                    // Target item
                     const targetItemIndex = winnerIdx + CURRENT_CATS.length;
                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
                     
@@ -685,6 +674,7 @@
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
             pre: () => {
                 app.to('game'); 
+                // Force Reset Timer
                 document.getElementById('timer-num').innerText = st.cfg.t;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
                 
