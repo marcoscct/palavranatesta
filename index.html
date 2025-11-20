@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === VARS & RESET === */
+        /* === RESET & VARS === */
         :root {
             --bg-dark: #0f172a;
             --primary: #6366f1;
@@ -52,7 +52,7 @@
         /* === TYPOGRAPHY === */
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2.5rem, 6vw, 4.5rem); text-transform: uppercase; 
+            font-size: clamp(2rem, 6vw, 4rem); text-transform: uppercase; 
             background: linear-gradient(to right, #818cf8, #f472b6);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-align: center; letter-spacing: -1px; margin-bottom: 20px;
@@ -64,7 +64,7 @@
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             color: white; border: none; border-radius: 50px;
-            padding: 18px 40px; font-size: 1.5rem; font-weight: 900;
+            padding: 15px 40px; font-size: 1.2rem; font-weight: 900;
             text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
             transition: transform 0.1s; width: 100%; max-width: 400px; margin: 10px 0;
@@ -95,7 +95,7 @@
         .table-input-cat { width: 30%; font-weight: bold; color: var(--accent); }
         .table-input-words { width: 60%; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; }
-        
+
         /* === MODAL === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
@@ -158,12 +158,13 @@
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
         .slice-text { 
-            position: absolute; top: 0; left: 0; transform: translateY(-50%); padding-left: 10vmin; 
+            position: absolute; top: 0; left: 0; transform: translateY(-50%); 
+            padding-left: 14vmin; /* Aumentei a margem para afastar do centro */
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; line-height: 0.95;
         }
         #pointer { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); border-left: 30px solid transparent; border-right: 30px solid transparent; border-top: 60px solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 15%; height: 15%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
+        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
         /* 2. ESTILO JACKPOT */
         #jackpot-container { 
@@ -191,7 +192,7 @@
         /* === RESULTADOS === */
         #screen-res, #screen-final { background: #1e1b4b; }
 
-        /* === RESPONSIVO === */
+        /* === RESPONSIVO (CORREÇÃO MOBILE LANDSCAPE) === */
         @media (max-width: 900px) {
             #screen-wheel { flex-direction: column; gap: 20px; }
             .wheel-info { align-items: center; text-align: center; width: 90%; }
@@ -199,7 +200,28 @@
             #jackpot-container { width: 70vw; height: 70vw; }
             h1 { font-size: 3rem; }
         }
-        #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* AJUSTE CRÍTICO PARA MOBILE LANDSCAPE */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .screen { padding: 10px; }
+            h1 { font-size: 2rem; margin-bottom: 10px; }
+            .setup-container { gap: 10px; }
+            input { padding: 10px; font-size: 1rem; }
+            .btn { padding: 10px 20px; font-size: 1rem; margin: 5px 0; }
+            #screen-wheel { flex-direction: row; gap: 20px; }
+            
+            /* Roleta menor para caber na altura */
+            #wheel-container { width: 60vh; height: 60vh; } 
+            #jackpot-container { width: 60vh; height: 60vh; } 
+            
+            /* Texto mais seguro */
+            .slice-text { font-size: 2.5vh; padding-left: 15vmin; } 
+            
+            .wheel-info { width: 40vw; min-width: auto; }
+            #res-cat { font-size: 3rem; margin-bottom: 10px; }
+        }
+
+        #lock { position: fixed; inset: 0; background: #020617; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
         @media screen and (orientation: portrait) { 
             #lock { display: flex; } .screen:not(.allow-portrait) { display: none !important; } 
             .allow-portrait { display: flex !important; }
@@ -265,13 +287,11 @@
                 </div>
 
                 <div id="editor-container">
-                    <!-- TABLE VIEW (DEFAULT NOW) -->
                     <div id="view-table" class="editor-view active">
                         <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite como tabela. Palavras separadas por vírgula.</p>
                         <div id="table-rows"></div>
                         <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Nova Categoria</button>
                     </div>
-                    <!-- JSON VIEW -->
                     <div id="view-json" class="editor-view">
                         <p style="font-size:0.8rem; color:#aaa; margin-bottom:5px">Edite o JSON diretamente.</p>
                         <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
@@ -419,10 +439,10 @@
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value
                 };
-                localStorage.setItem('pnt_data_v12', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v11', JSON.stringify(data));
             },
             load: () => {
-                const data = JSON.parse(localStorage.getItem('pnt_data_v12'));
+                const data = JSON.parse(localStorage.getItem('pnt_data_v11'));
                 if(data) {
                     if(data.cats) CURRENT_CATS = data.cats;
                     if(data.source) SOURCE_TYPE = data.source;
@@ -435,7 +455,7 @@
         };
 
         const dataMgr = {
-            isTableMode: true, // Default True
+            isTableMode: true,
             init: () => { 
                 document.getElementById('json-input').value = JSON.stringify(CURRENT_CATS, null, 2); 
                 dataMgr.renderTable();
@@ -511,21 +531,15 @@
         /* NAV */
         const app = {
             to: (id) => {
-                // If exiting game, ensure timer is cleared
                 if(document.querySelector('#screen-game.active')) game.stop();
-
                 document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
                 document.getElementById('screen-'+id).classList.add('active');
                 if(id === 'options') dataMgr.init();
-                
                 const homeBtn = document.getElementById('home-btn');
-                if(id === 'home') homeBtn.style.display = 'none';
-                else homeBtn.style.display = 'block';
+                if(id === 'home') homeBtn.style.display = 'none'; else homeBtn.style.display = 'block';
             },
             tryHome: () => {
-                ui.confirm("Voltar ao menu?", () => {
-                    app.to('home');
-                });
+                ui.confirm("Voltar ao menu?", () => { app.to('home'); });
             },
             start: () => {
                 aud.p('click');
@@ -579,7 +593,6 @@
                 const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
                 const newEl = target.cloneNode(true);
                 target.parentNode.replaceChild(newEl, target);
-                
                 if(wheel.mode==='wheel') wheel.el = document.getElementById('wheel-spinner');
                 else wheel.jackpot = document.getElementById('jackpot-strip');
                 
@@ -611,8 +624,7 @@
                      h += `<div class="jackpot-item" style="background:${color}">${c.n}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
-                wheel.offsetY = 0; 
-                wheel.jackpot.style.transform = `translateY(0px)`;
+                wheel.offsetY = 0; wheel.jackpot.style.transform = `translateY(0px)`;
             },
 
             go: () => {
@@ -628,13 +640,9 @@
                     setTimeout(() => wheel.finish(winnerIdx), 4000);
                 } else {
                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
-                    const itemH = 12 * vmin; 
-                    const containerH = 50 * vmin; 
-                    const centerLine = containerH / 2;
-                    
+                    const itemH = 12 * vmin; const containerH = 50 * vmin; const centerLine = containerH / 2;
                     const targetItemIndex = winnerIdx + CURRENT_CATS.length;
                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
-                    
                     wheel.jackpot.style.transition = "transform 3s cubic-bezier(0.1, 0.9, 0.2, 1)";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
                     setTimeout(() => wheel.finish(winnerIdx), 3000);
@@ -658,17 +666,14 @@
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
             pre: () => {
                 app.to('game'); 
-                
-                // RESET TIMER VISUALS INSTANTLY
                 document.getElementById('timer-num').innerText = st.cfg.t;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
-                
                 const d=document.getElementById('word-disp'); 
                 let c=3; d.innerText=c; 
                 const i=setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(i); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
             },
             run: () => {
-                game.stop(); // Safety clear
+                game.stop(); 
                 st.on=true; st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
@@ -678,10 +683,7 @@
                     t--; tn.innerText=t;
                     const pct=((totalT-t)/totalT)*360;
                     tw.style.background=`conic-gradient(var(--secondary) ${pct}deg, #333 ${pct}deg)`;
-                    if(t<=0) {
-                        game.stop();
-                        game.end();
-                    }
+                    if(t<=0) { game.stop(); game.end(); }
                 },1000);
             },
             next: () => {
@@ -711,10 +713,7 @@
             }
         };
 
-        window.onload = () => {
-            storage.load();
-            sensor.init();
-        };
+        window.onload = () => { storage.load(); sensor.init(); };
     </script>
 </body>
 </html>
