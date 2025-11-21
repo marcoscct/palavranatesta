@@ -1232,17 +1232,4 @@
                 const l=document.getElementById('res-list'); l.innerHTML="";
                 st.h.forEach(x=>{
                     const d=document.createElement('div');
-                    d.innerHTML=`<b style="color:${x.ok?'#22c55e':'#ef4444'}">${x.ok?'✓':'✗'}</b> ${x.w}`;
-                    d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)"; l.appendChild(d);
-                });
-                app.to('res');
-            }
-        };
-
-        window.onload = () => {
-            storage.load();
-            sensor.init();
-        };
-    </script>
-</body>
-</html>
+                    d.innerHTML=`<b style="color:${x.ok?'#22c55e
