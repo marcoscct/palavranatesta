@@ -21,7 +21,6 @@
             --success: #22c55e;
             --danger: #ef4444;
             --border: 1px solid rgba(255, 255, 255, 0.15);
-            /* Variáveis de Segurança para iOS */
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --safe-left: env(safe-area-inset-left, 0px);
@@ -171,6 +170,16 @@
             text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
+        /* === MSG FORCE === */
+        #msg-force {
+            position: absolute; top: 50%; right: 5vw; transform: translateY(-50%);
+            font-family: 'Montserrat'; font-weight: 900; font-size: 4vh; color: var(--accent);
+            text-shadow: 0 0 20px black; opacity: 0; pointer-events: none; z-index: 100;
+            transition: opacity 0.3s; text-align: center; width: 300px;
+        }
+        #msg-force.show { opacity: 1; animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: translate(1px, -50%) } 25% { transform: translate(-1px, -50%) } 50% { transform: translate(-3px, -50%) } 75% { transform: translate(3px, -50%) } 100% { transform: translate(0, -50%) } }
+
         /* === TELA INICIAL === */
         #screen-home { gap: 2vh; }
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
@@ -219,12 +228,9 @@
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
         
-        /* === AJUSTE DO TEXTO DA ROLETA === */
         .slice-text { 
             position: absolute; top: 0; left: 0; transform: translateY(-50%); 
-            /* Aproxima do centro (estava 16vh) */
             padding-left: 9vh; 
-            /* Garante que o texto tenha espaço */
             width: 42vh;
             font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; line-height: 0.95; font-size: 3.5vh;
@@ -266,6 +272,7 @@
             #wheel-container { width: 85vw; height: 85vw; }
             #jackpot-container { width: 85vw; height: 85vw; }
             h1 { font-size: 2.5rem; }
+            #msg-force { right: 50%; transform: translate(50%, -50%); top: 15%; width: 80%; }
         }
         @media (orientation: landscape) {
             #wheel-container { width: 85vh; height: 85vh; }
@@ -307,7 +314,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.10</div>
+        <div class="version-tag">v23.0</div>
     </div>
     
     <!-- HOME ICON -->
@@ -425,6 +432,7 @@
             <div class="jackpot-arrow jackpot-arrow-right"></div>
             <div id="jackpot-strip"></div>
         </div>
+        <div id="msg-force">GIRE MAIS FORTE!</div>
     </div>
 
     <!-- TELA 4: JOGO -->
@@ -703,14 +711,12 @@
                 if(id === 'options') dataMgr.init();
                 const homeBtn = document.getElementById('home-btn');
                 
-                // RESET DO TIMER E RODADA AO VOLTAR PARA HOME
                 if(id === 'home') {
                     homeBtn.style.display = 'none';
-                    game.stopAll(); // STOP TUDO
+                    game.stopAll();
                     document.getElementById('timer-num').innerText = st.cfg.t;
                     document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, #333 0deg)`;
                     
-                    // RESET LÓGICO COMPLETO
                     st.rd = 1;
                     st.trn = 0;
                     st.pts = 0;
@@ -797,23 +803,20 @@
             }
         };
 
-        /* WHEEL & JACKPOT (DETERMINISTIC) */
+        /* WHEEL & JACKPOT (HYBRID PHYSICS V23.0) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
             mode: 'wheel',
             ang: 0, offsetY: 0, spin: false, 
-            spinTmr: null,
             
             init: () => {
-                // LÓGICA ALTERADA PARA RESPEITAR OPÇÕES
                 const mode = document.getElementById('opt-mode').value;
                 const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
 
                 if (mode === 'wheel') wheel.mode = 'wheel';
                 else if (mode === 'jackpot') wheel.mode = 'jackpot';
                 else {
-                    // auto
                     wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
                 }
 
@@ -834,10 +837,9 @@
                 wheel.el.style.transform = 'rotate(0deg)';
                 wheel.ang = 0;
                 
-                // Attach simple click to spin
+                // DRAG PHYSICS ATTACHMENT
                 const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
-                container.onmousedown = wheel.go; 
-                container.ontouchstart = wheel.go;
+                wheel.attachDrag(container);
             },
 
             setupWheel: () => {
@@ -857,12 +859,10 @@
 
             setupJackpot: () => {
                 let h = "";
-                // CREATE 9 COPIES FOR SAFETY BUFFER
                 const list = [];
-                for(let k=0; k<9; k++) {
+                for(let k=0; k<15; k++) { // Even more copies for high velocity
                     CURRENT_ROUND_CATS.forEach(c => list.push(c));
                 }
-                
                 const n = CURRENT_ROUND_CATS.length;
                 list.forEach((c, i) => {
                      const realIndex = i % n;
@@ -870,103 +870,126 @@
                      h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
-                
-                // Center initial view on middle set
-                // We will set this in 'go' or 'init' after render, but for now just let it sit at 0
             },
 
-            go: () => {
+            attachDrag: (target) => {
+                let startY = 0, lastY = 0, startTime = 0;
+                
+                const onStart = (e) => {
+                    if(wheel.spin) return;
+                    startY = e.touches ? e.touches[0].clientY : e.clientY;
+                    lastY = startY;
+                    startTime = Date.now();
+                    document.addEventListener('touchmove', onMove, {passive: false});
+                    document.addEventListener('touchend', onEnd);
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onEnd);
+                };
+
+                const onMove = (e) => {
+                    e.preventDefault(); // Prevent scroll
+                    lastY = e.touches ? e.touches[0].clientY : e.clientY;
+                };
+
+                const onEnd = () => {
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onEnd);
+                    
+                    const endTime = Date.now();
+                    const dist = Math.abs(lastY - startY);
+                    const duration = endTime - startTime;
+                    const vel = dist / duration; // pixels per ms
+                    
+                    if (dist > 10) { // Minimum drag distance to trigger
+                        wheel.go(vel);
+                    }
+                };
+
+                target.onmousedown = onStart;
+                target.ontouchstart = onStart;
+            },
+
+            go: (velocity) => {
                 if(wheel.spin) return;
+                
+                // THRESHOLD CHECK (Weak spin?)
+                if (velocity < 0.5) {
+                    document.getElementById('msg-force').classList.add('show');
+                    setTimeout(() => document.getElementById('msg-force').classList.remove('show'), 1000);
+                    return;
+                }
+
                 wheel.spin = true;
                 aud.l('spin', true);
 
+                // Calculate Rotations based on Velocity
+                // Base: 0.5 vel -> 3 spins. Max: 5 vel -> 10 spins.
+                let baseSpins = 3 + (velocity - 0.5) * 2; 
+                if (baseSpins > 10) baseSpins = 10;
+                
+                // Duration based on spins
+                const duration = 2 + (baseSpins / 2); // seconds
+
                 let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
-                // CHECK DO CHEAT (*) AQUI
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
 
                 if (wheel.mode === 'wheel') {
-                    // SPIN LOGIC - ROTATION
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
-                    // Current Angle
                     const currentAngle = wheel.ang;
-                    // Target Angle: We need the slice `winnerIdx` to be at top (270 or -90 visual, 0 logic).
-                    // Let's aim for 5 full spins + offset
-                    const spins = 5 * 360;
-                    
-                    // Target rotation calculation
-                    // visual target is where index 0 is at 0deg.
-                    // index `i` is at `i * sliceDeg`. 
-                    // To bring `i` to 0, we rotate by `-i * sliceDeg`.
-                    // Center of slice adjustment: `-sliceDeg/2`.
+                    const spins = Math.round(baseSpins) * 360;
                     const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
                     
-                    // Add randomness within slice? No, center it.
+                    // Add random jitter for "Physics feel" if not cheating? No, simpler is robust.
                     const finalAngle = currentAngle + spins + targetOffset - (currentAngle % 360); 
                     
-                    wheel.el.style.transition = "transform 4s cubic-bezier(0.2, 0, 0.1, 1)";
+                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.2, 0, 0.1, 1)`;
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
-                    wheel.ang = finalAngle; // Save state
+                    wheel.ang = finalAngle;
                     
-                    setTimeout(() => wheel.finish(winnerIdx), 4000);
+                    setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
 
                 } else {
-                    // JACKPOT LOGIC - DETERMINISTIC TRANSLATE
+                    // JACKPOT
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
                     if (!itemEl) return;
-                    
-                    // CRITICAL FIX: READ EXACT RENDERED HEIGHT
                     const itemH = itemEl.getBoundingClientRect().height; 
                     const n = CURRENT_ROUND_CATS.length;
                     
-                    // STARTING POINT: ALIGN TO SET 4 (Middle of 9 sets)
-                    // Set 4 starts at index 4*n.
-                    // We want to start spinning from roughly here to avoid edge issues.
-                    const startSet = 4;
+                    // Start roughly in the middle of the huge list
+                    const startSet = 5;
                     const startY = -(startSet * n * itemH);
                     
-                    // Force jump to start position (no animation)
                     wheel.jackpot.style.transition = 'none';
                     wheel.jackpot.style.transform = `translateY(${startY}px)`;
+                    wheel.jackpot.offsetHeight; // Force Reflow
                     
-                    // Force Reflow
-                    wheel.jackpot.offsetHeight; 
+                    // Calculate Target Set based on Velocity
+                    const setsToScroll = Math.max(2, Math.round(velocity));
+                    const targetSet = startSet + setsToScroll;
                     
-                    // TARGET: WINNER IN SET 6 or 7 (Further down)
-                    // We spin "down" (strip moves up, Y gets more negative)
-                    const targetSet = 7; 
-                    // Center Alignment Logic:
-                    // Container Center = window.innerHeight * 0.85 / 2 approx (depends on CSS)
                     const containerH = document.getElementById('jackpot-container').offsetHeight;
                     const centerOffset = containerH / 2;
                     
-                    // Position of Top of Winner Item relative to strip top (0)
                     const winnerItemIndex = (targetSet * n) + winnerIdx;
                     const winnerItemTop = winnerItemIndex * itemH;
-                    
-                    // We want: (CurrentY + winnerItemTop + itemH/2) = centerOffset
-                    // CurrentY = centerOffset - winnerItemTop - itemH/2
                     const targetY = centerOffset - winnerItemTop - (itemH/2);
                     
-                    // ANIMATE
-                    wheel.jackpot.style.transition = "transform 4s cubic-bezier(0.1, 0, 0.1, 1)";
+                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
                     
-                    setTimeout(() => wheel.finish(winnerIdx), 4000);
+                    setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 }
             },
 
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
                 const cat = CURRENT_ROUND_CATS[idx];
-                
                 st.cat = cat; 
-
-                // FIX COLOR: Mesma lógica do setup para garantir cor correta no modal
                 const color = COLORS[(idx % CURRENT_ROUND_CATS.length) % COLORS.length];
-
                 ui.showResult(cat.n.replace('*', ''), color, () => game.pre());
-                
                 wheel.spin = false;
             }
         };
