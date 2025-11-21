@@ -21,7 +21,7 @@
             --success: #22c55e;
             --danger: #ef4444;
             --border: 1px solid rgba(255, 255, 255, 0.15);
-            /* Variáveis de Segurança para iOS */
+            /* Variáveis de Segurança (Universal) */
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --safe-left: env(safe-area-inset-left, 0px);
@@ -38,7 +38,7 @@
 
         body {
             width: 100vw; 
-            height: 100dvh; 
+            height: 100dvh; /* Melhor suporte para Android com barras dinâmicas */
             overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
             background: transparent;
@@ -238,7 +238,7 @@
         }
         #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
-            height: 15vh; /* Altura definida no CSS */
+            height: 15vh; /* Altura definida */
             display: flex; align-items: center; justify-content: center;
             font-family: 'Montserrat'; font-weight: 900; font-size: 5vh;
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
@@ -301,7 +301,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.8</div>
+        <div class="version-tag">v22.9</div>
     </div>
     
     <!-- HOME ICON -->
@@ -791,12 +791,13 @@
             }
         };
 
-        /* WHEEL & JACKPOT (PHYSICS & MATH FIX) */
+        /* WHEEL & JACKPOT (DETERMINISTIC) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
             mode: 'wheel',
-            ang: 0, offsetY: 0, spin: false, velocity: 0, lastVal: 0, lastTime: 0,
+            ang: 0, offsetY: 0, spin: false, 
+            spinTmr: null,
             
             init: () => {
                 // LÓGICA ALTERADA PARA RESPEITAR OPÇÕES
@@ -817,14 +818,20 @@
                 if (wheel.mode === 'wheel') wheel.setupWheel();
                 else wheel.setupJackpot();
                 
-                const target = wheel.mode === 'wheel' ? document.getElementById('wheel-container') : document.getElementById('jackpot-container');
-                const newEl = target.cloneNode(true);
-                target.parentNode.replaceChild(newEl, target);
+                // Reset styles
+                wheel.el = document.getElementById('wheel-spinner');
+                wheel.jackpot = document.getElementById('jackpot-strip');
+                wheel.jackpot.style.transition = 'none';
+                wheel.jackpot.style.transform = 'translateY(0px)';
+                wheel.offsetY = 0;
+                wheel.el.style.transition = 'none';
+                wheel.el.style.transform = 'rotate(0deg)';
+                wheel.ang = 0;
                 
-                if(wheel.mode==='wheel') wheel.el = document.getElementById('wheel-spinner');
-                else wheel.jackpot = document.getElementById('jackpot-strip');
-                
-                wheel.attachPhysics(document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container'));
+                // Attach simple click to spin
+                const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
+                container.onmousedown = wheel.go; 
+                container.ontouchstart = wheel.go;
             },
 
             setupWheel: () => {
@@ -840,230 +847,107 @@
                     h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
-                wheel.el.style.transform = `rotate(0deg)`;
             },
 
             setupJackpot: () => {
                 let h = "";
-                const list = [...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS]; 
+                // CREATE 9 COPIES FOR SAFETY BUFFER
+                const list = [];
+                for(let k=0; k<9; k++) {
+                    CURRENT_ROUND_CATS.forEach(c => list.push(c));
+                }
+                
                 const n = CURRENT_ROUND_CATS.length;
                 list.forEach((c, i) => {
-                     // FIX COR: Usa o índice original para garantir consistência da cor
                      const realIndex = i % n;
                      const color = COLORS[realIndex % COLORS.length];
                      h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
-                wheel.offsetY = 0; wheel.jackpot.style.transform = `translateY(0px)`;
+                
+                // Center initial view on middle set
+                // We will set this in 'go' or 'init' after render, but for now just let it sit at 0
             },
 
-            attachPhysics: (target) => {
-                const track = (e) => {
-                    const now = Date.now();
-                    let currentVal, delta;
-                    if (wheel.mode === 'wheel') {
-                        const rect = target.getBoundingClientRect();
-                        const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
-                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                        const angleDeg = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
-                        if (wheel.lastVal !== null) {
-                            delta = angleDeg - wheel.lastVal;
-                            if (delta > 180) delta -= 360; if (delta < -180) delta += 360;
-                            wheel.ang += delta;
-                            wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                        }
-                        currentVal = angleDeg;
-                    } else {
-                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                        currentVal = clientY;
-                        if (wheel.lastVal !== null) {
-                            delta = currentVal - wheel.lastVal;
-                            wheel.offsetY += delta;
-                            wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                        }
-                    }
-                    const dt = now - wheel.lastTime;
-                    if(dt > 0 && delta !== undefined) { wheel.velocity = (delta / dt) * 15; if (wheel.mode === 'jackpot') wheel.velocity *= 1.5; }
-                    wheel.lastVal = currentVal; wheel.lastTime = now;
-                };
-                const start = (e) => {
-                    if(wheel.spin) return;
-                    wheel.lastVal = null; wheel.lastTime = Date.now(); wheel.velocity = 0;
-                    if (wheel.mode === 'wheel') { 
-                        const rect = target.getBoundingClientRect();
-                        const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
-                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                        wheel.lastVal = Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
-                    } else { wheel.lastVal = e.touches ? e.touches[0].clientY : e.clientY; }
-                    document.addEventListener('touchmove', onMove, {passive: false});
-                    document.addEventListener('mousemove', onMove);
-                    document.addEventListener('touchend', onEnd);
-                    document.addEventListener('mouseup', onEnd);
-                };
-                const onMove = (e) => { e.preventDefault(); track(e); };
-                const onEnd = () => {
-                    document.removeEventListener('touchmove', onMove);
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('touchend', onEnd);
-                    document.removeEventListener('mouseup', onEnd);
-                    if(Math.abs(wheel.velocity) > 0.5) wheel.go(wheel.velocity);
-                };
-                target.onmousedown = start; target.ontouchstart = start;
-            },
+            go: () => {
+                if(wheel.spin) return;
+                wheel.spin = true;
+                aud.l('spin', true);
 
-            go: (v) => {
-                wheel.spin=true; aud.l('spin',true);
-                let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
-                let winnerIdx = -1;
-
+                let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
                 // CHECK DO CHEAT (*) AQUI
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
 
-                const loop=()=>{
-                    if(!wheel.spin) return;
-                    vel *= 0.985; // Friction
-                    
-                    if (wheel.mode === 'wheel') {
-                         wheel.ang += vel; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                    } else {
-                         wheel.offsetY += vel * 5;
-                         // PIXEL PERFECT HEIGHT
-                         const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                         // FIX: Use CURRENT_ROUND_CATS.length for strip height loop
-                         // Ensure we loop over the height of ONE full set
-                         if (itemEl) {
-                             const itemHeight = itemEl.offsetHeight;
-                             const stripH = itemHeight * CURRENT_ROUND_CATS.length; 
-                             
-                             if (wheel.offsetY > 0) wheel.offsetY -= stripH;
-                             if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
-                             wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                         }
-                    }
-
-                    // SMOOTH STOP (THRESHOLD INCREASED TO 0.5)
-                    if(Math.abs(vel) < 0.5) {
-                         wheel.spin = false;
-                         
-                         // FORCE CHEAT IF EXISTS
-                         if (winnerIdx !== -1) {
-                             wheel.snapToWinner(winnerIdx);
-                         } else {
-                             // NATURAL STOP & CALC
-                             wheel.calcWinner();
-                         }
-                    } else {
-                         requestAnimationFrame(loop);
-                    }
-                }
-                loop();
-            },
-
-            snapToWinner: (idx) => {
                 if (wheel.mode === 'wheel') {
+                    // SPIN LOGIC - ROTATION
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
-                    const cur = wheel.ang;
-                    const targetBase = -(idx * sliceDeg) - (sliceDeg/2);
-                    const currentMod = cur % 360;
-                    const diff = targetBase - currentMod;
-                    let delta = diff;
-                    if (delta > 180) delta -= 360;
-                    if (delta < -180) delta += 360;
-                    const finalAngle = cur + delta;
-
-                    // ATUALIZA ESTADO INTERNO PARA EVITAR PULO
-                    wheel.ang = finalAngle;
-
-                    wheel.el.style.transition = "transform 1.5s cubic-bezier(0.1, 0, 0.2, 1)";
+                    // Current Angle
+                    const currentAngle = wheel.ang;
+                    // Target Angle: We need the slice `winnerIdx` to be at top (270 or -90 visual, 0 logic).
+                    // Let's aim for 5 full spins + offset
+                    const spins = 5 * 360;
+                    
+                    // Target rotation calculation
+                    // visual target is where index 0 is at 0deg.
+                    // index `i` is at `i * sliceDeg`. 
+                    // To bring `i` to 0, we rotate by `-i * sliceDeg`.
+                    // Center of slice adjustment: `-sliceDeg/2`.
+                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
+                    
+                    // Add randomness within slice? No, center it.
+                    const finalAngle = currentAngle + spins + targetOffset - (currentAngle % 360); 
+                    
+                    wheel.el.style.transition = "transform 4s cubic-bezier(0.2, 0, 0.1, 1)";
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
-                    setTimeout(() => wheel.finish(idx), 1500);
-                } else {
-                    // PIXEL PERFECT CALCULATION (FIX FOR IOS)
-                    // WE USE QUERYSELECTOR TO GET THE REAL RENDERED ELEMENT HEIGHT
-                    const itemEls = wheel.jackpot.querySelectorAll('.jackpot-item');
-                    if (itemEls.length === 0) return;
+                    wheel.ang = finalAngle; // Save state
                     
-                    // Get the height of the first item (assuming all are same)
-                    const itemH = itemEls[0].offsetHeight; 
-                    const centerLine = wheel.jackpot.offsetHeight / 2;
-                    const currentY = wheel.offsetY;
-                    const n = CURRENT_ROUND_CATS.length;
-                    
-                    // The indices in the DOM list of 3*N items
-                    const candidates = [idx, idx + n, idx + 2*n];
-                    
-                    let bestY = currentY;
-                    let minDiff = Infinity;
-                    
-                    // For each candidate, calculate where the strip needs to be
-                    // targetY = Center - (ElementTopPosition + HalfHeight)
-                    candidates.forEach(cIdx => {
-                        // The top position of item cIdx is simply cIdx * itemH
-                        // (Assuming no gaps/borders, which is true for this CSS)
-                        const elementTop = cIdx * itemH;
-                        const targetY = centerLine - (elementTop + (itemH/2));
-                        
-                        const diff = Math.abs(targetY - currentY);
-                        if(diff < minDiff) {
-                            minDiff = diff;
-                            bestY = targetY;
-                        }
-                    });
-                    
-                    // ATUALIZA ESTADO INTERNO PARA EVITAR PULO
-                    wheel.offsetY = bestY;
+                    setTimeout(() => wheel.finish(winnerIdx), 4000);
 
-                    wheel.jackpot.style.transition = "transform 1.5s cubic-bezier(0.1, 0, 0.2, 1)";
-                    wheel.jackpot.style.transform = `translateY(${bestY}px)`;
-                    setTimeout(() => wheel.finish(idx), 1500);
-                }
-            },
-
-            calcWinner: () => {
-                let idx;
-                if (wheel.mode === 'wheel') {
-                    const norm = (wheel.ang % 360 + 360) % 360;
-                    const winAngle = (360 - norm) % 360;
-                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
-                    idx = Math.floor(winAngle / sliceDeg);
                 } else {
-                    // PIXEL PERFECT CALCULATION
+                    // JACKPOT LOGIC - DETERMINISTIC TRANSLATE
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                    // Safe guard
                     if (!itemEl) return;
                     
-                    const itemH = itemEl.offsetHeight;
-                    const centerLine = wheel.jackpot.offsetHeight / 2;
+                    // CRITICAL FIX: READ EXACT RENDERED HEIGHT
+                    const itemH = itemEl.getBoundingClientRect().height; 
+                    const n = CURRENT_ROUND_CATS.length;
                     
-                    // Current shift relative to center
-                    // If strip is at Y, and item 0 is at 0.
-                    // The point under the center line is: -Y + Center
-                    // Index = (-Y + Center - ItemH/2) / ItemH
-                    // Reverse: TargetY = Center - (Index * ItemH) - ItemH/2
+                    // STARTING POINT: ALIGN TO SET 4 (Middle of 9 sets)
+                    // Set 4 starts at index 4*n.
+                    // We want to start spinning from roughly here to avoid edge issues.
+                    const startSet = 4;
+                    const startY = -(startSet * n * itemH);
                     
-                    // We calculate the "Raw Index" (float) currently under the line
-                    const pointUnderLine = -wheel.offsetY + centerLine;
-                    // Subtract half item to find the 'start' of the item
-                    const rawIndexFloat = (pointUnderLine - (itemH/2)) / itemH;
-                    let rawIndex = Math.round(rawIndexFloat);
+                    // Force jump to start position (no animation)
+                    wheel.jackpot.style.transition = 'none';
+                    wheel.jackpot.style.transform = `translateY(${startY}px)`;
                     
-                    const targetY = centerLine - (rawIndex * itemH) - (itemH/2);
+                    // Force Reflow
+                    wheel.jackpot.offsetHeight; 
                     
-                    wheel.jackpot.style.transition = "transform 0.5s ease-out";
+                    // TARGET: WINNER IN SET 6 or 7 (Further down)
+                    // We spin "down" (strip moves up, Y gets more negative)
+                    const targetSet = 7; 
+                    // Center Alignment Logic:
+                    // Container Center = window.innerHeight * 0.85 / 2 approx (depends on CSS)
+                    const containerH = document.getElementById('jackpot-container').offsetHeight;
+                    const centerOffset = containerH / 2;
+                    
+                    // Position of Top of Winner Item relative to strip top (0)
+                    const winnerItemIndex = (targetSet * n) + winnerIdx;
+                    const winnerItemTop = winnerItemIndex * itemH;
+                    
+                    // We want: (CurrentY + winnerItemTop + itemH/2) = centerOffset
+                    // CurrentY = centerOffset - winnerItemTop - itemH/2
+                    const targetY = centerOffset - winnerItemTop - (itemH/2);
+                    
+                    // ANIMATE
+                    wheel.jackpot.style.transition = "transform 4s cubic-bezier(0.1, 0, 0.1, 1)";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
                     
-                    // Sync internal state
-                    wheel.offsetY = targetY;
-
-                    const n = CURRENT_ROUND_CATS.length;
-                    // Modulo to find the actual category index
-                    idx = ((rawIndex % n) + n) % n;
+                    setTimeout(() => wheel.finish(winnerIdx), 4000);
                 }
-                // Add slight delay for visual snap
-                setTimeout(() => wheel.finish(idx), 500);
             },
 
             finish: (idx) => {
@@ -1077,11 +961,7 @@
 
                 ui.showResult(cat.n.replace('*', ''), color, () => game.pre());
                 
-                // Reset transition for next drag
-                setTimeout(() => {
-                    if (wheel.mode === 'wheel') wheel.el.style.transition = 'none';
-                    else wheel.jackpot.style.transition = 'none';
-                }, 100);
+                wheel.spin = false;
             }
         };
 
