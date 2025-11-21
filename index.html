@@ -316,7 +316,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v24.1</div>
+        <div class="version-tag">v24.2</div>
     </div>
     
     <!-- HOME ICON -->
@@ -808,7 +808,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (HYBRID PHYSICS V24.1) */
+        /* WHEEL & JACKPOT (HYBRID PHYSICS V24.2) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -840,6 +840,7 @@
                 if (wheel.mode === 'wheel') wheel.setupWheel();
                 else wheel.setupJackpot();
                 
+                // Reset styles
                 wheel.el = document.getElementById('wheel-spinner');
                 wheel.jackpot = document.getElementById('jackpot-strip');
                 wheel.jackpot.style.transition = 'none';
@@ -849,6 +850,7 @@
                 wheel.el.style.transform = 'rotate(0deg)';
                 wheel.ang = 0;
                 
+                // DRAG PHYSICS ATTACHMENT
                 const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
                 wheel.attachDrag(container);
             },
@@ -885,11 +887,16 @@
             },
 
             attachDrag: (target) => {
-                let startY = 0, lastY = 0, startTime = 0;
-                let startX = 0, lastX = 0;
+                let lastY = 0, lastX = 0;
+                let lastAng = 0;
                 
-                // TRACKING VARS FOR WHEEL ROTATION
-                let startAng = 0, lastAng = 0;
+                // Velocity Tracking
+                let angularVelocity = 0; // degrees/ms
+                let linearVelocity = 0; // pixels/ms
+                
+                let lastMoveTime = 0;
+                let lastMoveAng = 0;
+                let lastMoveY = 0;
 
                 const getAngle = (e, el) => {
                     const rect = el.getBoundingClientRect();
@@ -904,14 +911,15 @@
                     if(wheel.spin) return;
                     
                     if (wheel.mode === 'wheel') {
-                        startAng = getAngle(e, target);
-                        lastAng = startAng;
+                        lastAng = getAngle(e, target);
+                        lastMoveAng = lastAng;
                     } else {
-                        startY = e.touches ? e.touches[0].clientY : e.clientY;
-                        lastY = startY;
+                        lastY = e.touches ? e.touches[0].clientY : e.clientY;
+                        lastMoveY = lastY;
                     }
-                    
-                    startTime = Date.now();
+                    lastMoveTime = Date.now();
+                    angularVelocity = 0;
+                    linearVelocity = 0;
                     
                     document.addEventListener('touchmove', onMove, {passive: false});
                     document.addEventListener('touchend', onEnd);
@@ -921,15 +929,25 @@
 
                 const onMove = (e) => {
                     e.preventDefault(); 
+                    const now = Date.now();
+                    const dt = now - lastMoveTime;
                     
                     if (wheel.mode === 'wheel') {
                         const curAng = getAngle(e, target);
                         let delta = curAng - lastAng;
+                        // Handle wrap-around logic correctly
                         if (delta > 180) delta -= 360;
                         if (delta < -180) delta += 360;
                         
                         wheel.ang += delta;
                         wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                        
+                        if(dt > 0) {
+                            // Simple exponential smoothing for velocity
+                            const instantVel = delta / dt;
+                            angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5);
+                        }
+                        
                         lastAng = curAng;
                     } else {
                         const curY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -945,8 +963,15 @@
                         }
 
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                        
+                        if(dt > 0) {
+                            const instantVel = delta / dt;
+                            linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5);
+                        }
+                        
                         lastY = curY;
                     }
+                    lastMoveTime = now;
                 };
 
                 const onEnd = () => {
@@ -959,7 +984,7 @@
                     const duration = endTime - startTime;
                     
                     // TIME CHECK FIRST
-                    if (duration < 250) {
+                    if (duration < 50) {
                          const msg = document.getElementById('msg-time');
                          msg.style.opacity = 1;
                          setTimeout(() => msg.style.opacity = 0, 1500);
@@ -969,20 +994,20 @@
                     // CALCULATE VELOCITY
                     let velocity = 0;
                     if (wheel.mode === 'wheel') {
-                        if (duration < 400) velocity = 2.0; // Flick
-                        else velocity = 0.5; // Drag
+                        // Use angular velocity directly
+                        velocity = angularVelocity;
                     } else {
-                        const dist = Math.abs(lastY - startY);
-                        velocity = dist / duration; 
+                        // Use linear velocity directly
+                        velocity = linearVelocity;
                     }
                     
-                    // FORCE CHECK
-                    if (wheel.mode === 'jackpot' && velocity < 0.5) {
+                    // FORCE CHECK (Lowered thresholds V24.2)
+                    if (wheel.mode === 'jackpot' && Math.abs(velocity) < 0.1) {
                          const msg = document.getElementById('msg-force');
                          msg.classList.add('show');
                          setTimeout(() => msg.classList.remove('show'), 1000);
                          return;
-                    } else if (wheel.mode === 'wheel' && duration > 500) {
+                    } else if (wheel.mode === 'wheel' && Math.abs(velocity) < 0.05) {
                          const msg = document.getElementById('msg-force');
                          msg.classList.add('show');
                          setTimeout(() => msg.classList.remove('show'), 1000);
@@ -1001,7 +1026,7 @@
                 wheel.spin = true;
                 aud.l('spin', true);
 
-                let baseSpins = 3 + (velocity * 2);
+                let baseSpins = 3 + (Math.abs(velocity) * 2);
                 if (baseSpins < 2) baseSpins = 2; 
                 if (baseSpins > 10) baseSpins = 10;
                 
@@ -1017,12 +1042,16 @@
                     
                     const spins = Math.round(baseSpins) * 360;
                     
-                    // CENTER ALIGNMENT LOGIC
-                    // To center index I at top (0 deg), rotation R must satisfy:
-                    // R = -(I * sliceDeg) - (sliceDeg/2)
+                    // CENTER ALIGNMENT LOGIC (V24.1 FIX)
+                    // The center of slice I is at -(I * sliceDeg) - (sliceDeg/2)
                     const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
                     
-                    const finalAngle = currentAngle + spins + targetOffset - (currentAngle % 360); 
+                    // Directionality check
+                    // If velocity is positive (CW), add spins. If negative (CCW), subtract spins.
+                    const dir = Math.sign(velocity) || 1;
+                    const totalRot = spins * dir;
+
+                    const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
                     
                     wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.2, 1)`;
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
@@ -1041,14 +1070,23 @@
                     const centerOffset = containerH / 2;
 
                     const currentY = wheel.offsetY;
-                    const travelDist = baseSpins * (n * itemH);
-                    const targetYRaw = currentY - travelDist; // GO DOWN
+                    // Direction: positive velocity means dragging DOWN (Y increases).
+                    // But strip moves UP when dragging UP (Y decreases).
+                    // Drag down -> Y increases -> Strip moves down.
+                    
+                    // We want to scroll opposite to drag? Or with momentum?
+                    // With momentum. If velocity is negative (drag up), we continue negative.
+                    const dir = Math.sign(velocity) || -1;
+                    
+                    const travelDist = baseSpins * (n * itemH) * dir;
+                    const targetYRaw = currentY + travelDist; 
 
                     const approximateIndex = (centerOffset - targetYRaw - (itemH/2)) / itemH;
                     let targetIndex = Math.round(approximateIndex);
 
-                    while (targetIndex % n !== winnerIdx) {
-                        targetIndex++;
+                    while ((((targetIndex % n) + n) % n) !== winnerIdx) {
+                        if (dir < 0) targetIndex--; // Moving up, look further up
+                        else targetIndex++;
                     }
                     
                     const finalTargetY = centerOffset - (targetIndex * itemH) - (itemH/2);
