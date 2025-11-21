@@ -68,19 +68,17 @@
         /* A tela de jogo DEVE ser fixa */
         #screen-game { overflow: hidden; touch-action: none; justify-content: center; }
 
-        /* === RESPONSIVIDADE INTELIGENTE (FIX IPHONE MINI) === 
-           Se a tela for baixa (menos de 850px de altura), paramos de tentar 
-           centralizar verticalmente e alinhamos ao topo, permitindo scroll.
-        */
+        /* FIX: Tela da roleta/jackpot não deve ter scroll */
+        #screen-wheel { overflow: hidden !important; touch-action: none; }
+
+        /* === RESPONSIVIDADE INTELIGENTE (FIX IPHONE MINI) === */
         @media (max-height: 850px) {
-            .screen:not(#screen-game) {
+            .screen:not(#screen-game):not(#screen-wheel) {
                 justify-content: flex-start; /* Alinha no topo */
                 padding-top: 40px; /* Espaço do topo */
-                /* Espaço extra embaixo para o botão não colar no home indicator */
                 padding-bottom: calc(var(--safe-bottom) + 80px); 
             }
             
-            /* Diminui um pouco o título para ganhar espaço */
             h1 { 
                 font-size: clamp(2rem, 8vw, 3rem) !important; 
                 margin-top: 10px;
@@ -88,10 +86,9 @@
                 flex-shrink: 0;
             }
 
-            /* Garante que o botão tenha espaço */
             .btn {
                 flex-shrink: 0; 
-                margin-top: auto; /* Empurra para o final se sobrar espaço, ou fica no fluxo */
+                margin-top: auto; 
                 margin-bottom: 10px;
             }
         }
@@ -121,7 +118,7 @@
             box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
             transition: transform 0.1s; width: 100%; max-width: 400px; margin: 1vh 0;
             font-family: 'Montserrat';
-            min-height: 55px; /* Garante área de toque */
+            min-height: 55px;
         }
         .btn:active { transform: scale(0.97); }
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
@@ -301,7 +298,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.2</div>
+        <div class="version-tag">v22.3</div>
     </div>
     
     <!-- HOME ICON -->
@@ -651,7 +648,16 @@
                 document.getElementById('screen-'+id).classList.add('active');
                 if(id === 'options') dataMgr.init();
                 const homeBtn = document.getElementById('home-btn');
-                if(id === 'home') homeBtn.style.display = 'none'; else homeBtn.style.display = 'block';
+                
+                // RESET DO TIMER AO VOLTAR PARA HOME
+                if(id === 'home') {
+                    homeBtn.style.display = 'none';
+                    game.stop();
+                    document.getElementById('timer-num').innerText = st.cfg.t;
+                    document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, #333 0deg)`;
+                } else {
+                    homeBtn.style.display = 'block';
+                }
             },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
             toggleThresholdVisibility: () => {
@@ -786,8 +792,11 @@
             setupJackpot: () => {
                 let h = "";
                 const list = [...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS]; 
+                const n = CURRENT_ROUND_CATS.length;
                 list.forEach((c, i) => {
-                     const color = COLORS[i % COLORS.length];
+                     // FIX COR: Usa o índice original para garantir consistência da cor
+                     const realIndex = i % n;
+                     const color = COLORS[realIndex % COLORS.length];
                      h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
@@ -855,7 +864,7 @@
                 let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
                 let winnerIdx = -1;
 
-                // Check for cheats
+                // CHECK DO CHEAT (*) AQUI
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
 
@@ -904,11 +913,7 @@
                     const itemH = 15 * vmin; 
                     const centerLine = (85 * vmin) / 2;
                     
-                    // Find closest instance of the winner in the visual strip
-                    // Current offset pushes items down (negative offset moves up).
-                    // Y of item i = offsetY + i*itemH
-                    // We need to find 'k' such that k % N == idx and dist is min.
-                    // Simplification: just scroll to the middle set instance of idx
+                    // TARGET MIDDLE COPY FOR CONSISTENCY
                     const targetItemIndex = idx + CURRENT_ROUND_CATS.length;
                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
                     
@@ -953,7 +958,10 @@
                 
                 st.cat = cat; 
 
-                ui.showResult(cat.n.replace('*', ''), COLORS[idx % COLORS.length], () => game.pre());
+                // FIX COLOR: Mesma lógica do setup para garantir cor correta no modal
+                const color = COLORS[(idx % CURRENT_ROUND_CATS.length) % COLORS.length];
+
+                ui.showResult(cat.n.replace('*', ''), color, () => game.pre());
                 
                 // Reset transition for next drag
                 setTimeout(() => {
