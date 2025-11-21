@@ -301,7 +301,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.7</div>
+        <div class="version-tag">v22.8</div>
     </div>
     
     <!-- HOME ICON -->
@@ -932,11 +932,16 @@
                          wheel.offsetY += vel * 5;
                          // PIXEL PERFECT HEIGHT
                          const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                         const stripH = (itemEl ? itemEl.offsetHeight : 100) * CURRENT_ROUND_CATS.length; 
-                         
-                         if (wheel.offsetY > 0) wheel.offsetY -= stripH;
-                         if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
-                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                         // FIX: Use CURRENT_ROUND_CATS.length for strip height loop
+                         // Ensure we loop over the height of ONE full set
+                         if (itemEl) {
+                             const itemHeight = itemEl.offsetHeight;
+                             const stripH = itemHeight * CURRENT_ROUND_CATS.length; 
+                             
+                             if (wheel.offsetY > 0) wheel.offsetY -= stripH;
+                             if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
+                             wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                         }
                     }
 
                     // SMOOTH STOP (THRESHOLD INCREASED TO 0.5)
@@ -977,18 +982,30 @@
                     setTimeout(() => wheel.finish(idx), 1500);
                 } else {
                     // PIXEL PERFECT CALCULATION (FIX FOR IOS)
-                    const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                    const itemH = itemEl ? itemEl.offsetHeight : 100;
+                    // WE USE QUERYSELECTOR TO GET THE REAL RENDERED ELEMENT HEIGHT
+                    const itemEls = wheel.jackpot.querySelectorAll('.jackpot-item');
+                    if (itemEls.length === 0) return;
+                    
+                    // Get the height of the first item (assuming all are same)
+                    const itemH = itemEls[0].offsetHeight; 
                     const centerLine = wheel.jackpot.offsetHeight / 2;
                     const currentY = wheel.offsetY;
                     const n = CURRENT_ROUND_CATS.length;
+                    
+                    // The indices in the DOM list of 3*N items
                     const candidates = [idx, idx + n, idx + 2*n];
                     
                     let bestY = currentY;
                     let minDiff = Infinity;
                     
+                    // For each candidate, calculate where the strip needs to be
+                    // targetY = Center - (ElementTopPosition + HalfHeight)
                     candidates.forEach(cIdx => {
-                        const targetY = centerLine - (cIdx * itemH) - (itemH/2);
+                        // The top position of item cIdx is simply cIdx * itemH
+                        // (Assuming no gaps/borders, which is true for this CSS)
+                        const elementTop = cIdx * itemH;
+                        const targetY = centerLine - (elementTop + (itemH/2));
+                        
                         const diff = Math.abs(targetY - currentY);
                         if(diff < minDiff) {
                             minDiff = diff;
@@ -1015,11 +1032,25 @@
                 } else {
                     // PIXEL PERFECT CALCULATION
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                    const itemH = itemEl ? itemEl.offsetHeight : 100;
+                    // Safe guard
+                    if (!itemEl) return;
+                    
+                    const itemH = itemEl.offsetHeight;
                     const centerLine = wheel.jackpot.offsetHeight / 2;
-                    const relativeY = centerLine - (itemH/2) - wheel.offsetY;
-                    let rawIndex = Math.round(relativeY / itemH);
-                    const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
+                    
+                    // Current shift relative to center
+                    // If strip is at Y, and item 0 is at 0.
+                    // The point under the center line is: -Y + Center
+                    // Index = (-Y + Center - ItemH/2) / ItemH
+                    // Reverse: TargetY = Center - (Index * ItemH) - ItemH/2
+                    
+                    // We calculate the "Raw Index" (float) currently under the line
+                    const pointUnderLine = -wheel.offsetY + centerLine;
+                    // Subtract half item to find the 'start' of the item
+                    const rawIndexFloat = (pointUnderLine - (itemH/2)) / itemH;
+                    let rawIndex = Math.round(rawIndexFloat);
+                    
+                    const targetY = centerLine - (rawIndex * itemH) - (itemH/2);
                     
                     wheel.jackpot.style.transition = "transform 0.5s ease-out";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
@@ -1028,6 +1059,7 @@
                     wheel.offsetY = targetY;
 
                     const n = CURRENT_ROUND_CATS.length;
+                    // Modulo to find the actual category index
                     idx = ((rawIndex % n) + n) % n;
                 }
                 // Add slight delay for visual snap
