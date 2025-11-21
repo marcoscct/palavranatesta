@@ -183,6 +183,14 @@
         #msg-force.show { opacity: 1; animation: shake 0.5s; }
         @keyframes shake { 0% { transform: translate(-49%, -50%) } 25% { transform: translate(-51%, -50%) } 50% { transform: translate(-52%, -50%) } 75% { transform: translate(-48%, -50%) } 100% { transform: translate(-50%, -50%) } }
 
+        #msg-time {
+            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            font-family:'Montserrat';font-weight:900;font-size:3vh;
+            color:#eab308;text-shadow:0 0 20px black;opacity:0;
+            pointer-events:none;z-index:100;transition:opacity 0.3s;
+            text-align:center;width:90%;
+        }
+
         /* === TELA INICIAL === */
         #screen-home { gap: 2vh; }
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
@@ -315,7 +323,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v24.3</div>
+        <div class="version-tag">v24.4</div>
     </div>
     
     <!-- HOME ICON -->
@@ -434,6 +442,7 @@
             <div id="jackpot-strip"></div>
         </div>
         <div id="msg-force">GIRE MAIS FORTE!</div>
+        <div id="msg-time">GIRE POR MAIS TEMPO!</div>
     </div>
 
     <!-- TELA 4: JOGO -->
@@ -806,7 +815,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (PHYSICS V24.3) */
+        /* WHEEL & JACKPOT (V24.3 - Back to Roots + Fixes) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -838,7 +847,6 @@
                 if (wheel.mode === 'wheel') wheel.setupWheel();
                 else wheel.setupJackpot();
                 
-                // Reset styles
                 wheel.el = document.getElementById('wheel-spinner');
                 wheel.jackpot = document.getElementById('jackpot-strip');
                 wheel.jackpot.style.transition = 'none';
@@ -848,7 +856,6 @@
                 wheel.el.style.transform = 'rotate(0deg)';
                 wheel.ang = 0;
                 
-                // DRAG PHYSICS ATTACHMENT
                 const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
                 wheel.attachDrag(container);
             },
@@ -870,7 +877,7 @@
 
             setupJackpot: () => {
                 let h = "";
-                // More copies for safety
+                // Make enough copies for safety
                 const list = [];
                 for(let k=0; k<30; k++) { 
                     CURRENT_ROUND_CATS.forEach(c => list.push(c));
@@ -887,7 +894,11 @@
             attachDrag: (target) => {
                 let lastY = 0, lastAng = 0;
                 let angularVelocity = 0, linearVelocity = 0;
-                let lastMoveTime = 0, lastMoveY = 0;
+                let lastMoveTime = 0;
+                
+                // FOR JACKPOT
+                let startY = 0; 
+                let startTime = 0;
 
                 const getAngle = (e, el) => {
                     const rect = el.getBoundingClientRect();
@@ -904,10 +915,11 @@
                     if (wheel.mode === 'wheel') {
                         lastAng = getAngle(e, target);
                     } else {
-                        lastY = e.touches ? e.touches[0].clientY : e.clientY;
-                        lastMoveY = lastY;
+                        startY = e.touches ? e.touches[0].clientY : e.clientY;
+                        lastY = startY;
                     }
                     lastMoveTime = Date.now();
+                    startTime = lastMoveTime;
                     angularVelocity = 0;
                     linearVelocity = 0;
                     
@@ -941,7 +953,7 @@
                         const delta = curY - lastY;
                         wheel.offsetY += delta;
                         
-                        // Infinite scroll logic
+                        // Infinite logic
                         const itemEl = wheel.jackpot.querySelector('.jackpot-item');
                         if(itemEl) {
                             const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length;
@@ -966,17 +978,27 @@
                     document.removeEventListener('mousemove', onMove);
                     document.removeEventListener('mouseup', onEnd);
                     
+                    const totalDuration = Date.now() - startTime;
+
+                    // TIME CHECK FIRST
+                    if (totalDuration < 250) {
+                         const msg = document.getElementById('msg-time');
+                         msg.style.opacity = 1;
+                         setTimeout(() => msg.style.opacity = 0, 1500);
+                         return;
+                    }
+                    
                     if (Date.now() - lastMoveTime > 100) {
                         angularVelocity = 0; linearVelocity = 0;
                     }
 
                     if (wheel.mode === 'wheel') {
-                        if (Math.abs(angularVelocity) < 0.1) { // Threshold lowered from 24.2 logic
+                        if (Math.abs(angularVelocity) < 0.05) {
                              showForceMsg(); return;
                         }
                         wheel.go(angularVelocity);
                     } else {
-                        if (Math.abs(linearVelocity) < 0.2) { // Threshold lowered from 24.2 logic
+                        if (Math.abs(linearVelocity) < 0.1) {
                              showForceMsg(); return;
                         }
                         wheel.go(linearVelocity);
@@ -992,7 +1014,7 @@
                 wheel.spin = true;
                 aud.l('spin', true);
 
-                // INERTIA PHYSICS (FROM V24.0)
+                // INERTIA PHYSICS (V24.0 BASE)
                 const friction = 0.002; 
                 const v0 = Math.abs(velocity);
                 const dir = Math.sign(velocity);
@@ -1043,27 +1065,18 @@
                     const containerH = document.getElementById('jackpot-container').offsetHeight;
                     const centerOffset = containerH / 2;
                     
-                    // Target Formula (HALF-ITEM OFFSET LOGIC):
-                    // Y = Center - (Index * H) - (H/2)
-                    
+                    // Target Formula: Y = Center - (Index * H) - (H/2)
                     // Find index close to predictedY
                     // Index = (Center - Y - H/2) / H
                     const approxIndex = (centerOffset - predictedY - (itemH/2)) / itemH;
                     let targetIndex = Math.round(approximateIndex);
                     
-                    // Adjust targetIndex so it matches winnerIdx
-                    // We look for k such that k % n == winnerIdx
-                    // and we pick the one closest to our targetIndex in the direction of movement?
-                    // Or simply closest.
-                    
-                    // Simplest robust way:
-                    // Find offset between current targetIndex%n and winnerIdx
-                    // Then shift targetIndex by that amount.
-                    
+                    // Adjust targetIndex so it matches winnerIdx (modulo N)
+                    // We look for the valid index closest to our targetIndex
                     const currentMod = ((targetIndex % n) + n) % n;
                     let indexDiff = winnerIdx - currentMod;
                     
-                    // Optimize direction
+                    // Optimize direction for shortest shift
                     if (indexDiff > n/2) indexDiff -= n;
                     if (indexDiff < -n/2) indexDiff += n;
                     
@@ -1104,11 +1117,11 @@
             stopAll: () => {
                 if(game.tmr) clearInterval(game.tmr);
                 if(game.preTmr) clearInterval(game.preTmr);
-                st.on = false; // Ensure sensor is off
+                st.on = false; 
             },
             pre: () => {
                 app.to('game'); 
-                st.on = false; // Not active yet
+                st.on = false; // Disabled until GO
                 document.getElementById('timer-num').innerText = st.cfg.t;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
                 const d=document.getElementById('word-disp'); 
@@ -1125,7 +1138,7 @@
             },
             run: () => {
                 game.stop(); 
-                st.on=true; // NOW ACTIVE
+                st.on=true; // Enable Sensor
                 st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
