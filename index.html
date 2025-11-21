@@ -21,6 +21,7 @@
             --success: #22c55e;
             --danger: #ef4444;
             --border: 1px solid rgba(255, 255, 255, 0.15);
+            /* Variáveis de Segurança para iOS */
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --safe-left: env(safe-area-inset-left, 0px);
@@ -170,15 +171,17 @@
             text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
-        /* === MSG FORCE === */
+        /* === MSG FORCE (Fixed Centering) === */
         #msg-force {
-            position: absolute; top: 50%; right: 5vw; transform: translateY(-50%);
+            position: fixed; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
             font-family: 'Montserrat'; font-weight: 900; font-size: 4vh; color: var(--accent);
             text-shadow: 0 0 20px black; opacity: 0; pointer-events: none; z-index: 100;
-            transition: opacity 0.3s; text-align: center; width: 300px;
+            transition: opacity 0.3s; text-align: center; width: 90%; max-width: 400px;
         }
         #msg-force.show { opacity: 1; animation: shake 0.5s; }
-        @keyframes shake { 0% { transform: translate(1px, -50%) } 25% { transform: translate(-1px, -50%) } 50% { transform: translate(-3px, -50%) } 75% { transform: translate(3px, -50%) } 100% { transform: translate(0, -50%) } }
+        @keyframes shake { 0% { transform: translate(-49%, -50%) } 25% { transform: translate(-51%, -50%) } 50% { transform: translate(-52%, -50%) } 75% { transform: translate(-48%, -50%) } 100% { transform: translate(-50%, -50%) } }
 
         /* === TELA INICIAL === */
         #screen-home { gap: 2vh; }
@@ -272,7 +275,6 @@
             #wheel-container { width: 85vw; height: 85vw; }
             #jackpot-container { width: 85vw; height: 85vw; }
             h1 { font-size: 2.5rem; }
-            #msg-force { right: 50%; transform: translate(50%, -50%); top: 15%; width: 80%; }
         }
         @media (orientation: landscape) {
             #wheel-container { width: 85vh; height: 85vh; }
@@ -314,7 +316,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v23.0</div>
+        <div class="version-tag">v23.2</div>
     </div>
     
     <!-- HOME ICON -->
@@ -803,7 +805,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (HYBRID PHYSICS V23.0) */
+        /* WHEEL & JACKPOT (HYBRID PHYSICS V23.2) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -859,8 +861,9 @@
 
             setupJackpot: () => {
                 let h = "";
+                // More copies for safety
                 const list = [];
-                for(let k=0; k<15; k++) { // Even more copies for high velocity
+                for(let k=0; k<20; k++) { 
                     CURRENT_ROUND_CATS.forEach(c => list.push(c));
                 }
                 const n = CURRENT_ROUND_CATS.length;
@@ -874,12 +877,33 @@
 
             attachDrag: (target) => {
                 let startY = 0, lastY = 0, startTime = 0;
+                let startX = 0, lastX = 0;
                 
+                // TRACKING VARS FOR WHEEL ROTATION
+                let startAng = 0, lastAng = 0;
+
+                const getAngle = (e, el) => {
+                    const rect = el.getBoundingClientRect();
+                    const cx = rect.left + rect.width/2;
+                    const cy = rect.top + rect.height/2;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+                };
+
                 const onStart = (e) => {
                     if(wheel.spin) return;
-                    startY = e.touches ? e.touches[0].clientY : e.clientY;
-                    lastY = startY;
+                    
+                    if (wheel.mode === 'wheel') {
+                        startAng = getAngle(e, target);
+                        lastAng = startAng;
+                    } else {
+                        startY = e.touches ? e.touches[0].clientY : e.clientY;
+                        lastY = startY;
+                    }
+                    
                     startTime = Date.now();
+                    
                     document.addEventListener('touchmove', onMove, {passive: false});
                     document.addEventListener('touchend', onEnd);
                     document.addEventListener('mousemove', onMove);
@@ -887,8 +911,35 @@
                 };
 
                 const onMove = (e) => {
-                    e.preventDefault(); // Prevent scroll
-                    lastY = e.touches ? e.touches[0].clientY : e.clientY;
+                    e.preventDefault(); 
+                    
+                    if (wheel.mode === 'wheel') {
+                        const curAng = getAngle(e, target);
+                        let delta = curAng - lastAng;
+                        // Fix wrap-around
+                        if (delta > 180) delta -= 360;
+                        if (delta < -180) delta += 360;
+                        
+                        wheel.ang += delta;
+                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                        lastAng = curAng;
+                    } else {
+                        // Jackpot logic
+                        const curY = e.touches ? e.touches[0].clientY : e.clientY;
+                        const delta = curY - lastY;
+                        wheel.offsetY += delta;
+                        
+                        // Infinite scroll simulation during drag
+                        const itemEl = wheel.jackpot.querySelector('.jackpot-item');
+                        if(itemEl) {
+                            const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length;
+                            if(wheel.offsetY > 0) wheel.offsetY -= stripH;
+                            if(wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
+                        }
+
+                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                        lastY = curY;
+                    }
                 };
 
                 const onEnd = () => {
@@ -898,13 +949,32 @@
                     document.removeEventListener('mouseup', onEnd);
                     
                     const endTime = Date.now();
-                    const dist = Math.abs(lastY - startY);
                     const duration = endTime - startTime;
-                    const vel = dist / duration; // pixels per ms
                     
-                    if (dist > 10) { // Minimum drag distance to trigger
-                        wheel.go(vel);
+                    // CALCULATE VELOCITY
+                    let velocity = 0;
+                    if (wheel.mode === 'wheel') {
+                        if (duration < 300) velocity = 2.0; // Flick
+                        else velocity = 0.5; // Drag
+                    } else {
+                        const dist = Math.abs(lastY - startY);
+                        velocity = dist / duration; 
                     }
+                    
+                    // FORCE CHECK
+                    if (wheel.mode === 'jackpot' && velocity < 0.5) {
+                         // Weak drag
+                         document.getElementById('msg-force').classList.add('show');
+                         setTimeout(() => document.getElementById('msg-force').classList.remove('show'), 1000);
+                         return;
+                    } else if (wheel.mode === 'wheel' && duration > 400) {
+                         // Slow drag on wheel
+                         document.getElementById('msg-force').classList.add('show');
+                         setTimeout(() => document.getElementById('msg-force').classList.remove('show'), 1000);
+                         return;
+                    }
+
+                    wheel.go(velocity);
                 };
 
                 target.onmousedown = onStart;
@@ -913,20 +983,18 @@
 
             go: (velocity) => {
                 if(wheel.spin) return;
-                
-                // THRESHOLD CHECK (Weak spin?)
-                if (velocity < 0.5) {
-                    document.getElementById('msg-force').classList.add('show');
-                    setTimeout(() => document.getElementById('msg-force').classList.remove('show'), 1000);
-                    return;
-                }
-
                 wheel.spin = true;
                 aud.l('spin', true);
 
                 // Calculate Rotations based on Velocity
                 // Base: 0.5 vel -> 3 spins. Max: 5 vel -> 10 spins.
-                let baseSpins = 3 + (velocity - 0.5) * 2; 
+                let baseSpins = 3;
+                if (wheel.mode === 'jackpot') {
+                    baseSpins = 3 + (velocity - 0.5) * 2; 
+                } else {
+                    baseSpins = 5 + (Math.random() * 2);
+                }
+                
                 if (baseSpins > 10) baseSpins = 10;
                 
                 // Duration based on spins
@@ -942,10 +1010,9 @@
                     const spins = Math.round(baseSpins) * 360;
                     const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
                     
-                    // Add random jitter for "Physics feel" if not cheating? No, simpler is robust.
                     const finalAngle = currentAngle + spins + targetOffset - (currentAngle % 360); 
                     
-                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.2, 0, 0.1, 1)`;
+                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.2, 1)`;
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
                     wheel.ang = finalAngle;
                     
@@ -958,27 +1025,37 @@
                     const itemH = itemEl.getBoundingClientRect().height; 
                     const n = CURRENT_ROUND_CATS.length;
                     
-                    // Start roughly in the middle of the huge list
-                    const startSet = 5;
-                    const startY = -(startSet * n * itemH);
-                    
-                    wheel.jackpot.style.transition = 'none';
-                    wheel.jackpot.style.transform = `translateY(${startY}px)`;
-                    wheel.jackpot.offsetHeight; // Force Reflow
-                    
-                    // Calculate Target Set based on Velocity
-                    const setsToScroll = Math.max(2, Math.round(velocity));
-                    const targetSet = startSet + setsToScroll;
-                    
                     const containerH = document.getElementById('jackpot-container').offsetHeight;
                     const centerOffset = containerH / 2;
+
+                    // Current Y position from drag
+                    const currentY = wheel.offsetY;
+
+                    // Calculate target Y based on velocity (how much further to go)
+                    // We go DOWN (negative Y).
+                    const travelDist = baseSpins * (n * itemH);
+                    const targetYRaw = currentY - travelDist;
+
+                    // Now align targetYRaw to the winner item index in the infinite list
+                    // The formula: TargetY = Center - (Index * ItemH) - ItemH/2
+                    // We reverse to find the Index close to targetYRaw:
+                    // Index = (Center - TargetY - ItemH/2) / ItemH
                     
-                    const winnerItemIndex = (targetSet * n) + winnerIdx;
-                    const winnerItemTop = winnerItemIndex * itemH;
-                    const targetY = centerOffset - winnerItemTop - (itemH/2);
+                    const approximateIndex = (centerOffset - targetYRaw - (itemH/2)) / itemH;
+                    let targetIndex = Math.round(approximateIndex);
+
+                    // Adjust targetIndex so it matches winnerIdx (modulo N)
+                    // We need to find the smallest forward adjustment to match winnerIdx
+                    while (targetIndex % n !== winnerIdx) {
+                        targetIndex++;
+                    }
                     
-                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
-                    wheel.jackpot.style.transform = `translateY(${targetY}px)`;
+                    // Recalculate precise Target Y
+                    const finalTargetY = centerOffset - (targetIndex * itemH) - (itemH/2);
+                    
+                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.2, 1)`;
+                    wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
+                    wheel.offsetY = finalTargetY;
                     
                     setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 }
