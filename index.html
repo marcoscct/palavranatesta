@@ -214,8 +214,7 @@
         .hud-right { color: var(--danger); }
 
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
-        /* Touch zones removed as requested */
-
+        
         /* === SELETOR: LAYOUT DUAL === */
         #screen-wheel { flex-direction: row; gap: 5vw; }
         .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
@@ -316,7 +315,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v24.2</div>
+        <div class="version-tag">v24.3</div>
     </div>
     
     <!-- HOME ICON -->
@@ -435,7 +434,6 @@
             <div id="jackpot-strip"></div>
         </div>
         <div id="msg-force">GIRE MAIS FORTE!</div>
-        <div id="msg-time" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Montserrat';font-weight:900;font-size:3vh;color:#eab308;text-shadow:0 0 20px black;opacity:0;pointer-events:none;z-index:100;transition:opacity 0.3s;text-align:center;width:90%;">GIRE POR MAIS TEMPO!</div>
     </div>
 
     <!-- TELA 4: JOGO -->
@@ -808,7 +806,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (HYBRID PHYSICS V24.2) */
+        /* WHEEL & JACKPOT (PHYSICS V24.3) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -874,7 +872,7 @@
                 let h = "";
                 // More copies for safety
                 const list = [];
-                for(let k=0; k<20; k++) { 
+                for(let k=0; k<30; k++) { 
                     CURRENT_ROUND_CATS.forEach(c => list.push(c));
                 }
                 const n = CURRENT_ROUND_CATS.length;
@@ -887,16 +885,9 @@
             },
 
             attachDrag: (target) => {
-                let lastY = 0, lastX = 0;
-                let lastAng = 0;
-                
-                // Velocity Tracking
-                let angularVelocity = 0; // degrees/ms
-                let linearVelocity = 0; // pixels/ms
-                
-                let lastMoveTime = 0;
-                let lastMoveAng = 0;
-                let lastMoveY = 0;
+                let lastY = 0, lastAng = 0;
+                let angularVelocity = 0, linearVelocity = 0;
+                let lastMoveTime = 0, lastMoveY = 0;
 
                 const getAngle = (e, el) => {
                     const rect = el.getBoundingClientRect();
@@ -912,7 +903,6 @@
                     
                     if (wheel.mode === 'wheel') {
                         lastAng = getAngle(e, target);
-                        lastMoveAng = lastAng;
                     } else {
                         lastY = e.touches ? e.touches[0].clientY : e.clientY;
                         lastMoveY = lastY;
@@ -935,7 +925,6 @@
                     if (wheel.mode === 'wheel') {
                         const curAng = getAngle(e, target);
                         let delta = curAng - lastAng;
-                        // Handle wrap-around logic correctly
                         if (delta > 180) delta -= 360;
                         if (delta < -180) delta += 360;
                         
@@ -943,11 +932,9 @@
                         wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
                         
                         if(dt > 0) {
-                            // Simple exponential smoothing for velocity
                             const instantVel = delta / dt;
                             angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5);
                         }
-                        
                         lastAng = curAng;
                     } else {
                         const curY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -968,7 +955,6 @@
                             const instantVel = delta / dt;
                             linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5);
                         }
-                        
                         lastY = curY;
                     }
                     lastMoveTime = now;
@@ -980,41 +966,21 @@
                     document.removeEventListener('mousemove', onMove);
                     document.removeEventListener('mouseup', onEnd);
                     
-                    const endTime = Date.now();
-                    const duration = endTime - startTime;
-                    
-                    // TIME CHECK FIRST
-                    if (duration < 50) {
-                         const msg = document.getElementById('msg-time');
-                         msg.style.opacity = 1;
-                         setTimeout(() => msg.style.opacity = 0, 1500);
-                         return;
-                    }
-                    
-                    // CALCULATE VELOCITY
-                    let velocity = 0;
-                    if (wheel.mode === 'wheel') {
-                        // Use angular velocity directly
-                        velocity = angularVelocity;
-                    } else {
-                        // Use linear velocity directly
-                        velocity = linearVelocity;
-                    }
-                    
-                    // FORCE CHECK (Lowered thresholds V24.2)
-                    if (wheel.mode === 'jackpot' && Math.abs(velocity) < 0.1) {
-                         const msg = document.getElementById('msg-force');
-                         msg.classList.add('show');
-                         setTimeout(() => msg.classList.remove('show'), 1000);
-                         return;
-                    } else if (wheel.mode === 'wheel' && Math.abs(velocity) < 0.05) {
-                         const msg = document.getElementById('msg-force');
-                         msg.classList.add('show');
-                         setTimeout(() => msg.classList.remove('show'), 1000);
-                         return;
+                    if (Date.now() - lastMoveTime > 100) {
+                        angularVelocity = 0; linearVelocity = 0;
                     }
 
-                    wheel.go(velocity);
+                    if (wheel.mode === 'wheel') {
+                        if (Math.abs(angularVelocity) < 0.1) { // Threshold lowered from 24.2 logic
+                             showForceMsg(); return;
+                        }
+                        wheel.go(angularVelocity);
+                    } else {
+                        if (Math.abs(linearVelocity) < 0.2) { // Threshold lowered from 24.2 logic
+                             showForceMsg(); return;
+                        }
+                        wheel.go(linearVelocity);
+                    }
                 };
 
                 target.onmousedown = onStart;
@@ -1026,12 +992,16 @@
                 wheel.spin = true;
                 aud.l('spin', true);
 
-                let baseSpins = 3 + (Math.abs(velocity) * 2);
-                if (baseSpins < 2) baseSpins = 2; 
-                if (baseSpins > 10) baseSpins = 10;
+                // INERTIA PHYSICS (FROM V24.0)
+                const friction = 0.002; 
+                const v0 = Math.abs(velocity);
+                const dir = Math.sign(velocity);
+                const duration = v0 / friction; // ms
                 
-                const duration = 2 + (baseSpins / 2.5);
+                let totalDist = (v0 * v0) / (2 * friction);
+                totalDist *= dir;
 
+                // CHEAT LOGIC
                 let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
@@ -1039,26 +1009,27 @@
                 if (wheel.mode === 'wheel') {
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
                     const currentAngle = wheel.ang;
+                    let predictedAngle = currentAngle + totalDist;
                     
-                    const spins = Math.round(baseSpins) * 360;
+                    // ALIGNMENT CORRECTION (HALF-SLICE LOGIC)
+                    // The center of winnerIdx is at rotation: - (winnerIdx * sliceDeg) - (sliceDeg/2)
+                    const targetBase = -(winnerIdx * sliceDeg) - (sliceDeg/2);
                     
-                    // CENTER ALIGNMENT LOGIC (V24.1 FIX)
-                    // The center of slice I is at -(I * sliceDeg) - (sliceDeg/2)
-                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
+                    const predictedMod360 = predictedAngle % 360;
+                    // Determine minimal correction to reach targetBase (modulo 360)
+                    let correction = targetBase - predictedMod360;
                     
-                    // Directionality check
-                    // If velocity is positive (CW), add spins. If negative (CCW), subtract spins.
-                    const dir = Math.sign(velocity) || 1;
-                    const totalRot = spins * dir;
-
-                    const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
+                    if (correction > 180) correction -= 360;
+                    if (correction < -180) correction += 360;
                     
-                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.2, 1)`;
+                    const finalAngle = predictedAngle + correction;
+                    const finalDuration = Math.max(2000, duration);
+                    
+                    wheel.el.style.transition = `transform ${finalDuration}ms cubic-bezier(0.1, 0, 0.2, 1)`;
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
                     wheel.ang = finalAngle;
                     
-                    // +500ms delay
-                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), (duration * 1000) + 500);
+                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), finalDuration + 500);
 
                 } else {
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
@@ -1066,37 +1037,46 @@
                     const itemH = itemEl.getBoundingClientRect().height; 
                     const n = CURRENT_ROUND_CATS.length;
                     
+                    const currentY = wheel.offsetY;
+                    let predictedY = currentY + totalDist;
+                    
                     const containerH = document.getElementById('jackpot-container').offsetHeight;
                     const centerOffset = containerH / 2;
-
-                    const currentY = wheel.offsetY;
-                    // Direction: positive velocity means dragging DOWN (Y increases).
-                    // But strip moves UP when dragging UP (Y decreases).
-                    // Drag down -> Y increases -> Strip moves down.
                     
-                    // We want to scroll opposite to drag? Or with momentum?
-                    // With momentum. If velocity is negative (drag up), we continue negative.
-                    const dir = Math.sign(velocity) || -1;
+                    // Target Formula (HALF-ITEM OFFSET LOGIC):
+                    // Y = Center - (Index * H) - (H/2)
                     
-                    const travelDist = baseSpins * (n * itemH) * dir;
-                    const targetYRaw = currentY + travelDist; 
-
-                    const approximateIndex = (centerOffset - targetYRaw - (itemH/2)) / itemH;
+                    // Find index close to predictedY
+                    // Index = (Center - Y - H/2) / H
+                    const approxIndex = (centerOffset - predictedY - (itemH/2)) / itemH;
                     let targetIndex = Math.round(approximateIndex);
-
-                    while ((((targetIndex % n) + n) % n) !== winnerIdx) {
-                        if (dir < 0) targetIndex--; // Moving up, look further up
-                        else targetIndex++;
-                    }
+                    
+                    // Adjust targetIndex so it matches winnerIdx
+                    // We look for k such that k % n == winnerIdx
+                    // and we pick the one closest to our targetIndex in the direction of movement?
+                    // Or simply closest.
+                    
+                    // Simplest robust way:
+                    // Find offset between current targetIndex%n and winnerIdx
+                    // Then shift targetIndex by that amount.
+                    
+                    const currentMod = ((targetIndex % n) + n) % n;
+                    let indexDiff = winnerIdx - currentMod;
+                    
+                    // Optimize direction
+                    if (indexDiff > n/2) indexDiff -= n;
+                    if (indexDiff < -n/2) indexDiff += n;
+                    
+                    targetIndex += indexDiff;
                     
                     const finalTargetY = centerOffset - (targetIndex * itemH) - (itemH/2);
+                    const finalDuration = Math.max(2000, duration);
                     
-                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.2, 1)`;
+                    wheel.jackpot.style.transition = `transform ${finalDuration}ms cubic-bezier(0.1, 0, 0.2, 1)`;
                     wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
                     wheel.offsetY = finalTargetY;
                     
-                    // +500ms delay
-                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), (duration * 1000) + 500);
+                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), finalDuration + 500);
                 }
             },
 
@@ -1109,6 +1089,12 @@
                 wheel.spin = false;
             }
         };
+
+        function showForceMsg() {
+            const msg = document.getElementById('msg-force');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 1000);
+        }
 
         /* GAME */
         const game = {
