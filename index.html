@@ -21,7 +21,7 @@
             --success: #22c55e;
             --danger: #ef4444;
             --border: 1px solid rgba(255, 255, 255, 0.15);
-            /* Variáveis de Segurança para iOS (Notch/Home Indicator) */
+            /* Variáveis de Segurança para iOS */
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --safe-left: env(safe-area-inset-left, 0px);
@@ -38,13 +38,11 @@
 
         body {
             width: 100vw; 
-            /* FIX iOS: 100dvh ajusta dinamicamente com a barra do Safari */
             height: 100dvh; 
             overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
             background: transparent;
             position: fixed; top: 0; left: 0;
-            /* Padding seguro para não cobrir conteúdo */
             padding-top: var(--safe-top);
             padding-bottom: 0; 
             padding-left: var(--safe-left);
@@ -57,35 +55,28 @@
             display: none; flex-direction: column; align-items: center; justify-content: center;
             padding: 2vh 4vw; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
             width: 100%; height: 100%;
-            
-            /* FIX CRUCIAL PARA IPHONE MINI: */
-            overflow-y: auto; /* Permite scroll se não couber */
+            overflow-y: auto; 
             overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll no iOS */
+            -webkit-overflow-scrolling: touch;
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         
-        /* A tela de jogo DEVE ser fixa */
         #screen-game { overflow: hidden; touch-action: none; justify-content: center; }
-
-        /* FIX: Tela da roleta/jackpot não deve ter scroll */
         #screen-wheel { overflow: hidden !important; touch-action: none; }
 
-        /* === RESPONSIVIDADE INTELIGENTE (FIX IPHONE MINI) === */
+        /* Responsividade para telas menores (iPhone Mini) */
         @media (max-height: 850px) {
             .screen:not(#screen-game):not(#screen-wheel) {
-                justify-content: flex-start; /* Alinha no topo */
-                padding-top: 40px; /* Espaço do topo */
+                justify-content: flex-start;
+                padding-top: 40px;
                 padding-bottom: calc(var(--safe-bottom) + 80px); 
             }
-            
             h1 { 
                 font-size: clamp(2rem, 8vw, 3rem) !important; 
                 margin-top: 10px;
                 margin-bottom: 20px !important;
                 flex-shrink: 0;
             }
-
             .btn {
                 flex-shrink: 0; 
                 margin-top: auto; 
@@ -146,7 +137,7 @@
         .table-input-words { flex: 1; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; }
         
-        /* === MODAL === */
+        /* === MODAL (FIXED PADDING) === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -154,14 +145,16 @@
         }
         .modal-box {
             background: #1e1b4b; border: 1px solid rgba(255,255,255,0.2);
-            padding: 30px; border-radius: 20px; text-align: center;
+            padding: 40px 30px; /* Aumentado padding vertical */
+            border-radius: 20px; text-align: center;
             width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             animation: popIn 0.3s ease-out;
+            margin-bottom: 20px;
         }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
-        .modal-msg { margin-bottom: 20px; font-size: 1.2rem; line-height: 1.5; color: white; }
-        .modal-actions { display: flex; gap: 10px; justify-content: center; width: 100%; }
+        .modal-msg { margin-bottom: 30px; font-size: 1.2rem; line-height: 1.5; color: white; }
+        .modal-actions { display: flex; gap: 15px; justify-content: center; width: 100%; padding: 10px; }
         #result-cat-display {
             font-size: 3rem; font-weight: 900; color: white; 
             margin: 10px 0 30px 0; text-transform: uppercase;
@@ -298,7 +291,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.3</div>
+        <div class="version-tag">v22.4</div>
     </div>
     
     <!-- HOME ICON -->
@@ -354,6 +347,13 @@
                     <h2 style="margin:0">Editor</h2>
                     <button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Alternar Tabela/JSON</button>
                 </div>
+                
+                <!-- SELETOR DE ABAS -->
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label>Aba (Tab)</label>
+                    <select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select>
+                </div>
+
                 <div id="editor-container">
                     <div id="view-table" class="editor-view active">
                         <div id="table-rows"></div>
@@ -455,6 +455,7 @@
         ];
         
         let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
+        let CURRENT_SHEET_IDX = 0;
         let SOURCE_TYPE = 'default';
         let CURRENT_ROUND_CATS = [];
 
@@ -502,7 +503,7 @@
         const storage = {
             save: () => {
                 const data = {
-                    cats: GLOBAL_SHEETS_DATA[0], source: SOURCE_TYPE,
+                    cats: GLOBAL_SHEETS_DATA, source: SOURCE_TYPE,
                     t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value,
                     mode: document.getElementById('opt-mode').value,
@@ -514,7 +515,17 @@
                 try {
                     const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
                     if(data) {
-                        if(data.cats && Array.isArray(data.cats) && data.cats.length > 0) GLOBAL_SHEETS_DATA = [data.cats];
+                        // Support for old data format vs new multi-sheet format
+                        if(data.cats && Array.isArray(data.cats)) {
+                            if(data.cats.length > 0 && Array.isArray(data.cats[0])) {
+                                // New format [[{n,w}]]
+                                GLOBAL_SHEETS_DATA = data.cats;
+                            } else {
+                                // Old format [{n,w}]
+                                GLOBAL_SHEETS_DATA = [data.cats];
+                            }
+                        }
+                        
                         if(data.source) SOURCE_TYPE = data.source;
                         if(data.t1) document.getElementById('t1').value = data.t1;
                         if(data.t2) document.getElementById('t2').value = data.t2;
@@ -531,8 +542,28 @@
         const dataMgr = {
             isTableMode: true,
             init: () => { 
-                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2); 
+                // Ensure idx is valid
+                if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0;
+                
+                dataMgr.updateSheetSelector();
+                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2); 
                 dataMgr.renderTable();
+            },
+            updateSheetSelector: () => {
+                const sel = document.getElementById('sheet-selector');
+                sel.innerHTML = '';
+                GLOBAL_SHEETS_DATA.forEach((s, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.text = `Aba ${i+1} (${s.length} cats)`;
+                    if(i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true;
+                    sel.appendChild(opt);
+                });
+            },
+            switchSheet: (idx) => {
+                if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
+                CURRENT_SHEET_IDX = parseInt(idx);
+                dataMgr.init();
             },
             toggleView: () => {
                 dataMgr.isTableMode = !dataMgr.isTableMode;
@@ -542,18 +573,20 @@
                 if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable();
             },
             markDirty: () => {},
-            syncFromJSON: () => { try { GLOBAL_SHEETS_DATA[0] = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); } catch(e) {} },
+            syncFromJSON: () => { try { GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); dataMgr.updateSheetSelector(); } catch(e) {} },
             syncFromTable: () => {
                 const rows = document.querySelectorAll('.table-row'); const newCats = [];
                 rows.forEach(r => {
                     const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
                     if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
                 });
-                GLOBAL_SHEETS_DATA[0] = newCats; document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[0], null, 2);
+                GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats; document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2);
+                dataMgr.updateSheetSelector();
             },
             renderTable: () => {
                 const container = document.getElementById('table-rows'); container.innerHTML = '';
-                GLOBAL_SHEETS_DATA[0].forEach((cat, idx) => {
+                const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] || [];
+                currentData.forEach((cat, idx) => {
                     const row = document.createElement('div'); row.className = 'table-row';
                     row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
                     container.appendChild(row);
@@ -568,7 +601,7 @@
                 if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
                 SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
             },
-            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
+            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; CURRENT_SHEET_IDX=0; SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
             copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
             loadSheet: async () => {
                 const url = document.getElementById('sheet-input').value;
@@ -604,7 +637,8 @@
                         });
                         if (parsedSheets.length > 0) {
                             GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
-                            dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas.`);
+                            CURRENT_SHEET_IDX = 0;
+                            dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
                         } else { ui.alert("Nenhuma categoria encontrada."); }
                     };
                     reader.readAsArrayBuffer(blob);
