@@ -21,7 +21,6 @@
             --success: #22c55e;
             --danger: #ef4444;
             --border: 1px solid rgba(255, 255, 255, 0.15);
-            /* Variáveis de Segurança para iOS */
             --safe-top: env(safe-area-inset-top, 20px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --safe-left: env(safe-area-inset-left, 0px);
@@ -171,7 +170,7 @@
             text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
-        /* === MSG FORCE (Fixed Centering) === */
+        /* === MSG FORCE === */
         #msg-force {
             position: fixed; 
             top: 50%; left: 50%; 
@@ -316,7 +315,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v23.3</div>
+        <div class="version-tag">v24.0</div>
     </div>
     
     <!-- HOME ICON -->
@@ -808,7 +807,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (V23.3) */
+        /* WHEEL & JACKPOT (V24.0) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -870,8 +869,9 @@
 
             setupJackpot: () => {
                 let h = "";
+                // Massive buffer for physics
                 const list = [];
-                for(let k=0; k<20; k++) { 
+                for(let k=0; k<30; k++) { 
                     CURRENT_ROUND_CATS.forEach(c => list.push(c));
                 }
                 const n = CURRENT_ROUND_CATS.length;
@@ -888,8 +888,11 @@
                 let lastAng = 0;
                 
                 // Velocity Tracking
-                let velocity = 0;
+                let angularVelocity = 0; // degrees/ms
+                let linearVelocity = 0; // pixels/ms
+                
                 let lastMoveTime = 0;
+                let lastMoveAng = 0;
                 let lastMoveY = 0;
 
                 const getAngle = (e, el) => {
@@ -906,12 +909,14 @@
                     
                     if (wheel.mode === 'wheel') {
                         lastAng = getAngle(e, target);
+                        lastMoveAng = lastAng;
                     } else {
                         lastY = e.touches ? e.touches[0].clientY : e.clientY;
                         lastMoveY = lastY;
                     }
                     lastMoveTime = Date.now();
-                    velocity = 0;
+                    angularVelocity = 0;
+                    linearVelocity = 0;
                     
                     document.addEventListener('touchmove', onMove, {passive: false});
                     document.addEventListener('touchend', onEnd);
@@ -922,45 +927,48 @@
                 const onMove = (e) => {
                     e.preventDefault(); 
                     const now = Date.now();
+                    const dt = now - lastMoveTime;
                     
                     if (wheel.mode === 'wheel') {
                         const curAng = getAngle(e, target);
                         let delta = curAng - lastAng;
+                        // Handle wrap-around logic correctly
                         if (delta > 180) delta -= 360;
                         if (delta < -180) delta += 360;
                         
                         wheel.ang += delta;
                         wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
                         
-                        // Angular velocity approx (degrees/ms)
-                        const dt = now - lastMoveTime;
-                        if(dt > 0) velocity = Math.abs(delta) / dt;
+                        if(dt > 0) {
+                            // Simple exponential smoothing for velocity
+                            const instantVel = delta / dt;
+                            angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5);
+                        }
                         
                         lastAng = curAng;
-                        lastMoveTime = now;
                     } else {
                         const curY = e.touches ? e.touches[0].clientY : e.clientY;
                         const delta = curY - lastY;
                         wheel.offsetY += delta;
                         
-                        // Infinite scroll logic
+                        // Infinite scroll logic (Keep near middle)
                         const itemEl = wheel.jackpot.querySelector('.jackpot-item');
                         if(itemEl) {
                             const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length;
                             if(wheel.offsetY > 0) wheel.offsetY -= stripH;
-                            if(wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
+                            if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH; // Buffer management
                         }
 
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                         
-                        // Linear velocity px/ms
-                        const dt = now - lastMoveTime;
-                        if(dt > 0) velocity = Math.abs(curY - lastMoveY) / dt;
+                        if(dt > 0) {
+                            const instantVel = delta / dt;
+                            linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5);
+                        }
                         
-                        lastMoveY = curY;
                         lastY = curY;
-                        lastMoveTime = now;
                     }
+                    lastMoveTime = now;
                 };
 
                 const onEnd = () => {
@@ -969,21 +977,25 @@
                     document.removeEventListener('mousemove', onMove);
                     document.removeEventListener('mouseup', onEnd);
                     
-                    // Check if drag stopped before release
-                    const timeSinceLastMove = Date.now() - lastMoveTime;
-                    if (timeSinceLastMove > 100) velocity = 0;
-
-                    // Lower threshold for detecting "flick"
-                    const threshold = 0.15; 
-
-                    if (velocity < threshold) {
-                         const msg = document.getElementById('msg-force');
-                         msg.classList.add('show');
-                         setTimeout(() => msg.classList.remove('show'), 1000);
-                         return;
+                    // If user held finger still before release, velocity is 0
+                    if (Date.now() - lastMoveTime > 100) {
+                        angularVelocity = 0;
+                        linearVelocity = 0;
                     }
 
-                    wheel.go(velocity);
+                    if (wheel.mode === 'wheel') {
+                        // Threshold for angular velocity (approx 0.3 deg/ms is decent)
+                        if (Math.abs(angularVelocity) < 0.3) {
+                             showForceMsg(); return;
+                        }
+                        wheel.go(angularVelocity);
+                    } else {
+                        // Threshold for linear velocity (0.5 px/ms)
+                        if (Math.abs(linearVelocity) < 0.5) {
+                             showForceMsg(); return;
+                        }
+                        wheel.go(linearVelocity);
+                    }
                 };
 
                 target.onmousedown = onStart;
@@ -995,61 +1007,154 @@
                 wheel.spin = true;
                 aud.l('spin', true);
 
-                // Map velocity to spins.
-                // velocity ranges roughly 0.2 (slow) to 3.0+ (fast)
-                // Clamp max spins
-                let baseSpins = 3 + (velocity * 2);
-                if (baseSpins < 2) baseSpins = 2; // Ensure minimum fun
-                if (baseSpins > 10) baseSpins = 10;
+                // INERTIA PHYSICS
+                // Friction coefficient (higher = stops faster)
+                const friction = 0.002; 
+                // Initial velocity magnitude
+                const v0 = Math.abs(velocity);
+                const dir = Math.sign(velocity);
                 
-                const duration = 2 + (baseSpins / 2.5);
+                // Total time to stop (v = v0 - a*t => t = v0/a)
+                // Let's scale it up a bit for drama
+                const duration = v0 / friction; // ms
+                
+                // Total distance (d = v0*t - 0.5*a*t^2) -> d = v0^2 / (2*a)
+                let totalDist = (v0 * v0) / (2 * friction);
+                
+                // Apply direction
+                totalDist *= dir;
 
+                // CHEAT LOGIC
                 let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
 
                 if (wheel.mode === 'wheel') {
-                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
+                    // Wheel works in degrees
+                    // Current Angle
                     const currentAngle = wheel.ang;
-                    // Always add full rotations
-                    const spins = Math.round(baseSpins) * 360;
-                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
                     
-                    const finalAngle = currentAngle + spins + targetOffset - (currentAngle % 360); 
+                    // Predicted natural landing angle
+                    let predictedAngle = currentAngle + totalDist;
                     
-                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.2, 1)`;
+                    // Now we need to snap `predictedAngle` to the nearest `winnerIdx` slot
+                    // preserving the direction of the spin.
+                    
+                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
+                    // The target rotation for index i is: -i * sliceDeg - sliceDeg/2
+                    const targetBase = -(winnerIdx * sliceDeg) - (sliceDeg/2);
+                    
+                    // We need (predictedAngle) to be roughly (k * 360) + targetBase
+                    // Find k closest to predictedAngle
+                    
+                    // Normalize predicted to find offset
+                    const predictedMod = predictedAngle % 360;
+                    // We want it to be targetBase (mod 360)
+                    // Wait, simpler:
+                    // Just find the delta needed to align.
+                    
+                    // Current alignment error
+                    // Target visual angle is targetBase.
+                    // Current predicted is predictedAngle.
+                    // Difference needed:
+                    
+                    // Let's reverse:
+                    // Find the specific rotation value R such that R % 360 == targetBase
+                    // and |R - predictedAngle| is minimized.
+                    
+                    // Actually, since we control the friction/distance, we can just ADD or SUBTRACT
+                    // a little bit of distance to land on the winner.
+                    
+                    // Calculate which slice predictedAngle lands on
+                    // Angle 0 is index 0 center.
+                    // Angle +deg rotates CW. Index 0 moves right.
+                    // Top pointer is fixed.
+                    // Visual Top = (Angle - 90) ? No, CSS is rotate(0) -> Index 0 at 3 o'clock?
+                    // CSS: .slice-wrapper transform: rotate(mid - 90deg).
+                    // Index 0 mid is at 0 deg - 90 = -90 (Top).
+                    // So Rotate(0) puts Index 0 at Top.
+                    // Rotate(10) puts Index 0 at 10deg CW (Right). Top is now Index N.
+                    
+                    // So, Target Rotation for Index X at Top is:
+                    // 0 = Index 0
+                    // -sliceDeg = Index 1
+                    // etc.
+                    // Target = -(winnerIdx * sliceDeg)
+                    
+                    // Find K such that (predictedAngle) ~= (Target + K*360)
+                    // We want to preserve the sign of velocity roughly.
+                    
+                    // Calculate modulo offset
+                    const targetMod = (-(winnerIdx * sliceDeg)) % 360;
+                    const predictedMod360 = predictedAngle % 360;
+                    
+                    let correction = targetMod - predictedMod360;
+                    // Normalize correction to be minimal
+                    if (correction > 180) correction -= 360;
+                    if (correction < -180) correction += 360;
+                    
+                    const finalAngle = predictedAngle + correction;
+                    
+                    // Ensure duration is reasonable (min 2s)
+                    const finalDuration = Math.max(2000, duration);
+                    
+                    wheel.el.style.transition = `transform ${finalDuration}ms cubic-bezier(0.1, 0, 0.2, 1)`;
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
                     wheel.ang = finalAngle;
                     
-                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
+                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), finalDuration);
 
                 } else {
+                    // JACKPOT
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
                     if (!itemEl) return;
                     const itemH = itemEl.getBoundingClientRect().height; 
                     const n = CURRENT_ROUND_CATS.length;
                     
+                    const currentY = wheel.offsetY;
+                    let predictedY = currentY + totalDist;
+                    
+                    // Calculate center offset
                     const containerH = document.getElementById('jackpot-container').offsetHeight;
                     const centerOffset = containerH / 2;
-
-                    const currentY = wheel.offsetY;
-                    const travelDist = baseSpins * (n * itemH);
-                    const targetYRaw = currentY - travelDist; // GO DOWN
-
-                    const approximateIndex = (centerOffset - targetYRaw - (itemH/2)) / itemH;
-                    let targetIndex = Math.round(approximateIndex);
-
-                    while (targetIndex % n !== winnerIdx) {
-                        targetIndex++;
+                    
+                    // Target Formula: Y = Center - (Index * H) - H/2
+                    // We need to find an Index K such that K % N == winnerIdx
+                    // and the resulting Y is close to predictedY.
+                    
+                    // Reverse: Index = (Center - Y - H/2) / H
+                    const approxIndex = (centerOffset - predictedY - (itemH/2)) / itemH;
+                    let targetIndex = Math.round(approxIndex);
+                    
+                    // Adjust to winner
+                    // This might move it forward or backward, we should respect velocity direction preference?
+                    // The friction model is loose approximation, moving targetIndex a bit is fine.
+                    while (((targetIndex % n) + n) % n !== winnerIdx) {
+                        if (dir < 0) targetIndex--; // If moving up (neg velocity), look "back" indices?
+                        else targetIndex++;         // Actually just checking neighbors is safest
+                        // Simple check: just find closest valid index
                     }
+                    // Re-check closest neighbor with correct modulo
+                    // (Simpler logic for loop above might drift, let's do mod math)
+                    
+                    const remainder = ((targetIndex % n) + n) % n;
+                    let offset = winnerIdx - remainder;
+                    
+                    // Adjust offset for shortest path
+                    if (offset > n/2) offset -= n;
+                    if (offset < -n/2) offset += n;
+                    
+                    targetIndex += offset;
                     
                     const finalTargetY = centerOffset - (targetIndex * itemH) - (itemH/2);
                     
-                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.2, 1)`;
+                    const finalDuration = Math.max(2000, duration);
+                    
+                    wheel.jackpot.style.transition = `transform ${finalDuration}ms cubic-bezier(0.1, 0, 0.2, 1)`;
                     wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
                     wheel.offsetY = finalTargetY;
                     
-                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
+                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), finalDuration);
                 }
             },
 
@@ -1062,6 +1167,12 @@
                 wheel.spin = false;
             }
         };
+
+        function showForceMsg() {
+            const msg = document.getElementById('msg-force');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 1000);
+        }
 
         /* GAME */
         const game = {
