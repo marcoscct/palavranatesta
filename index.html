@@ -64,7 +64,6 @@
         #screen-game { overflow: hidden; touch-action: none; justify-content: center; }
         #screen-wheel { overflow: hidden !important; touch-action: none; }
 
-        /* Responsividade para telas menores (iPhone Mini) */
         @media (max-height: 850px) {
             .screen:not(#screen-game):not(#screen-wheel) {
                 justify-content: flex-start;
@@ -77,11 +76,7 @@
                 margin-bottom: 20px !important;
                 flex-shrink: 0;
             }
-            .btn {
-                flex-shrink: 0; 
-                margin-top: auto; 
-                margin-bottom: 10px;
-            }
+            .btn { flex-shrink: 0; margin-top: auto; margin-bottom: 10px; }
         }
 
         .scrollable { justify-content: flex-start; padding-top: 40px; padding-bottom: 120px; }
@@ -99,6 +94,20 @@
             width: 100%;
         }
         h2 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; }
+
+        /* === UX IMPROVEMENT: ROUND INDICATOR === */
+        .round-pill {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 30px;
+            border-radius: 50px;
+            margin-bottom: 2vh;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .round-pill h2 { margin: 0; font-size: 2.5vh; color: #cbd5e1; letter-spacing: 2px; }
+        .round-pill span { font-size: 4vh; font-weight: 900; color: white; line-height: 1; }
 
         /* === UI COMPONENTS === */
         .btn {
@@ -137,7 +146,7 @@
         .table-input-words { flex: 1; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; }
         
-        /* === MODAL (FIXED PADDING) === */
+        /* === MODAL (FIXED WIDTH) === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -145,9 +154,10 @@
         }
         .modal-box {
             background: #1e1b4b; border: 1px solid rgba(255,255,255,0.2);
-            padding: 40px 30px; /* Aumentado padding vertical */
+            padding: 30px; 
             border-radius: 20px; text-align: center;
-            width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 95%; max-width: 500px; /* Mais largo para os botões caberem */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             animation: popIn 0.3s ease-out;
             margin-bottom: 20px;
         }
@@ -291,7 +301,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.4</div>
+        <div class="version-tag">v22.5</div>
     </div>
     
     <!-- HOME ICON -->
@@ -341,6 +351,8 @@
                     <input type="text" id="sheet-input" placeholder="https://docs.google.com/spreadsheets/...">
                     <button class="btn btn-small" style="background: #22c55e;" onclick="dataMgr.loadSheet()">CARREGAR</button>
                 </div>
+                <!-- NOVO BOTÃO CARREGAR PADRÃO -->
+                <button class="btn btn-small btn-outline" style="width:100%; margin-top:5px" onclick="dataMgr.loadDefault()">CARREGAR PADRÃO</button>
             </div>
             <div class="section-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
@@ -385,7 +397,10 @@
 
     <!-- TELA 2: INTRO -->
     <div id="screen-intro" class="screen">
-        <h2 style="opacity:0.6; font-size: 3vh;">RODADA <span id="lbl-rd">1</span></h2>
+        <div class="round-pill">
+            <h2>RODADA</h2>
+            <span id="lbl-rd">1</span>
+        </div>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
         <p style="font-size: 3vh; opacity: 0.8">Celular na testa</p>
         <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">SORTEAR TEMA</button>
@@ -515,13 +530,10 @@
                 try {
                     const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
                     if(data) {
-                        // Support for old data format vs new multi-sheet format
                         if(data.cats && Array.isArray(data.cats)) {
                             if(data.cats.length > 0 && Array.isArray(data.cats[0])) {
-                                // New format [[{n,w}]]
                                 GLOBAL_SHEETS_DATA = data.cats;
                             } else {
-                                // Old format [{n,w}]
                                 GLOBAL_SHEETS_DATA = [data.cats];
                             }
                         }
@@ -542,9 +554,7 @@
         const dataMgr = {
             isTableMode: true,
             init: () => { 
-                // Ensure idx is valid
                 if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0;
-                
                 dataMgr.updateSheetSelector();
                 document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2); 
                 dataMgr.renderTable();
@@ -603,6 +613,10 @@
             },
             reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; CURRENT_SHEET_IDX=0; SOURCE_TYPE='default'; dataMgr.init(); storage.save(); }); },
             copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
+            loadDefault: () => {
+                document.getElementById('sheet-input').value = "https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk";
+                dataMgr.loadSheet();
+            },
             loadSheet: async () => {
                 const url = document.getElementById('sheet-input').value;
                 if(!url) return;
@@ -683,12 +697,19 @@
                 if(id === 'options') dataMgr.init();
                 const homeBtn = document.getElementById('home-btn');
                 
-                // RESET DO TIMER AO VOLTAR PARA HOME
+                // RESET DO TIMER E RODADA AO VOLTAR PARA HOME
                 if(id === 'home') {
                     homeBtn.style.display = 'none';
                     game.stop();
                     document.getElementById('timer-num').innerText = st.cfg.t;
                     document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, #333 0deg)`;
+                    
+                    // RESET LÓGICO COMPLETO
+                    st.rd = 1;
+                    st.trn = 0;
+                    st.pts = 0;
+                    st.t[0].s = 0;
+                    st.t[1].s = 0;
                 } else {
                     homeBtn.style.display = 'block';
                 }
@@ -738,7 +759,6 @@
                     storage.save();
                     app.to('teams');
                 } catch(e) {
-                    // Fallback
                     localStorage.removeItem('pnt_data_v22');
                     location.reload();
                 }
@@ -779,14 +799,12 @@
             ang: 0, offsetY: 0, spin: false, velocity: 0, lastVal: 0, lastTime: 0,
             
             init: () => {
-                // LÓGICA ALTERADA PARA RESPEITAR OPÇÕES
                 const mode = document.getElementById('opt-mode').value;
                 const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
 
                 if (mode === 'wheel') wheel.mode = 'wheel';
                 else if (mode === 'jackpot') wheel.mode = 'jackpot';
                 else {
-                    // auto
                     wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
                 }
 
@@ -828,7 +846,6 @@
                 const list = [...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS]; 
                 const n = CURRENT_ROUND_CATS.length;
                 list.forEach((c, i) => {
-                     // FIX COR: Usa o índice original para garantir consistência da cor
                      const realIndex = i % n;
                      const color = COLORS[realIndex % COLORS.length];
                      h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
@@ -898,13 +915,12 @@
                 let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
                 let winnerIdx = -1;
 
-                // CHECK DO CHEAT (*) AQUI
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
 
                 const loop=()=>{
                     if(!wheel.spin) return;
-                    vel *= 0.985; // Friction
+                    vel *= 0.985; 
                     
                     if (wheel.mode === 'wheel') {
                          wheel.ang += vel; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
@@ -916,15 +932,11 @@
                          wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                     }
 
-                    // Stop condition
                     if(Math.abs(vel)<0.1) {
                          wheel.spin = false;
-                         
-                         // FORCE CHEAT IF EXISTS
                          if (winnerIdx !== -1) {
                              wheel.snapToWinner(winnerIdx);
                          } else {
-                             // NATURAL STOP & CALC
                              wheel.calcWinner();
                          }
                     } else {
@@ -946,8 +958,6 @@
                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
                     const itemH = 15 * vmin; 
                     const centerLine = (85 * vmin) / 2;
-                    
-                    // TARGET MIDDLE COPY FOR CONSISTENCY
                     const targetItemIndex = idx + CURRENT_ROUND_CATS.length;
                     const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
                     
@@ -968,36 +978,26 @@
                     const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
                     const itemH = 15 * vmin; 
                     const centerLine = (85 * vmin) / 2;
-                    
-                    // Visual adjustment (Snap)
                     const relativeY = centerLine - (itemH/2) - wheel.offsetY;
                     let rawIndex = Math.round(relativeY / itemH);
                     const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
                     
                     wheel.jackpot.style.transition = "transform 0.3s ease-out";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
-                    wheel.offsetY = targetY; // Sync
-                    
-                    // Modulo fix for negative numbers
+                    wheel.offsetY = targetY; 
                     const n = CURRENT_ROUND_CATS.length;
                     idx = ((rawIndex % n) + n) % n;
                 }
-                // Add slight delay for visual snap
                 setTimeout(() => wheel.finish(idx), 300);
             },
 
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
                 const cat = CURRENT_ROUND_CATS[idx];
-                
                 st.cat = cat; 
-
-                // FIX COLOR: Mesma lógica do setup para garantir cor correta no modal
                 const color = COLORS[(idx % CURRENT_ROUND_CATS.length) % COLORS.length];
-
                 ui.showResult(cat.n.replace('*', ''), color, () => game.pre());
                 
-                // Reset transition for next drag
                 setTimeout(() => {
                     if (wheel.mode === 'wheel') wheel.el.style.transition = 'none';
                     else wheel.jackpot.style.transition = 'none';
