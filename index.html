@@ -95,7 +95,7 @@
         }
         h2 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; }
 
-        /* === UX IMPROVEMENT: ROUND INDICATOR === */
+        /* === ROUND INDICATOR === */
         .round-pill {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -146,7 +146,7 @@
         .table-input-words { flex: 1; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; }
         
-        /* === MODAL (FIXED WIDTH) === */
+        /* === MODAL === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -156,7 +156,7 @@
             background: #1e1b4b; border: 1px solid rgba(255,255,255,0.2);
             padding: 30px; 
             border-radius: 20px; text-align: center;
-            width: 95%; max-width: 500px; /* Mais largo para os botões caberem */
+            width: 95%; max-width: 500px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             animation: popIn 0.3s ease-out;
             margin-bottom: 20px;
@@ -238,7 +238,7 @@
         }
         #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
-            height: 15vh; /* Altura definida */
+            height: 15vh; /* Altura definida no CSS */
             display: flex; align-items: center; justify-content: center;
             font-family: 'Montserrat'; font-weight: 900; font-size: 5vh;
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
@@ -301,7 +301,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.5</div>
+        <div class="version-tag">v22.6</div>
     </div>
     
     <!-- HOME ICON -->
@@ -799,12 +799,14 @@
             ang: 0, offsetY: 0, spin: false, velocity: 0, lastVal: 0, lastTime: 0,
             
             init: () => {
+                // LÓGICA ALTERADA PARA RESPEITAR OPÇÕES
                 const mode = document.getElementById('opt-mode').value;
                 const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
 
                 if (mode === 'wheel') wheel.mode = 'wheel';
                 else if (mode === 'jackpot') wheel.mode = 'jackpot';
                 else {
+                    // auto
                     wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
                 }
 
@@ -846,6 +848,7 @@
                 const list = [...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS, ...CURRENT_ROUND_CATS]; 
                 const n = CURRENT_ROUND_CATS.length;
                 list.forEach((c, i) => {
+                     // FIX COR: Usa o índice original para garantir consistência da cor
                      const realIndex = i % n;
                      const color = COLORS[realIndex % COLORS.length];
                      h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
@@ -915,28 +918,36 @@
                 let vel = v; if(vel>50) vel=50; if(vel<-50) vel=-50;
                 let winnerIdx = -1;
 
+                // CHECK DO CHEAT (*) AQUI
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
 
                 const loop=()=>{
                     if(!wheel.spin) return;
-                    vel *= 0.985; 
+                    vel *= 0.985; // Friction
                     
                     if (wheel.mode === 'wheel') {
                          wheel.ang += vel; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
                     } else {
                          wheel.offsetY += vel * 5;
-                         const stripH = wheel.jackpot.clientHeight / 3; 
+                         // PIXEL PERFECT HEIGHT
+                         const itemEl = wheel.jackpot.querySelector('.jackpot-item');
+                         const stripH = (itemEl ? itemEl.offsetHeight : 100) * CURRENT_ROUND_CATS.length; 
+                         
                          if (wheel.offsetY > 0) wheel.offsetY -= stripH;
                          if (wheel.offsetY < -stripH * 2) wheel.offsetY += stripH;
                          wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                     }
 
-                    if(Math.abs(vel)<0.1) {
+                    // SMOOTH STOP (THRESHOLD INCREASED TO 0.5)
+                    if(Math.abs(vel) < 0.5) {
                          wheel.spin = false;
+                         
+                         // FORCE CHEAT IF EXISTS
                          if (winnerIdx !== -1) {
                              wheel.snapToWinner(winnerIdx);
                          } else {
+                             // NATURAL STOP & CALC
                              wheel.calcWinner();
                          }
                     } else {
@@ -949,21 +960,68 @@
             snapToWinner: (idx) => {
                 if (wheel.mode === 'wheel') {
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
-                    const currentFull = Math.floor(wheel.ang / 360);
-                    const targetAngle = (currentFull * 360) + 360 + (360 - (idx * sliceDeg) - (sliceDeg/2)); 
-                    wheel.el.style.transition = "transform 1s ease-out";
-                    wheel.el.style.transform = `rotate(${targetAngle}deg)`;
-                    setTimeout(() => wheel.finish(idx), 1000);
-                } else {
-                    const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
-                    const itemH = 15 * vmin; 
-                    const centerLine = (85 * vmin) / 2;
-                    const targetItemIndex = idx + CURRENT_ROUND_CATS.length;
-                    const targetY = centerLine - ((targetItemIndex * itemH) + (itemH/2));
                     
-                    wheel.jackpot.style.transition = "transform 1s ease-out";
-                    wheel.jackpot.style.transform = `translateY(${targetY}px)`;
-                    setTimeout(() => wheel.finish(idx), 1000);
+                    // Current Rotation
+                    const cur = wheel.ang;
+                    
+                    // Target Angle calculation (normalized)
+                    // We want the slice `idx` to be at the top (270deg visually in CSS, but 0 in logic)
+                    // The logic `(360 - norm) % 360` inverse mapping suggests:
+                    // Target rotation = -idx * sliceDeg
+                    
+                    // Let's find the closest multiple of 360 to the current angle to minimize spin
+                    const targetBase = -(idx * sliceDeg) - (sliceDeg/2);
+                    
+                    // Normalize current angle
+                    const currentMod = cur % 360;
+                    const diff = targetBase - currentMod;
+                    
+                    // Find shortest path
+                    let delta = diff;
+                    if (delta > 180) delta -= 360;
+                    if (delta < -180) delta += 360;
+                    
+                    const finalAngle = cur + delta;
+
+                    wheel.el.style.transition = "transform 1.5s cubic-bezier(0.1, 0, 0.2, 1)";
+                    wheel.el.style.transform = `rotate(${finalAngle}deg)`;
+                    setTimeout(() => wheel.finish(idx), 1500);
+                } else {
+                    // PIXEL PERFECT CALCULATION (FIX FOR IOS)
+                    const itemEl = wheel.jackpot.querySelector('.jackpot-item');
+                    const itemH = itemEl ? itemEl.offsetHeight : 100;
+                    const centerLine = wheel.jackpot.offsetHeight / 2;
+                    
+                    // We have 3 sets. We are somewhere in the negative Y.
+                    // Current Y
+                    const currentY = wheel.offsetY;
+                    
+                    // The positions of the winner index in the 3 sets:
+                    // Set 0: index
+                    // Set 1: index + N
+                    // Set 2: index + 2N
+                    const n = CURRENT_ROUND_CATS.length;
+                    const candidates = [idx, idx + n, idx + 2*n];
+                    
+                    let bestY = currentY;
+                    let minDiff = Infinity;
+                    
+                    // Find the Y position that places this candidate in the center
+                    // Y + (cand * H) + H/2 = Center
+                    // Y = Center - (cand * H) - H/2
+                    
+                    candidates.forEach(cIdx => {
+                        const targetY = centerLine - (cIdx * itemH) - (itemH/2);
+                        const diff = Math.abs(targetY - currentY);
+                        if(diff < minDiff) {
+                            minDiff = diff;
+                            bestY = targetY;
+                        }
+                    });
+                    
+                    wheel.jackpot.style.transition = "transform 1.5s cubic-bezier(0.1, 0, 0.2, 1)";
+                    wheel.jackpot.style.transform = `translateY(${bestY}px)`;
+                    setTimeout(() => wheel.finish(idx), 1500);
                 }
             },
 
@@ -974,30 +1032,44 @@
                     const winAngle = (360 - norm) % 360;
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
                     idx = Math.floor(winAngle / sliceDeg);
+                    // Just visual snap
+                    // Recalculate perfect center
+                    const targetAngle = wheel.ang + (sliceDeg/2 - (wheel.ang % sliceDeg)); // Rough snap
+                    // Actually, we can just let it be, or do a small snap. 
+                    // For simplicity, we just wait.
                 } else {
-                    const vmin = Math.min(window.innerWidth, window.innerHeight) / 100;
-                    const itemH = 15 * vmin; 
-                    const centerLine = (85 * vmin) / 2;
+                    // PIXEL PERFECT CALCULATION
+                    const itemEl = wheel.jackpot.querySelector('.jackpot-item');
+                    const itemH = itemEl ? itemEl.offsetHeight : 100;
+                    const centerLine = wheel.jackpot.offsetHeight / 2;
+                    
                     const relativeY = centerLine - (itemH/2) - wheel.offsetY;
                     let rawIndex = Math.round(relativeY / itemH);
+                    
                     const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
                     
-                    wheel.jackpot.style.transition = "transform 0.3s ease-out";
+                    wheel.jackpot.style.transition = "transform 0.5s ease-out";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
-                    wheel.offsetY = targetY; 
+                    
                     const n = CURRENT_ROUND_CATS.length;
                     idx = ((rawIndex % n) + n) % n;
                 }
-                setTimeout(() => wheel.finish(idx), 300);
+                // Add slight delay for visual snap
+                setTimeout(() => wheel.finish(idx), 500);
             },
 
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
                 const cat = CURRENT_ROUND_CATS[idx];
+                
                 st.cat = cat; 
+
+                // FIX COLOR: Mesma lógica do setup para garantir cor correta no modal
                 const color = COLORS[(idx % CURRENT_ROUND_CATS.length) % COLORS.length];
+
                 ui.showResult(cat.n.replace('*', ''), color, () => game.pre());
                 
+                // Reset transition for next drag
                 setTimeout(() => {
                     if (wheel.mode === 'wheel') wheel.el.style.transition = 'none';
                     else wheel.jackpot.style.transition = 'none';
