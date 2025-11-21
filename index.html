@@ -301,7 +301,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v22.6</div>
+        <div class="version-tag">v22.7</div>
     </div>
     
     <!-- HOME ICON -->
@@ -700,7 +700,7 @@
                 // RESET DO TIMER E RODADA AO VOLTAR PARA HOME
                 if(id === 'home') {
                     homeBtn.style.display = 'none';
-                    game.stop();
+                    game.stopAll(); // STOP TUDO
                     document.getElementById('timer-num').innerText = st.cfg.t;
                     document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, #333 0deg)`;
                     
@@ -960,28 +960,17 @@
             snapToWinner: (idx) => {
                 if (wheel.mode === 'wheel') {
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
-                    
-                    // Current Rotation
                     const cur = wheel.ang;
-                    
-                    // Target Angle calculation (normalized)
-                    // We want the slice `idx` to be at the top (270deg visually in CSS, but 0 in logic)
-                    // The logic `(360 - norm) % 360` inverse mapping suggests:
-                    // Target rotation = -idx * sliceDeg
-                    
-                    // Let's find the closest multiple of 360 to the current angle to minimize spin
                     const targetBase = -(idx * sliceDeg) - (sliceDeg/2);
-                    
-                    // Normalize current angle
                     const currentMod = cur % 360;
                     const diff = targetBase - currentMod;
-                    
-                    // Find shortest path
                     let delta = diff;
                     if (delta > 180) delta -= 360;
                     if (delta < -180) delta += 360;
-                    
                     const finalAngle = cur + delta;
+
+                    // ATUALIZA ESTADO INTERNO PARA EVITAR PULO
+                    wheel.ang = finalAngle;
 
                     wheel.el.style.transition = "transform 1.5s cubic-bezier(0.1, 0, 0.2, 1)";
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
@@ -991,24 +980,12 @@
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
                     const itemH = itemEl ? itemEl.offsetHeight : 100;
                     const centerLine = wheel.jackpot.offsetHeight / 2;
-                    
-                    // We have 3 sets. We are somewhere in the negative Y.
-                    // Current Y
                     const currentY = wheel.offsetY;
-                    
-                    // The positions of the winner index in the 3 sets:
-                    // Set 0: index
-                    // Set 1: index + N
-                    // Set 2: index + 2N
                     const n = CURRENT_ROUND_CATS.length;
                     const candidates = [idx, idx + n, idx + 2*n];
                     
                     let bestY = currentY;
                     let minDiff = Infinity;
-                    
-                    // Find the Y position that places this candidate in the center
-                    // Y + (cand * H) + H/2 = Center
-                    // Y = Center - (cand * H) - H/2
                     
                     candidates.forEach(cIdx => {
                         const targetY = centerLine - (cIdx * itemH) - (itemH/2);
@@ -1019,6 +996,9 @@
                         }
                     });
                     
+                    // ATUALIZA ESTADO INTERNO PARA EVITAR PULO
+                    wheel.offsetY = bestY;
+
                     wheel.jackpot.style.transition = "transform 1.5s cubic-bezier(0.1, 0, 0.2, 1)";
                     wheel.jackpot.style.transform = `translateY(${bestY}px)`;
                     setTimeout(() => wheel.finish(idx), 1500);
@@ -1032,25 +1012,21 @@
                     const winAngle = (360 - norm) % 360;
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
                     idx = Math.floor(winAngle / sliceDeg);
-                    // Just visual snap
-                    // Recalculate perfect center
-                    const targetAngle = wheel.ang + (sliceDeg/2 - (wheel.ang % sliceDeg)); // Rough snap
-                    // Actually, we can just let it be, or do a small snap. 
-                    // For simplicity, we just wait.
                 } else {
                     // PIXEL PERFECT CALCULATION
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
                     const itemH = itemEl ? itemEl.offsetHeight : 100;
                     const centerLine = wheel.jackpot.offsetHeight / 2;
-                    
                     const relativeY = centerLine - (itemH/2) - wheel.offsetY;
                     let rawIndex = Math.round(relativeY / itemH);
-                    
                     const targetY = -(rawIndex * itemH) + centerLine - (itemH/2);
                     
                     wheel.jackpot.style.transition = "transform 0.5s ease-out";
                     wheel.jackpot.style.transform = `translateY(${targetY}px)`;
                     
+                    // Sync internal state
+                    wheel.offsetY = targetY;
+
                     const n = CURRENT_ROUND_CATS.length;
                     idx = ((rawIndex % n) + n) % n;
                 }
@@ -1080,14 +1056,27 @@
         /* GAME */
         const game = {
             tmr: null,
+            preTmr: null,
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
+            stopAll: () => {
+                if(game.tmr) clearInterval(game.tmr);
+                if(game.preTmr) clearInterval(game.preTmr);
+            },
             pre: () => {
                 app.to('game'); 
                 document.getElementById('timer-num').innerText = st.cfg.t;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
                 const d=document.getElementById('word-disp'); 
                 let c=3; d.innerText=c; 
-                const i=setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(i); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
+                game.preTmr = setInterval(()=>{ 
+                    c--; 
+                    if(c>0) d.innerText=c; 
+                    else { 
+                        clearInterval(game.preTmr); 
+                        d.innerText="VAI!"; 
+                        setTimeout(game.run, 600); 
+                    } 
+                },1000);
             },
             run: () => {
                 game.stop(); 
