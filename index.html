@@ -14,10 +14,15 @@
     <style>
         /* === VARS & RESET === */
         :root {
-            --bg-dark: #0f172a;
+            /* DEFAULT THEME (Valores Iniciais) */
+            --bg-color: #1e1b4b;
+            --bg-gradient: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
             --primary: #6366f1;
             --secondary: #ec4899;
             --accent: #fbbf24;
+            --text: #ffffff;
+            --panel-bg: rgba(0,0,0,0.3);
+            
             --success: #22c55e;
             --danger: #ef4444;
             --border: 1px solid rgba(255, 255, 255, 0.15);
@@ -25,15 +30,21 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
-        /* FIX FUNDO TOTAL S25 ULTRA */
+        /* FIX FUNDO TOTAL S25 ULTRA + TEMAS */
         html, body {
             width: 100%; height: 100%;
             margin: 0; padding: 0;
             overflow: hidden;
-            font-family: 'Poppins', sans-serif; color: white;
-            background-color: #1e1b4b;
-            background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
+            font-family: 'Poppins', sans-serif; color: var(--text);
+            
+            /* AQUI ESTAVA O ERRO: Agora usa as variáveis dinâmicas */
+            background-color: var(--bg-color);
+            background-image: var(--bg-gradient);
+            
+            background-size: cover;
+            background-attachment: fixed;
             position: fixed; inset: 0;
+            transition: background 0.5s ease; /* Transição suave de tema */
         }
 
         /* === UTILS === */
@@ -129,30 +140,48 @@
         .modal-box {
             background: var(--bg-color); border: 1px solid rgba(255,255,255,0.2);
             padding: 30px; border-radius: 20px; text-align: center;
-            width: 95%; max-width: 500px;
+            width: 95%; max-width: 500px; max-height: 90vh; /* Limite de altura */
+            display: flex; flex-direction: column;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             animation: popIn 0.3s ease-out; margin-bottom: 20px;
         }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; }
-        .modal-msg { margin-bottom: 30px; font-size: 1.2rem; line-height: 1.5; color: white; }
-        .modal-actions { display: flex; gap: 15px; justify-content: center; width: 100%; padding: 10px; }
+        .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; flex-shrink: 0; }
+        .modal-msg { margin-bottom: 20px; font-size: 1.2rem; line-height: 1.5; color: white; flex-shrink: 0; }
+        .modal-actions { display: flex; gap: 15px; justify-content: center; width: 100%; padding: 10px; flex-shrink: 0; }
         #result-cat-display {
             font-size: 3rem; font-weight: 900; color: white; 
             margin: 10px 0 30px 0; text-transform: uppercase;
             text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
-        /* === EDIT RESULTS MODAL STYLES === */
-        .edit-list-container { max-height: 40vh; overflow-y: auto; margin: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        /* === EDIT RESULTS MODAL STYLES (CORRIGIDO) === */
+        .edit-list-container { 
+            flex: 1; /* Ocupa o espaço disponível */
+            overflow-y: auto; 
+            margin: 10px 0; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            min-height: 100px; /* Altura mínima garantida */
+        }
         .edit-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
             cursor: pointer; user-select: none;
         }
         .edit-item:active { background: rgba(255,255,255,0.05); }
-        .edit-word { font-size: 1rem; text-align: left; flex: 1; font-weight: 600; }
+        .edit-word { font-size: 1rem; text-align: left; flex: 1; font-weight: 600; color: var(--text); }
         .edit-status { font-weight: 900; font-size: 1rem; text-transform: uppercase; width: 100px; text-align: right; }
+
+        /* === FINAL WINNER TEXT === */
+        #winner {
+            color: var(--accent);
+            font-size: 6vh; /* Aumentado */
+            text-align: center;
+            width: 100%;
+            margin-top: 2vh;
+            text-transform: uppercase;
+        }
 
         /* === ROUND PILL & GAME HUD === */
         .round-pill {
@@ -171,7 +200,6 @@
         .timer-wrapper::after { content: ''; position: absolute; inset: 10%; background: var(--bg-color); border-radius: 50%; z-index: 1; }
         .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 4vh; font-weight: 900; }
 
-        /* === GAME TEXT === */
         #word-disp {
             font-family: 'Montserrat'; font-weight: 900; 
             font-size: clamp(2.8rem, 13.5vmin, 7rem); 
@@ -289,7 +317,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v27.1</div>
+            <div class="version-tag">v27.2</div>
         </div>
     </div>
     
@@ -308,7 +336,7 @@
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
         <div class="options-container">
-            <!-- (Conteúdo das opções mantido igual, apenas ocultado para brevidade) -->
+            <!-- CONTEÚDO DAS OPÇÕES (MANTIDO) -->
             <div class="section-box"><h2>Visual & Times</h2><div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div><div class="teams-container" style="margin-top:15px"><div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div><div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div></div></div><div class="section-box"><h2>Regras do Jogo</h2><div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div><div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div><div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div><div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div></div><div class="section-box"><h2>Conteúdo</h2><div class="input-group"><label>Carregar do Google Sheets</label><div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button></div><div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px"><h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2><button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button></div><div class="input-group" style="margin-bottom: 10px;"><label>Selecionar Aba</label><select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select></div><div id="editor-container"><div id="view-table" class="editor-view active"><div id="table-rows"></div><button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button></div><div id="view-json" class="editor-view"><div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div></div></div><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px"><button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button><button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button><button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button></div></div>
             <button class="btn" onclick="app.to('home')">VOLTAR</button>
         </div>
@@ -345,7 +373,7 @@
         <div id="fb-no" class="flash" style="background: var(--danger);">PULOU!</div>
     </div>
 
-    <!-- TELA RESULTADO (ATUALIZADA) -->
+    <!-- TELA RESULTADO -->
     <div id="screen-res" class="screen">
         <h1 style="font-size: 4vh; margin-bottom: 1vh;">FIM DA RODADA</h1>
         <div id="res-score" style="font-size: 8vh; font-weight: 900; margin: 2vh 0; color: white;">0 PONTOS</div>
@@ -366,14 +394,14 @@
                 <div id="fn-2" style="color:var(--secondary); font-weight:bold; font-size: 3vh">Time B</div><div id="fs-2" style="font-size:8vh; font-weight:900">0</div>
             </div>
         </div>
-        <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
+        <h2 id="winner" style="color:var(--accent); font-size: 6vh; text-align: center;">VENCEDOR</h2>
         <button class="btn" style="width:auto; margin-top: 3vh;" onclick="location.reload()">MENU PRINCIPAL</button>
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        /* === THEMES (UPDATED) === */
+        /* === THEMES === */
         const THEMES = [
             { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
             { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
@@ -386,6 +414,7 @@
         ];
         
         let CURRENT_THEME = 'default';
+
         const themeMgr = {
             init: () => {
                 const container = document.getElementById('theme-selector');
@@ -400,7 +429,12 @@
                 });
                 themeMgr.apply(CURRENT_THEME);
             },
-            set: (id) => { CURRENT_THEME = id; themeMgr.init(); themeMgr.apply(id); storage.save(); },
+            set: (id) => {
+                CURRENT_THEME = id;
+                themeMgr.init(); 
+                themeMgr.apply(id);
+                storage.save();
+            },
             apply: (id) => {
                 const t = THEMES.find(x => x.id === id) || THEMES[0];
                 const root = document.documentElement;
@@ -501,7 +535,7 @@
             }
         };
 
-        // DATA MANAGER
+        /* ... DataMgr, Sensor, Wheel logic remains same ... */
         const dataMgr = {
              isTableMode: true, init: () => { if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0; dataMgr.updateSheetSelector(); document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2); dataMgr.renderTable(); },
              updateSheetSelector: () => { const sel = document.getElementById('sheet-selector'); sel.innerHTML = ''; GLOBAL_SHEETS_DATA.forEach((s, i) => { const opt = document.createElement('option'); opt.value = i; opt.text = `Aba ${i+1} (${s.length} cats)`; if(i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true; sel.appendChild(opt); }); },
@@ -593,7 +627,7 @@
 
         function showForceMsg() { const msg = document.getElementById('msg-force'); msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 1000); }
 
-        /* GAME OBJECT */
+        /* GAME OBJECT (UPDATED END/EDIT LOGIC) */
         const game = {
             tmr: null, preTmr: null, editList: [],
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
@@ -631,41 +665,24 @@
             flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
             end: () => {
                 try {
-                    st.on=false; 
-                    game.stop();
-                    
-                    // SCORE CALCULATION SAFEGUARD
-                    st.pts = st.h.filter(x => x.ok).length; // Recalculate from history just in case
-                    
+                    st.on=false; game.stop();
+                    st.pts = st.h.filter(x => x.ok).length;
                     st.t[st.trn].s += st.pts; 
-                    
-                    // NAVIGATE FIRST, THEN RENDER
                     app.to('res');
                     game.renderRes();
-                } catch(e) {
-                    console.error("Game End Error:", e);
-                    // Fallback to home if something explodes
-                    app.to('home');
-                }
+                } catch(e) { console.error("Game End Error:", e); app.to('home'); }
             },
             renderRes: () => {
-                const scoreEl = document.getElementById('res-score');
-                if(scoreEl) scoreEl.innerText = st.pts + " PONTOS";
-                
-                const l = document.getElementById('res-list');
-                if(l) {
-                    l.innerHTML = "";
-                    if(st.h && st.h.length > 0) {
-                        st.h.forEach(x => {
-                            const d = document.createElement('div');
-                            d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
-                            d.innerHTML = `<b style="color:${x.ok? 'var(--success)' : 'var(--danger)'}">${x.ok?'✓':'✗'}</b> ${x.w}`;
-                            l.appendChild(d);
-                        });
-                    } else {
-                        l.innerHTML = "<div style='padding:20px;opacity:0.5'>Nenhuma palavra jogada.</div>";
-                    }
-                }
+                document.getElementById('res-score').innerText = st.pts + " PONTOS";
+                const l = document.getElementById('res-list'); l.innerHTML = "";
+                if(st.h && st.h.length > 0) {
+                    st.h.forEach(x => {
+                        const d = document.createElement('div');
+                        d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
+                        d.innerHTML = `<b style="color:${x.ok? 'var(--success)' : 'var(--danger)'}">${x.ok?'✓':'✗'}</b> ${x.w}`;
+                        l.appendChild(d);
+                    });
+                } else { l.innerHTML = "<div style='padding:20px;opacity:0.5'>Nenhuma palavra jogada.</div>"; }
             },
             openEdit: () => {
                 game.editList = st.h && st.h.length ? JSON.parse(JSON.stringify(st.h)) : [];
