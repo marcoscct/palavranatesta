@@ -398,7 +398,6 @@
         </div>
     </div>
 
-    <!-- TELA FINAL (CORRIGIDO) -->
     <div id="screen-final" class="screen">
         <h1 style="font-size: 8vh;">FIM DE JOGO</h1>
         <div style="display:flex; gap:4vw; margin: 4vh 0; flex-wrap: wrap; justify-content: center;">
@@ -410,22 +409,22 @@
             </div>
         </div>
         <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
-        <!-- BOTÃO CORRIGIDO -->
-        <button class="btn" style="width:auto; margin-top: 3vh;" onclick="app.to('home')">MENU PRINCIPAL</button>
+        <button class="btn" style="width:auto; margin-top: 3vh;" onclick="location.reload()">MENU PRINCIPAL</button>
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
+        /* === THEMES (UPDATED with requested) === */
         const THEMES = [
             { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
             { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
             { id: 'blue-orange', name: 'Blue/Orange', bg: '#0f172a', grad: 'radial-gradient(circle, #1e293b 0%, #020617 100%)', p: '#3b82f6', s: '#f97316', a: '#fbbf24' },
+            { id: 'cyber', name: 'Cyber Punk', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#e65100', s: '#f6a609', a: '#fbbf24' },
             { id: 'forest', name: 'Forest', bg: '#052e16', grad: 'linear-gradient(to bottom, #14532d, #022c22)', p: '#22c55e', s: '#84cc16', a: '#fef08a' },
-            { id: 'dracula', name: 'Vampire', bg: '#2e0202', grad: 'radial-gradient(circle, #7f1d1d 0%, #000 100%)', p: '#ef4444', s: '#9333ea', a: '#fca5a5' },
+            { id: 'dracula', name: 'Vampire', bg: '#2e0202', grad: 'radial-gradient(circle, #7f1d1d 0%, #000 100%)', p: '#d68f9a', s: '#ff7777', a: '#fca5a5' },
             { id: 'ocean', name: 'Ocean', bg: '#083344', grad: 'linear-gradient(to bottom, #0e7490, #164e63)', p: '#06b6d4', s: '#22d3ee', a: '#cffafe' },
-            { id: 'royal', name: 'Royal', bg: '#2e1065', grad: 'radial-gradient(circle, #581c87 0%, #0f172a 100%)', p: '#a855f7', s: '#f472b6', a: '#fde047' },
-            { id: 'high-contrast', name: 'High Contrast', bg: '#000', grad: 'none', p: '#0000ff', s: '#ff0000', a: '#ffff00' }
+            { id: 'high-contrast', name: 'High Contrast', bg: '#000', grad: 'radial-gradient(circle, #1a1a1a 0%, #000 100%)', p: '#0055ff', s: '#ff0000', a: '#ffff00' }
         ];
         
         let CURRENT_THEME = 'default';
@@ -668,25 +667,17 @@
             }
         };
 
-        /* SENSOR (HISTERESE) */
+        /* SENSOR */
         const sensor = {
-            z: 0, wait: false,
-            resetState: true, 
+            z: 0, wait: false, resetState: true, 
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
             handle: (e) => {
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
                     if (sensor.resetState) {
-                        if (sensor.z < -8.0) { 
-                            game.act(true); 
-                            sensor.pause(); 
-                            sensor.resetState = false;
-                        } else if (sensor.z > 8.0) { 
-                            game.act(false); 
-                            sensor.pause(); 
-                            sensor.resetState = false; 
-                        }
+                        if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; } 
+                        else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; }
                     } else {
                         if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
                     }
@@ -696,7 +687,7 @@
         };
         sensor.init();
 
-        /* NAV */
+        /* NAV & LOGIC */
         const app = {
             to: (id) => {
                 if(document.querySelector('#screen-game.active')) game.stop();
@@ -733,6 +724,7 @@
             },
             start: () => {
                 aud.p('click');
+                // Fullscreen request
                 if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
                 else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
 
@@ -753,23 +745,12 @@
                 if(!onlySave) app.prep(); 
             },
             prep: () => {
-                if (st.rd > st.cfg.r) { app.end(); return; }
-                
-                if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) {
-                    GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
-                }
-                
+                if(st.rd > st.cfg.r) { app.end(); return; }
                 const turnIdx = (st.rd - 1) * 2 + st.trn;
                 let effectiveSheets = GLOBAL_SHEETS_DATA.length;
                 if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
                 const sheetIdx = turnIdx % effectiveSheets;
-                
                 CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
-                
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
-                     CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
-                }
-
                 const t = st.t[st.trn];
                 
                 const root = getComputedStyle(document.documentElement);
@@ -802,317 +783,84 @@
             }
         };
 
-        /* WHEEL & JACKPOT (HYBRID PHYSICS V28.3) */
+        /* WHEEL & JACKPOT LOGIC (SAME AS V27) */
         const wheel = {
             el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
             stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
             init: () => {
                 const mode = document.getElementById('opt-mode').value;
                 const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
-
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
-                    CURRENT_ROUND_CATS = DEFAULT_CATS;
-                }
-
-                if (mode === 'wheel') wheel.mode = 'wheel';
-                else if (mode === 'jackpot') wheel.mode = 'jackpot';
-                else {
-                    wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
-                }
-
-                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
-                document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
-                
-                wheel.el = document.getElementById('wheel-spinner');
-                wheel.jackpot = document.getElementById('jackpot-strip');
-                
-                // Reset styles
-                wheel.jackpot.style.transition = 'none';
-                wheel.jackpot.style.transform = 'translateY(0px)';
-                wheel.offsetY = 0;
-                wheel.el.style.transition = 'none';
-                wheel.el.style.transform = 'rotate(0deg)';
-                wheel.ang = 0;
-                
-                if (wheel.mode === 'wheel') wheel.setupWheel();
-                else wheel.setupJackpot();
-                
-                const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
-                wheel.attachDrag(container);
+                if (mode === 'wheel') wheel.mode = 'wheel'; else if (mode === 'jackpot') wheel.mode = 'jackpot'; else wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
+                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none'; document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                wheel.el = document.getElementById('wheel-spinner'); wheel.jackpot = document.getElementById('jackpot-strip'); wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = 'translateY(0px)'; wheel.offsetY = 0; wheel.el.style.transition = 'none'; wheel.el.style.transform = 'rotate(0deg)'; wheel.ang = 0; wheel.spin = false;
+                if (wheel.mode === 'wheel') wheel.setupWheel(); else wheel.setupJackpot();
+                const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container'); wheel.attachDrag(container);
             },
-
-            setupWheel: () => {
-                let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
-                CURRENT_ROUND_CATS.forEach((c, i) => {
-                    const color = COLORS[i % COLORS.length];
-                    const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
-                    g += `${color} ${start}deg ${end}deg,`;
-                    const mid = start + (sliceDeg / 2);
-                    const split = smartSplit(c.n);
-                    let fontSize = 4; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
-                    if(refLen > 8) fontSize = 4 * (8 / refLen);
-                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
-                });
-                wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
-            },
-
-            setupJackpot: () => {
-                let h = "";
-                const list = [];
-                for(let k=0; k<30; k++) { 
-                    CURRENT_ROUND_CATS.forEach(c => list.push(c));
-                }
-                const n = CURRENT_ROUND_CATS.length;
-                list.forEach((c, i) => {
-                     const realIndex = i % n;
-                     const color = COLORS[realIndex % COLORS.length];
-                     h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
-                });
-                wheel.jackpot.innerHTML = h;
-            },
-
+            setupWheel: () => { let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count; CURRENT_ROUND_CATS.forEach((c, i) => { const color = COLORS[i % COLORS.length]; const start = i * sliceDeg; const end = (i + 1) * sliceDeg; g += `${color} ${start}deg ${end}deg,`; const mid = start + (sliceDeg / 2); const split = smartSplit(c.n); let fontSize = 4; const refLen = split.lines === 1 ? c.n.length : split.maxLen; if(refLen > 8) fontSize = 4 * (8 / refLen); h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`; }); wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h; },
+            setupJackpot: () => { let h = ""; const list = []; for(let k=0; k<30; k++) { CURRENT_ROUND_CATS.forEach(c => list.push(c)); } const n = CURRENT_ROUND_CATS.length; list.forEach((c, i) => { const realIndex = i % n; const color = COLORS[realIndex % COLORS.length]; h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`; }); wheel.jackpot.innerHTML = h; },
             attachDrag: (target) => {
-                let startY = 0, lastY = 0, startTime = 0;
-                let startAng = 0, lastAng = 0;
-                let angularVelocity = 0, linearVelocity = 0;
-                let lastMoveTime = 0;
-
-                const getAngle = (e, el) => {
-                    const rect = el.getBoundingClientRect();
-                    const cx = rect.left + rect.width/2;
-                    const cy = rect.top + rect.height/2;
-                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
-                };
-
-                const onStart = (e) => {
-                    if(wheel.spin) return;
-                    if (wheel.mode === 'wheel') {
-                        startAng = getAngle(e, target);
-                        lastAng = startAng;
-                    } else {
-                        startY = e.touches ? e.touches[0].clientY : e.clientY;
-                        lastY = startY;
-                    }
-                    lastMoveTime = Date.now();
-                    startTime = lastMoveTime;
-                    angularVelocity = 0;
-                    linearVelocity = 0;
-                    document.addEventListener('touchmove', onMove, {passive: false});
-                    document.addEventListener('touchend', onEnd);
-                    document.addEventListener('mousemove', onMove);
-                    document.addEventListener('mouseup', onEnd);
-                };
-
-                const onMove = (e) => {
-                    e.preventDefault(); 
-                    const now = Date.now();
-                    const dt = now - lastMoveTime;
-                    
-                    if (wheel.mode === 'wheel') {
-                        const curAng = getAngle(e, target);
-                        let delta = curAng - lastAng;
-                        if (delta > 180) delta -= 360;
-                        if (delta < -180) delta += 360;
-                        
-                        wheel.ang += delta;
-                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                        
-                        if(dt > 0) {
-                            const instantVel = delta / dt;
-                            angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5);
-                        }
-                        lastAng = curAng;
-                    } else {
-                        const curY = e.touches ? e.touches[0].clientY : e.clientY;
-                        const delta = curY - lastY;
-                        wheel.offsetY += delta;
-                        
-                        const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                        if(itemEl) {
-                            const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length;
-                            if(wheel.offsetY > 0) wheel.offsetY -= stripH;
-                            if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH;
-                        }
-
-                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                        
-                        if(dt > 0) {
-                            const instantVel = delta / dt;
-                            linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5);
-                        }
-                        lastY = curY;
-                    }
-                    lastMoveTime = now;
-                };
-
-                const onEnd = () => {
-                    document.removeEventListener('touchmove', onMove);
-                    document.removeEventListener('touchend', onEnd);
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('mouseup', onEnd);
-                    
-                    const totalDuration = Date.now() - startTime;
-                    
-                    if (totalDuration < 30) { 
-                         const msg = document.getElementById('msg-time');
-                         msg.style.opacity = 1;
-                         setTimeout(() => msg.style.opacity = 0, 1500);
-                         return;
-                    }
-
-                    if (Date.now() - lastMoveTime > 100) {
-                        angularVelocity = 0; linearVelocity = 0;
-                    }
-
-                    if (wheel.mode === 'wheel') {
-                        if (Math.abs(angularVelocity) < 0.01) {
-                             const msg = document.getElementById('msg-force');
-                             msg.classList.add('show');
-                             setTimeout(() => msg.classList.remove('show'), 1000);
-                             return;
-                        }
-                        wheel.go(angularVelocity);
-                    } else {
-                        if (Math.abs(linearVelocity) < 0.01) {
-                             const msg = document.getElementById('msg-force');
-                             msg.classList.add('show');
-                             setTimeout(() => msg.classList.remove('show'), 1000);
-                             return;
-                        }
-                        wheel.go(linearVelocity);
-                    }
-                };
-
-                target.onmousedown = onStart;
-                target.ontouchstart = onStart;
+                let startY=0, lastY=0, startTime=0, lastAng=0, angularVelocity=0, linearVelocity=0, lastMoveTime=0;
+                const getAngle = (e, el) => { const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2; const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI); };
+                const onStart = (e) => { if(wheel.spin) return; if (wheel.mode === 'wheel') lastAng = getAngle(e, target); else { startY = e.touches?e.touches[0].clientY:e.clientY; lastY = startY; } lastMoveTime = Date.now(); startTime = lastMoveTime; angularVelocity = 0; linearVelocity = 0; document.addEventListener('touchmove', onMove, {passive: false}); document.addEventListener('touchend', onEnd); document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd); };
+                const onMove = (e) => { e.preventDefault(); const now = Date.now(); const dt = now - lastMoveTime; if (wheel.mode === 'wheel') { const curAng = getAngle(e, target); let delta = curAng - lastAng; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; wheel.ang += delta; wheel.el.style.transform = `rotate(${wheel.ang}deg)`; if(dt > 0) { const instantVel = delta / dt; angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5); } lastAng = curAng; } else { const curY = e.touches?e.touches[0].clientY:e.clientY; const delta = curY - lastY; wheel.offsetY += delta; const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if(itemEl) { const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length; if(wheel.offsetY > 0) wheel.offsetY -= stripH; if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH; } wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`; if(dt > 0) { const instantVel = delta / dt; linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5); } lastY = curY; } lastMoveTime = now; };
+                const onEnd = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd); const totalDuration = Date.now() - startTime; if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; } if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; } if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); } else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); } };
+                target.onmousedown = onStart; target.ontouchstart = onStart;
             },
-
             go: (velocity) => {
-                if(wheel.spin) return;
-                wheel.spin = true;
-                aud.l('spin', true);
-
+                if(wheel.spin) return; wheel.spin = true; aud.l('spin', true);
                 let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
-
                 const duration = 3; 
-
                 if (wheel.mode === 'wheel') {
-                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
-                    const currentAngle = wheel.ang;
-                    const spins = 5 * 360;
-                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
-                    
-                    const dir = Math.sign(velocity) || 1;
-                    const totalRot = spins * dir;
-
-                    const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
-                    
-                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
-                    wheel.el.style.transform = `rotate(${finalAngle}deg)`;
-                    wheel.ang = finalAngle;
-                    
-                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
-
+                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length; const currentAngle = wheel.ang; const spins = 5 * 360; const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2); const dir = Math.sign(velocity) || 1; const totalRot = spins * dir; const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
+                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.el.style.transform = `rotate(${finalAngle}deg)`; wheel.ang = finalAngle; wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 } else {
-                    const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                    if (!itemEl) return;
-                    const itemH = itemEl.getBoundingClientRect().height; 
-                    const n = CURRENT_ROUND_CATS.length;
-                    
-                    const dir = Math.sign(velocity); 
-                    
-                    const startSet = 15;
-                    const startY = -(startSet * n * itemH);
-                    
-                    wheel.jackpot.style.transition = 'none';
-                    wheel.jackpot.style.transform = `translateY(${startY}px)`;
-                    wheel.jackpot.offsetHeight; 
-                    
-                    const targetSetOffset = (dir > 0) ? -3 : 3; 
-                    const targetSet = startSet + targetSetOffset;
-                    const containerH = document.getElementById('jackpot-container').offsetHeight;
-                    const centerOffset = containerH / 2;
-                    const winnerItemIndex = (targetSet * n) + winnerIdx;
-                    const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
-                    
-                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
-                    wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
-                    
+                    const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if (!itemEl) return; const itemH = itemEl.getBoundingClientRect().height; const n = CURRENT_ROUND_CATS.length; const dir = Math.sign(velocity); const startSet = 15; const startY = -(startSet * n * itemH);
+                    wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = `translateY(${startY}px)`; wheel.jackpot.offsetHeight; 
+                    const targetSetOffset = (dir > 0) ? -3 : 3; const targetSet = startSet + targetSetOffset; const containerH = document.getElementById('jackpot-container').offsetHeight; const centerOffset = containerH / 2;
+                    const winnerItemIndex = (targetSet * n) + winnerIdx; const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
+                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
                     setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 }
             },
-
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
-                const cat = CURRENT_ROUND_CATS[idx];
-                st.cat = cat; 
+                const cat = CURRENT_ROUND_CATS[idx]; st.cat = cat; 
                 const color = COLORS[(idx % CURRENT_ROUND_CATS.length) % COLORS.length];
-                ui.showResult(cat.n.replace('*', ''), color, () => game.pre());
-                wheel.spin = false;
+                ui.showResult(cat.n.replace('*', ''), color, () => game.pre()); wheel.spin = false;
             }
         };
 
-        function showForceMsg() {
-            const msg = document.getElementById('msg-force');
-            msg.classList.add('show');
-            setTimeout(() => msg.classList.remove('show'), 1000);
-        }
+        function showForceMsg() { const msg = document.getElementById('msg-force'); msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 1000); }
 
-        /* GAME LOGIC */
+        /* GAME OBJECT (UPDATED END/EDIT LOGIC) */
         const game = {
-            tmr: null,
-            preTmr: null,
-            editList: [],
+            tmr: null, preTmr: null, editList: [],
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
-            stopAll: () => {
-                if(game.tmr) clearInterval(game.tmr);
-                if(game.preTmr) clearInterval(game.preTmr);
-                st.on = false; 
-            },
+            stopAll: () => { if(game.tmr) clearInterval(game.tmr); if(game.preTmr) clearInterval(game.preTmr); st.on = false; },
             pre: () => {
-                app.to('game'); 
-                st.on = false; 
+                app.to('game'); st.on = false;
                 document.getElementById('timer-num').innerText = st.cfg.t;
-                document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
-                const d=document.getElementById('word-disp'); 
-                let c=3; d.innerText=c; 
-                game.preTmr = setInterval(()=>{ 
-                    c--; 
-                    if(c>0) d.innerText=c; 
-                    else { 
-                        clearInterval(game.preTmr); 
-                        d.innerText="VAI!"; 
-                        setTimeout(game.run, 600); 
-                    } 
-                },1000);
+                document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`; 
+                const d=document.getElementById('word-disp'); let c=3; d.innerText=c; 
+                game.preTmr = setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(game.preTmr); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
             },
             run: () => {
-                game.stop(); 
-                st.on=true; 
+                game.stop(); st.on=true; 
                 st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
                 const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
-                
-                const root = getComputedStyle(document.documentElement);
-                const sec = root.getPropertyValue('--secondary').trim();
-
                 game.tmr = setInterval(()=>{
                     t--; tn.innerText=t;
                     const pct=((totalT-t)/totalT)*360;
-                    tw.style.background=`conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
+                    tw.style.background=`conic-gradient(var(--secondary) ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
                     if(t<=0) { game.stop(); game.end(); }
                 },1000);
             },
             next: () => {
-                if(st.q.length === 0) {
-                    if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } 
-                    else { game.stop(); game.end(); return; }
-                }
+                if(st.q.length === 0) { if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
                 st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw;
             },
             act: (win) => {
@@ -1129,92 +877,54 @@
                     st.t[st.trn].s += st.pts; 
                     app.to('res');
                     game.renderRes();
-                } catch(e) {
-                    console.error("Game End Error:", e);
-                    app.to('home');
-                }
+                } catch(e) { console.error("Game End Error:", e); app.to('home'); }
             },
             renderRes: () => {
-                const scoreEl = document.getElementById('res-score');
-                if(scoreEl) scoreEl.innerText = st.pts + " PONTOS";
-                
+                document.getElementById('res-score').innerText = st.pts + " PONTOS";
                 const l = document.getElementById('res-list');
                 if(l) {
                     l.innerHTML = "";
                     if(st.h && st.h.length > 0) {
                         st.h.forEach(x => {
                             const d = document.createElement('div');
-                            d.style.padding="10px"; 
-                            d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
-                            d.style.display="flex";
-                            d.style.justifyContent="space-between";
-                            d.style.alignItems="center";
-                            
-                            // Using variables for success/danger colors from root might be cleaner,
-                            // but hardcoded hex matches CSS variables for now.
+                            d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
+                            d.style.display="flex"; d.style.justifyContent="space-between"; d.style.alignItems="center";
                             const color = x.ok ? '#22c55e' : '#ef4444';
                             const icon = x.ok ? '✓' : '✗';
-                            
                             d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`;
                             l.appendChild(d);
                         });
-                    } else {
-                        l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>";
-                    }
+                    } else { l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>"; }
                 }
             },
             openEdit: () => {
-                // Clone history
                 game.editList = st.h && st.h.length ? JSON.parse(JSON.stringify(st.h)) : [];
-                
-                if(game.editList.length === 0) { 
-                    ui.alert("Nada para editar."); 
-                    return; 
-                }
-
-                // Build Edit HTML
+                if(game.editList.length === 0) { ui.alert("Nada para editar."); return; }
                 const html = '<div class="edit-list-container">' +
                     game.editList.map((item, i) => `
                         <div class="edit-item" onclick="game.toggleEditItem(${i}, this)">
                             <span class="edit-word">${item.w}</span>
-                            <span class="edit-status" style="color:${item.ok ? 'var(--success)' : 'var(--danger)'}">
-                                ${item.ok ? 'ACERTOU' : 'PULOU'}
-                            </span>
+                            <span class="edit-status" style="color:${item.ok ? 'var(--success)' : 'var(--danger)'}">${item.ok ? 'ACERTOU' : 'PULOU'}</span>
                         </div>
                     `).join('') + '</div>';
-                
                 ui.modal("EDITAR RESULTADO", html, [
                     {txt: "SALVAR", fn: game.saveEdit, style: "background:var(--success); flex:1;"},
                     {txt: "CANCELAR", style: "background:var(--danger); flex:1;"}
                 ]);
             },
             toggleEditItem: (i, el) => {
-                // Toggle status
                 game.editList[i].ok = !game.editList[i].ok;
-                
-                // Update DOM visually immediately
                 const span = el.querySelector('.edit-status');
                 span.innerText = game.editList[i].ok ? 'ACERTOU' : 'PULOU';
                 span.style.color = game.editList[i].ok ? 'var(--success)' : 'var(--danger)';
             },
             saveEdit: () => {
-                // 1. Revert old score
                 st.t[st.trn].s -= st.pts;
-                
-                // 2. Calculate new score
                 const newPts = game.editList.filter(x => x.ok).length;
                 st.pts = newPts;
-                
-                // 3. Add new score
                 st.t[st.trn].s += st.pts;
-                
-                // 4. Update history
                 st.h = game.editList;
-                
-                // 5. Re-render results screen
                 game.renderRes();
-                
-                // 6. Close modal
                 document.getElementById('modal-overlay').style.display = 'none';
             }
         };
