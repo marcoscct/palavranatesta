@@ -329,7 +329,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v28.3</div>
+            <div class="version-tag">v28.4</div>
         </div>
     </div>
     
@@ -398,6 +398,7 @@
         </div>
     </div>
 
+    <!-- TELA FINAL (CORRIGIDO) -->
     <div id="screen-final" class="screen">
         <h1 style="font-size: 8vh;">FIM DE JOGO</h1>
         <div style="display:flex; gap:4vw; margin: 4vh 0; flex-wrap: wrap; justify-content: center;">
@@ -409,22 +410,22 @@
             </div>
         </div>
         <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
-        <button class="btn" style="width:auto; margin-top: 3vh;" onclick="location.reload()">MENU PRINCIPAL</button>
+        <!-- BOTÃO CORRIGIDO -->
+        <button class="btn" style="width:auto; margin-top: 3vh;" onclick="app.to('home')">MENU PRINCIPAL</button>
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        /* === THEMES (UPDATED with requested) === */
         const THEMES = [
             { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
             { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
             { id: 'blue-orange', name: 'Blue/Orange', bg: '#0f172a', grad: 'radial-gradient(circle, #1e293b 0%, #020617 100%)', p: '#3b82f6', s: '#f97316', a: '#fbbf24' },
-            { id: 'cyber', name: 'Cyber Punk', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#e65100', s: '#f6a609', a: '#fbbf24' },
             { id: 'forest', name: 'Forest', bg: '#052e16', grad: 'linear-gradient(to bottom, #14532d, #022c22)', p: '#22c55e', s: '#84cc16', a: '#fef08a' },
-            { id: 'dracula', name: 'Vampire', bg: '#2e0202', grad: 'radial-gradient(circle, #7f1d1d 0%, #000 100%)', p: '#d68f9a', s: '#ff7777', a: '#fca5a5' },
+            { id: 'dracula', name: 'Vampire', bg: '#2e0202', grad: 'radial-gradient(circle, #7f1d1d 0%, #000 100%)', p: '#ef4444', s: '#9333ea', a: '#fca5a5' },
             { id: 'ocean', name: 'Ocean', bg: '#083344', grad: 'linear-gradient(to bottom, #0e7490, #164e63)', p: '#06b6d4', s: '#22d3ee', a: '#cffafe' },
-            { id: 'high-contrast', name: 'High Contrast', bg: '#000', grad: 'radial-gradient(circle, #1a1a1a 0%, #000 100%)', p: '#0055ff', s: '#ff0000', a: '#ffff00' }
+            { id: 'royal', name: 'Royal', bg: '#2e1065', grad: 'radial-gradient(circle, #581c87 0%, #0f172a 100%)', p: '#a855f7', s: '#f472b6', a: '#fde047' },
+            { id: 'high-contrast', name: 'High Contrast', bg: '#000', grad: 'none', p: '#0000ff', s: '#ff0000', a: '#ffff00' }
         ];
         
         let CURRENT_THEME = 'default';
@@ -667,17 +668,25 @@
             }
         };
 
-        /* SENSOR */
+        /* SENSOR (HISTERESE) */
         const sensor = {
-            z: 0, wait: false, resetState: true, 
+            z: 0, wait: false,
+            resetState: true, 
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
             handle: (e) => {
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
                     if (sensor.resetState) {
-                        if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; } 
-                        else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; }
+                        if (sensor.z < -8.0) { 
+                            game.act(true); 
+                            sensor.pause(); 
+                            sensor.resetState = false;
+                        } else if (sensor.z > 8.0) { 
+                            game.act(false); 
+                            sensor.pause(); 
+                            sensor.resetState = false; 
+                        }
                     } else {
                         if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
                     }
@@ -687,7 +696,7 @@
         };
         sensor.init();
 
-        /* NAV & LOGIC */
+        /* NAV */
         const app = {
             to: (id) => {
                 if(document.querySelector('#screen-game.active')) game.stop();
@@ -793,7 +802,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (HYBRID PHYSICS) */
+        /* WHEEL & JACKPOT (HYBRID PHYSICS V28.3) */
         const wheel = {
             el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
             stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
@@ -833,8 +842,6 @@
             },
 
             setupWheel: () => {
-                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
-                
                 let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
                 CURRENT_ROUND_CATS.forEach((c, i) => {
                     const color = COLORS[i % COLORS.length];
@@ -850,8 +857,6 @@
             },
 
             setupJackpot: () => {
-                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
-                
                 let h = "";
                 const list = [];
                 for(let k=0; k<30; k++) { 
