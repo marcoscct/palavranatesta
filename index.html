@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (21).html -->
+<!-- START OF FILE ai_studio_code (22).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -211,11 +211,46 @@
 
         .timer-wrapper {
             position: absolute; top: 5vh; right: 5vw; width: 10vh; height: 10vh; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
             background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20;
         }
         .timer-wrapper::after { content: ''; position: absolute; inset: 10%; background: var(--bg-color); border-radius: 50%; z-index: 1; }
-        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 4vh; font-weight: 900; }
+        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 4vh; font-weight: 900; line-height: 1; }
+        
+        /* BONUS ANIMATION */
+        .bonus-text {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5vh;
+            font-weight: 900;
+            color: var(--secondary);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;
+            white-space: nowrap;
+        }
+        .bonus-text.anim { animation: floatUp 1s ease-out forwards; }
+        @keyframes floatUp { 
+            0% { opacity: 0; transform: translate(-50%, 0); } 
+            20% { opacity: 1; transform: translate(-50%, 10px); } 
+            100% { opacity: 0; transform: translate(-50%, 30px); } 
+        }
+
+        /* === MODE SELECTOR === */
+        .mode-selector {
+            display: flex; background: rgba(255,255,255,0.1); 
+            border-radius: 50px; padding: 5px; margin-bottom: 20px; width: 90%; max-width: 350px;
+        }
+        .mode-btn {
+            flex: 1; background: transparent; border: none; color: rgba(255,255,255,0.5);
+            padding: 10px; border-radius: 40px; font-weight: 700; cursor: pointer;
+            font-family: 'Montserrat'; transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background: white; color: var(--bg-color); box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
 
         /* === FIX GAME TEXT ALIGNMENT === */
         #word-disp {
@@ -340,7 +375,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v28.9</div>
+            <div class="version-tag">v29.0</div>
         </div>
     </div>
     
@@ -359,7 +394,12 @@
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
         <div class="options-container">
-            <div class="section-box"><h2>Visual & Times</h2><div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div><div class="teams-container" style="margin-top:15px"><div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div><div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div></div></div><div class="section-box"><h2>Regras do Jogo</h2><div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div><div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div><div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div><div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div></div><div class="section-box"><h2>Conteúdo</h2><div class="input-group"><label>Carregar do Google Sheets</label><div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button></div><div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px"><h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2><button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button></div><div class="input-group" style="margin-bottom: 10px;"><label>Selecionar Aba</label><select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select></div><div id="editor-container"><div id="view-table" class="editor-view active"><div id="table-rows"></div><button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button></div><div id="view-json" class="editor-view"><div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div></div></div><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px"><button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button><button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button><button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button></div></div>
+            <div class="section-box"><h2>Visual & Times</h2><div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div><div class="teams-container" style="margin-top:15px"><div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div><div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div></div></div><div class="section-box"><h2>Regras do Jogo</h2><div class="input-group"><label>Tempo Normal (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div><div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div><div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div><div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div>
+            <!-- NEW SURVIVAL OPTIONS -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
+            <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Modo Sobrevivente</h2>
+            <div class="input-row"><div class="input-group"><label>Início (s)</label><input type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div><div class="input-group"><label>Bônus (s)</label><input type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div></div>
+            </div><div class="section-box"><h2>Conteúdo</h2><div class="input-group"><label>Carregar do Google Sheets</label><div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button></div><div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px"><h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2><button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button></div><div class="input-group" style="margin-bottom: 10px;"><label>Selecionar Aba</label><select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select></div><div id="editor-container"><div id="view-table" class="editor-view active"><div id="table-rows"></div><button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button></div><div id="view-json" class="editor-view"><div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div></div></div><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px"><button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button><button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button><button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button></div></div>
             <button class="btn" onclick="app.to('home')">VOLTAR</button>
         </div>
     </div>
@@ -377,6 +417,13 @@
     <div id="screen-intro" class="screen">
         <div class="round-pill"><h2>RODADA</h2><span id="lbl-rd">1</span></div>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
+        
+        <!-- MODE SELECTOR -->
+        <div class="mode-selector">
+            <button class="mode-btn active" id="btn-mode-normal" onclick="app.setMode('normal')">NORMAL</button>
+            <button class="mode-btn" id="btn-mode-surv" onclick="app.setMode('survival')">SOBREVIVENTE</button>
+        </div>
+
         <p style="font-size: 3vh; opacity: 0.8">Celular na testa</p>
         <button class="btn" style="width: auto; margin-top: 4vh;" onclick="app.toWheel()">SORTEAR TEMA</button>
     </div>
@@ -388,7 +435,10 @@
     </div>
 
     <div id="screen-game" class="screen">
-        <div class="timer-wrapper"><div class="timer-text" id="timer-num">60</div></div>
+        <div class="timer-wrapper">
+            <div class="timer-text" id="timer-num">60</div>
+            <div class="bonus-text" id="bonus-anim">+5s</div>
+        </div>
         <div id="word-disp">PALAVRA</div>
         <div class="hud-bar"><div class="hud-left">▼ ACERTOU</div><div class="hud-right">▲ PULAR</div></div>
         <div id="fb-ok" class="flash" style="background: var(--success);">ACERTOU!</div>
@@ -491,8 +541,14 @@
         let CURRENT_ROUND_CATS = [];
 
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
-        // NOVO STATE: "logs" para guardar histórico de rodadas
-        const st = { t:[{n:"Time A",s:0},{n:"Time B",s:0}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false, logs: [] };
+        
+        // STATE UPDATE: New Survival Configs
+        const st = { 
+            t:[{n:"Time A",s:0},{n:"Time B",s:0}], 
+            cfg:{t:60, r:3, survTime: 30, survBonus: 5}, 
+            rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false, logs: [],
+            roundMode: 'normal' // 'normal' or 'survival'
+        };
 
         const ui = {
             modal: (title, html, actions) => {
@@ -539,7 +595,9 @@
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value,
                     mode: document.getElementById('opt-mode').value,
                     threshold: document.getElementById('opt-threshold').value,
-                    theme: CURRENT_THEME
+                    theme: CURRENT_THEME,
+                    survTime: document.getElementById('opt-surv-time').value,
+                    survBonus: document.getElementById('opt-surv-bonus').value
                 };
                 localStorage.setItem('pnt_data_v22', JSON.stringify(data));
             },
@@ -563,6 +621,10 @@
                         if(data.mode) document.getElementById('opt-mode').value = data.mode;
                         if(data.threshold) document.getElementById('opt-threshold').value = data.threshold;
                         if(data.theme) CURRENT_THEME = data.theme;
+                        // Load Survival Options
+                        if(data.survTime) document.getElementById('opt-surv-time').value = data.survTime;
+                        if(data.survBonus) document.getElementById('opt-surv-bonus').value = data.survBonus;
+                        
                         app.toggleThresholdVisibility();
                     }
                 } catch(e) { localStorage.removeItem('pnt_data_v22'); }
@@ -782,6 +844,18 @@
                    document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary');
                    document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
                 }
+                
+                if(id === 'intro') {
+                    // Reset selector per round logic, defaulting to Normal or Keeping last? 
+                    // Let's update UI based on st.roundMode default
+                    app.setMode(st.roundMode); 
+                }
+            },
+            setMode: (m) => {
+                st.roundMode = m;
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                if(m === 'normal') document.getElementById('btn-mode-normal').classList.add('active');
+                else document.getElementById('btn-mode-surv').classList.add('active');
             },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
             toggleThresholdVisibility: () => {
@@ -793,13 +867,10 @@
                 aud.p('click');
                 
                 // --- FIX IOS PERMISSION REQUEST ---
-                // Tenta pedir permissão para usar o acelerômetro no iOS 13+
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     DeviceMotionEvent.requestPermission()
                         .then(response => {
-                            if (response === 'granted') {
-                                // Permissão concedida
-                            }
+                            if (response === 'granted') { }
                         })
                         .catch(console.error);
                 }
@@ -817,6 +888,8 @@
                 st.t[1].n = document.getElementById('t2').value || "Time B";
                 st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
                 st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
+                st.cfg.survTime = parseInt(document.getElementById('opt-surv-time').value) || 30;
+                st.cfg.survBonus = parseInt(document.getElementById('opt-surv-bonus').value) || 5;
                 
                 storage.save();
                 app.to('teams');
@@ -1144,6 +1217,8 @@
             tmr: null,
             preTmr: null,
             editList: [],
+            curTime: 0,
+            maxTime: 0,
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
             stopAll: () => {
                 if(game.tmr) clearInterval(game.tmr);
@@ -1153,8 +1228,15 @@
             pre: () => {
                 app.to('game'); 
                 st.on = false; 
-                document.getElementById('timer-num').innerText = st.cfg.t;
+                
+                // MODE LOGIC: Determine initial time based on mode
+                const isSurv = st.roundMode === 'survival';
+                game.maxTime = isSurv ? st.cfg.survTime : st.cfg.t;
+                game.curTime = game.maxTime;
+
+                document.getElementById('timer-num').innerText = game.curTime;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
+                
                 const d=document.getElementById('word-disp'); 
                 let c=3; d.innerText=c; 
                 game.preTmr = setInterval(()=>{ 
@@ -1172,17 +1254,23 @@
                 st.on=true; 
                 st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
                 game.next();
-                let totalT=st.cfg.t; let t=totalT;
-                const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
                 
+                const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
                 const root = getComputedStyle(document.documentElement);
                 const sec = root.getPropertyValue('--secondary').trim();
 
                 game.tmr = setInterval(()=>{
-                    t--; tn.innerText=t;
-                    const pct=((totalT-t)/totalT)*360;
-                    tw.style.background=`conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
-                    if(t<=0) { game.stop(); game.end(); }
+                    game.curTime--;
+                    tn.innerText = game.curTime;
+                    
+                    // Calculate Percentage based on initial Max time. 
+                    // If Bonus exceeds initial time, circle stays full (pct < 0).
+                    let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360;
+                    if (pct < 0) pct = 0; 
+                    
+                    tw.style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
+                    
+                    if(game.curTime <= 0) { game.stop(); game.end(); }
                 },1000);
             },
             next: () => {
@@ -1194,7 +1282,28 @@
             },
             act: (win) => {
                 if(!st.on) return;
-                if(win){ aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); }
+                if(win){ 
+                    aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); 
+                    // SURVIVAL BONUS LOGIC
+                    if(st.roundMode === 'survival') {
+                        game.curTime += st.cfg.survBonus;
+                        document.getElementById('timer-num').innerText = game.curTime;
+                        
+                        // Bonus Animation
+                        const animEl = document.getElementById('bonus-anim');
+                        animEl.innerText = `+${st.cfg.survBonus}s`;
+                        animEl.classList.remove('anim');
+                        void animEl.offsetWidth; // trigger reflow
+                        animEl.classList.add('anim');
+                        
+                        // Update Circle immediately
+                        let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360;
+                        if (pct < 0) pct = 0;
+                        const root = getComputedStyle(document.documentElement);
+                        const sec = root.getPropertyValue('--secondary').trim();
+                        document.querySelector('.timer-wrapper').style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
+                    }
+                }
                 else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); }
                 game.next();
             },
