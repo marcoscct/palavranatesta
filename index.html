@@ -2,9 +2,15 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <!-- VIEWPORT OTIMIZADO PARA IOS E ANDROID -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- META TAGS PARA IOS FULLSCREEN -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     <meta name="color-scheme" content="dark only">
+    
     <title>Palavra na Testa</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,9 +36,15 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
-        /* FIX FUNDO TOTAL S25 ULTRA */
-        html, body {
-            width: 100%; height: 100%;
+        /* FIX FUNDO E TAMANHO PARA IOS/ANDROID */
+        html {
+            background-color: #000; /* Fundo base preto para evitar flash branco */
+        }
+
+        body {
+            width: 100vw; 
+            /* 100dvh é CRUCIAL para iPhone Mini (altura dinâmica que ignora a barra do safari) */
+            height: 100dvh;
             margin: 0; padding: 0;
             overflow: hidden;
             font-family: 'Poppins', sans-serif; color: var(--text);
@@ -47,7 +59,7 @@
         .screen {
             position: absolute; inset: 0;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            /* PADDING APENAS NAS TELAS DE CONTEÚDO, NÃO NO BODY */
+            /* PADDING APENAS NAS TELAS DE CONTEÚDO */
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
             padding-left: calc(4vw + env(safe-area-inset-left));
@@ -60,7 +72,7 @@
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         
         /* Tela de jogo e roleta sem scroll */
-        #screen-game { overflow: hidden; touch-action: none; display: block; } /* Block para permitir absolute centering */
+        #screen-game { overflow: hidden; touch-action: none; display: block; } 
         #screen-wheel { overflow: hidden !important; touch-action: none; }
 
         @media (max-height: 850px) {
@@ -173,11 +185,9 @@
         /* === FIX GAME TEXT ALIGNMENT === */
         #word-disp {
             font-family: 'Montserrat'; font-weight: 900; 
-            /* Tamanho ajustado para legibilidade */
             font-size: clamp(2.8rem, 13.5vmin, 7rem); 
             text-align: center; line-height: 1.1; text-transform: uppercase;
             width: 90%; 
-            /* Absolute Center - Ignora Safe Area */
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -188,7 +198,6 @@
             position: absolute; bottom: calc(5vh + env(safe-area-inset-bottom)); 
             width: 90%; display: flex; justify-content: space-between;
             font-family: 'Montserrat'; font-weight: 800; font-size: 3.5vh; z-index: 10;
-            /* Centraliza a barra também */
             left: 50%; transform: translateX(-50%);
         }
         .hud-left { color: var(--success); } .hud-right { color: var(--danger); }
@@ -255,21 +264,42 @@
             .slice-text { padding-left: 17vh; font-size: 3.5vh; }
         }
 
-        /* LOCK SCREEN FIX - FORÇA O TAMANHO DA TELA */
+        /* LOCK SCREEN CORRIGIDA */
         #lock { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #020617; z-index: 99999; 
-            display: none; flex-direction: column; align-items: center; justify-content: center; color: white; 
+            position: fixed; 
+            top: 0; left: 0; bottom: 0; right: 0;
+            width: 100vw; height: 100dvh;
+            background: #020617; 
+            z-index: 2147483647; /* Max z-index possible */
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
             margin: 0 !important; padding: 0 !important;
-            /* Ignora safe area para cobrir tudo */
+            overscroll-behavior: none;
         }
+        /* CENTRALIZAÇÃO EXATA */
+        .lock-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .rotate-phone-icon { width: 80px; height: 80px; fill: white; animation: rotateAnim 2s infinite ease-in-out; }
         @keyframes rotateAnim { 0% { transform: rotate(0deg); } 30% { transform: rotate(-90deg); } 70% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
         .version-tag { margin-top: 20px; opacity: 0.3; font-family: monospace; font-size: 14px; letter-spacing: 2px; }
         
         @media screen and (orientation: portrait) { 
-            #lock { display: flex; } .screen:not(.allow-portrait) { display: none !important; } 
-            .allow-portrait { display: flex !important; } .allow-portrait ~ #lock { display: none; }
+            #lock { display: flex !important; } 
+            .screen:not(.allow-portrait) { display: none !important; } 
+            .allow-portrait { display: flex !important; } 
+            .allow-portrait ~ #lock { display: none !important; }
         }
     </style>
 </head>
@@ -292,9 +322,11 @@
     <audio id="snd-pass" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
 
     <div id="lock">
-        <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-        <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v26.2</div>
+        <div class="lock-content">
+            <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+            <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
+            <div class="version-tag">v26.3</div>
+        </div>
     </div>
     
     <div id="home-btn" style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
@@ -308,11 +340,10 @@
         <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
     </div>
 
-    <!-- TELA 0.5: OPÇÕES (REDESENHADA) -->
+    <!-- TELA 0.5: OPÇÕES -->
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
         <div class="options-container">
-            
             <!-- 1. VISUAL & TIMES -->
             <div class="section-box">
                 <h2>Visual & Times</h2>
@@ -325,13 +356,11 @@
                     <div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div>
                 </div>
             </div>
-
-            <!-- 2. REGRAS DO JOGO -->
+            <!-- 2. REGRAS -->
             <div class="section-box">
                 <h2>Regras do Jogo</h2>
                 <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
                 <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
-                
                 <div class="input-group" style="margin-top:15px">
                     <label>Modo de Sorteio</label>
                     <select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()">
@@ -345,7 +374,6 @@
                     <input type="number" id="opt-threshold" value="12" onchange="storage.save()">
                 </div>
             </div>
-
             <!-- 3. CONTEÚDO -->
             <div class="section-box">
                 <h2>Conteúdo</h2>
@@ -357,19 +385,15 @@
                     </div>
                     <button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button>
                 </div>
-                
                 <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
-
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                     <h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2>
                     <button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button>
                 </div>
-                
                 <div class="input-group" style="margin-bottom: 10px;">
                     <label>Selecionar Aba</label>
                     <select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select>
                 </div>
-
                 <div id="editor-container">
                     <div id="view-table" class="editor-view active">
                         <div id="table-rows"></div>
@@ -385,12 +409,11 @@
                     <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button>
                 </div>
             </div>
-
             <button class="btn" onclick="app.to('home')">VOLTAR</button>
         </div>
     </div>
 
-    <!-- OUTRAS TELAS IGUAIS ÀS ANTERIORES -->
+    <!-- OUTRAS TELAS -->
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
@@ -488,11 +511,6 @@
                 root.style.setProperty('--primary', t.p);
                 root.style.setProperty('--secondary', t.s);
                 root.style.setProperty('--accent', t.a);
-                
-                // Update wheel colors dynamically?
-                // Re-render wheel if on wheel screen? 
-                // Ideally, wheel colors should be neutral or variable. 
-                // For now, we keep wheel rainbow to stand out.
             }
         };
 
@@ -760,9 +778,8 @@
             },
             start: () => {
                 aud.p('click');
-                // Fullscreen request
+                // Fullscreen request logic... (same as before)
                 if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-                else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
 
                 st.t[0].n = document.getElementById('t1').value || "Time A";
                 st.t[1].n = document.getElementById('t2').value || "Time B";
@@ -898,6 +915,8 @@
                     const totalDuration = Date.now() - startTime;
                     if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; }
                     if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; }
+                    
+                    // START SPIN IF ANY MOVEMENT DETECTED (Low Threshold)
                     if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); }
                     else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); }
                 };
