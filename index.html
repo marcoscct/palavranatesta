@@ -21,39 +21,32 @@
             --success: #22c55e;
             --danger: #ef4444;
             --border: 1px solid rgba(255, 255, 255, 0.15);
-            /* Variáveis de Segurança para iOS */
-            --safe-top: env(safe-area-inset-top, 20px);
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
-            --safe-left: env(safe-area-inset-left, 0px);
-            --safe-right: env(safe-area-inset-right, 0px);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
-        html {
-            background-color: #1e1b4b;
-            background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
-            height: 100%;
-        }
-
-        body {
-            width: 100vw; 
-            height: 100dvh; 
+        /* FIX TELA S25 ULTRA: O fundo deve ignorar Safe Area para não criar barras */
+        html, body {
+            width: 100%; height: 100%;
+            margin: 0; padding: 0;
             overflow: hidden;
             font-family: 'Poppins', sans-serif; color: white;
-            background: transparent;
-            position: fixed; top: 0; left: 0;
-            padding-top: var(--safe-top);
-            padding-bottom: 0; 
-            padding-left: var(--safe-left);
-            padding-right: var(--safe-right);
+            background-color: #1e1b4b;
+            background-image: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
         }
 
         /* === UTILS === */
         .screen {
             position: absolute; inset: 0;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 2vh 4vw; z-index: 1; opacity: 0; transition: opacity 0.3s ease;
+            
+            /* FIX TELA S25 ULTRA: O Padding fica AQUI, no conteúdo */
+            padding-top: calc(2vh + env(safe-area-inset-top));
+            padding-bottom: calc(2vh + env(safe-area-inset-bottom));
+            padding-left: calc(4vw + env(safe-area-inset-left));
+            padding-right: calc(4vw + env(safe-area-inset-right));
+            
+            z-index: 1; opacity: 0; transition: opacity 0.3s ease;
             width: 100%; height: 100%;
             overflow-y: auto; 
             overflow-x: hidden;
@@ -67,8 +60,8 @@
         @media (max-height: 850px) {
             .screen:not(#screen-game):not(#screen-wheel) {
                 justify-content: flex-start;
-                padding-top: 40px;
-                padding-bottom: calc(var(--safe-bottom) + 80px); 
+                padding-top: calc(40px + env(safe-area-inset-top));
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
             }
             h1 { 
                 font-size: clamp(2rem, 8vw, 3rem) !important; 
@@ -79,7 +72,7 @@
             .btn { flex-shrink: 0; margin-top: auto; margin-bottom: 10px; }
         }
 
-        .scrollable { justify-content: flex-start; padding-top: 40px; padding-bottom: 120px; }
+        .scrollable { justify-content: flex-start; }
         .hidden { display: none !important; }
 
         /* === TYPOGRAPHY === */
@@ -191,38 +184,6 @@
             text-align:center;width:90%;
         }
 
-        /* === TELA INICIAL === */
-        #screen-home { gap: 2vh; }
-        .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 30px; padding-bottom: 50px; }
-        .section-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: var(--border); }
-        .teams-container { display: flex; flex-direction: column; gap: 1.5vh; width: 100%; max-width: 600px; justify-content: center; margin-bottom: 2vh; }
-
-        /* === TELA JOGO === */
-        #screen-game { background: transparent; padding: 0; }
-        .timer-wrapper {
-            position: absolute; top: 3vh; right: 3vh; width: 12vh; height: 12vh; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20;
-        }
-        .timer-wrapper::after { content: ''; position: absolute; inset: 10%; background: #1e1b4b; border-radius: 50%; z-index: 1; }
-        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 5vh; font-weight: 900; }
-
-        #word-disp {
-            font-family: 'Montserrat'; font-weight: 900; 
-            font-size: clamp(3rem, 18vmin, 8rem);
-            text-align: center; line-height: 0.9; text-transform: uppercase;
-            width: 90%; z-index: 5; word-wrap: break-word;
-        }
-
-        .hud-bar {
-            position: absolute; bottom: 3vh; width: 90%; display: flex; justify-content: space-between;
-            font-family: 'Montserrat'; font-weight: 800; font-size: 3vh; z-index: 10;
-        }
-        .hud-left { color: var(--success); }
-        .hud-right { color: var(--danger); }
-
-        .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
-        
         /* === SELETOR: LAYOUT DUAL === */
         #screen-wheel { flex-direction: row; gap: 5vw; }
         .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
@@ -323,7 +284,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v24.4</div>
+        <div class="version-tag">v24.5</div>
     </div>
     
     <!-- HOME ICON -->
@@ -815,16 +776,14 @@
             }
         };
 
-        /* WHEEL & JACKPOT (V24.3 - Back to Roots + Fixes) */
+        /* WHEEL & JACKPOT (V24.5 - FIXED) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
             mode: 'wheel',
             ang: 0, offsetY: 0, spin: false, 
-            timer: null,
             
             stop: () => {
-                if(wheel.timer) clearTimeout(wheel.timer);
                 wheel.spin = false;
                 wheel.el.style.transition = 'none';
                 wheel.jackpot.style.transition = 'none';
@@ -849,6 +808,8 @@
                 
                 wheel.el = document.getElementById('wheel-spinner');
                 wheel.jackpot = document.getElementById('jackpot-strip');
+                
+                // RESET STYLES
                 wheel.jackpot.style.transition = 'none';
                 wheel.jackpot.style.transform = 'translateY(0px)';
                 wheel.offsetY = 0;
@@ -877,7 +838,7 @@
 
             setupJackpot: () => {
                 let h = "";
-                // Make enough copies for safety
+                // 30 COPIES FOR SAFETY
                 const list = [];
                 for(let k=0; k<30; k++) { 
                     CURRENT_ROUND_CATS.forEach(c => list.push(c));
@@ -892,13 +853,8 @@
             },
 
             attachDrag: (target) => {
-                let lastY = 0, lastAng = 0;
-                let angularVelocity = 0, linearVelocity = 0;
-                let lastMoveTime = 0;
-                
-                // FOR JACKPOT
-                let startY = 0; 
-                let startTime = 0;
+                let startY = 0, lastY = 0, startTime = 0;
+                let startAng = 0, lastAng = 0;
 
                 const getAngle = (e, el) => {
                     const rect = el.getBoundingClientRect();
@@ -913,16 +869,13 @@
                     if(wheel.spin) return;
                     
                     if (wheel.mode === 'wheel') {
-                        lastAng = getAngle(e, target);
+                        startAng = getAngle(e, target);
+                        lastAng = startAng;
                     } else {
                         startY = e.touches ? e.touches[0].clientY : e.clientY;
                         lastY = startY;
                     }
-                    lastMoveTime = Date.now();
-                    startTime = lastMoveTime;
-                    angularVelocity = 0;
-                    linearVelocity = 0;
-                    
+                    startTime = Date.now();
                     document.addEventListener('touchmove', onMove, {passive: false});
                     document.addEventListener('touchend', onEnd);
                     document.addEventListener('mousemove', onMove);
@@ -931,8 +884,6 @@
 
                 const onMove = (e) => {
                     e.preventDefault(); 
-                    const now = Date.now();
-                    const dt = now - lastMoveTime;
                     
                     if (wheel.mode === 'wheel') {
                         const curAng = getAngle(e, target);
@@ -942,34 +893,14 @@
                         
                         wheel.ang += delta;
                         wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                        
-                        if(dt > 0) {
-                            const instantVel = delta / dt;
-                            angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5);
-                        }
                         lastAng = curAng;
                     } else {
                         const curY = e.touches ? e.touches[0].clientY : e.clientY;
                         const delta = curY - lastY;
                         wheel.offsetY += delta;
-                        
-                        // Infinite logic
-                        const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                        if(itemEl) {
-                            const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length;
-                            if(wheel.offsetY > 0) wheel.offsetY -= stripH;
-                            if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH;
-                        }
-
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                        
-                        if(dt > 0) {
-                            const instantVel = delta / dt;
-                            linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5);
-                        }
                         lastY = curY;
                     }
-                    lastMoveTime = now;
                 };
 
                 const onEnd = () => {
@@ -980,78 +911,58 @@
                     
                     const totalDuration = Date.now() - startTime;
 
-                    // TIME CHECK FIRST
-                    if (totalDuration < 250) {
+                    // SUPER LOW THRESHOLD (30ms)
+                    if (totalDuration < 30) { 
                          const msg = document.getElementById('msg-time');
                          msg.style.opacity = 1;
                          setTimeout(() => msg.style.opacity = 0, 1500);
                          return;
                     }
-                    
-                    if (Date.now() - lastMoveTime > 100) {
-                        angularVelocity = 0; linearVelocity = 0;
-                    }
 
-                    if (wheel.mode === 'wheel') {
-                        if (Math.abs(angularVelocity) < 0.05) {
-                             showForceMsg(); return;
-                        }
-                        wheel.go(angularVelocity);
-                    } else {
-                        if (Math.abs(linearVelocity) < 0.1) {
-                             showForceMsg(); return;
-                        }
-                        wheel.go(linearVelocity);
+                    // IF HELD TOO LONG, WARN
+                    if (totalDuration > 3000) {
+                         const msg = document.getElementById('msg-force');
+                         msg.classList.add('show');
+                         setTimeout(() => msg.classList.remove('show'), 1000);
+                         return;
                     }
+                    
+                    // ALWAYS SPIN IF MOVED (NO VELOCITY CHECK)
+                    wheel.go();
                 };
 
                 target.onmousedown = onStart;
                 target.ontouchstart = onStart;
             },
 
-            go: (velocity) => {
+            go: () => {
                 if(wheel.spin) return;
                 wheel.spin = true;
                 aud.l('spin', true);
 
-                // INERTIA PHYSICS (V24.0 BASE)
-                const friction = 0.002; 
-                const v0 = Math.abs(velocity);
-                const dir = Math.sign(velocity);
-                const duration = v0 / friction; // ms
-                
-                let totalDist = (v0 * v0) / (2 * friction);
-                totalDist *= dir;
-
-                // CHEAT LOGIC
                 let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
 
+                // ANIMATION DURATION
+                const duration = 3; // 3 seconds fixed
+
                 if (wheel.mode === 'wheel') {
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
                     const currentAngle = wheel.ang;
-                    let predictedAngle = currentAngle + totalDist;
                     
-                    // ALIGNMENT CORRECTION (HALF-SLICE LOGIC)
-                    // The center of winnerIdx is at rotation: - (winnerIdx * sliceDeg) - (sliceDeg/2)
-                    const targetBase = -(winnerIdx * sliceDeg) - (sliceDeg/2);
+                    // ADD 5 ROTATIONS
+                    const spins = 5 * 360;
                     
-                    const predictedMod360 = predictedAngle % 360;
-                    // Determine minimal correction to reach targetBase (modulo 360)
-                    let correction = targetBase - predictedMod360;
+                    // ALIGNMENT
+                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
+                    const finalAngle = currentAngle + spins + targetOffset - (currentAngle % 360); 
                     
-                    if (correction > 180) correction -= 360;
-                    if (correction < -180) correction += 360;
-                    
-                    const finalAngle = predictedAngle + correction;
-                    const finalDuration = Math.max(2000, duration);
-                    
-                    wheel.el.style.transition = `transform ${finalDuration}ms cubic-bezier(0.1, 0, 0.2, 1)`;
+                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
                     wheel.ang = finalAngle;
                     
-                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), finalDuration + 500);
+                    setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
 
                 } else {
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
@@ -1059,37 +970,28 @@
                     const itemH = itemEl.getBoundingClientRect().height; 
                     const n = CURRENT_ROUND_CATS.length;
                     
-                    const currentY = wheel.offsetY;
-                    let predictedY = currentY + totalDist;
+                    // RESET TO MIDDLE (SILENTLY)
+                    // Set 15 is safe middle
+                    const startSet = 15;
+                    const startY = -(startSet * n * itemH);
                     
+                    wheel.jackpot.style.transition = 'none';
+                    wheel.jackpot.style.transform = `translateY(${startY}px)`;
+                    // FORCE REFLOW
+                    wheel.jackpot.offsetHeight; 
+                    
+                    // ANIMATE TO TARGET
+                    const targetSet = 18; // +3 sets down
                     const containerH = document.getElementById('jackpot-container').offsetHeight;
                     const centerOffset = containerH / 2;
                     
-                    // Target Formula: Y = Center - (Index * H) - (H/2)
-                    // Find index close to predictedY
-                    // Index = (Center - Y - H/2) / H
-                    const approxIndex = (centerOffset - predictedY - (itemH/2)) / itemH;
-                    let targetIndex = Math.round(approximateIndex);
+                    const winnerItemIndex = (targetSet * n) + winnerIdx;
+                    const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
                     
-                    // Adjust targetIndex so it matches winnerIdx (modulo N)
-                    // We look for the valid index closest to our targetIndex
-                    const currentMod = ((targetIndex % n) + n) % n;
-                    let indexDiff = winnerIdx - currentMod;
-                    
-                    // Optimize direction for shortest shift
-                    if (indexDiff > n/2) indexDiff -= n;
-                    if (indexDiff < -n/2) indexDiff += n;
-                    
-                    targetIndex += indexDiff;
-                    
-                    const finalTargetY = centerOffset - (targetIndex * itemH) - (itemH/2);
-                    const finalDuration = Math.max(2000, duration);
-                    
-                    wheel.jackpot.style.transition = `transform ${finalDuration}ms cubic-bezier(0.1, 0, 0.2, 1)`;
+                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
                     wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
-                    wheel.offsetY = finalTargetY;
                     
-                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), finalDuration + 500);
+                    setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 }
             },
 
@@ -1103,12 +1005,6 @@
             }
         };
 
-        function showForceMsg() {
-            const msg = document.getElementById('msg-force');
-            msg.classList.add('show');
-            setTimeout(() => msg.classList.remove('show'), 1000);
-        }
-
         /* GAME */
         const game = {
             tmr: null,
@@ -1121,7 +1017,7 @@
             },
             pre: () => {
                 app.to('game'); 
-                st.on = false; // Disabled until GO
+                st.on = false; 
                 document.getElementById('timer-num').innerText = st.cfg.t;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
                 const d=document.getElementById('word-disp'); 
@@ -1138,7 +1034,7 @@
             },
             run: () => {
                 game.stop(); 
-                st.on=true; // Enable Sensor
+                st.on=true; 
                 st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
