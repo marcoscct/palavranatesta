@@ -329,7 +329,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v28.2</div>
+            <div class="version-tag">v28.1</div>
         </div>
     </div>
     
@@ -348,52 +348,7 @@
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
         <div class="options-container">
-            <div class="section-box">
-                <h2>Visual & Times</h2>
-                <div style="margin-bottom: 15px;">
-                    <label style="margin-bottom:10px">Tema do Jogo</label>
-                    <div class="theme-grid" id="theme-selector"></div>
-                </div>
-                <div class="teams-container" style="margin-top:15px">
-                    <div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div>
-                    <div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div>
-                </div>
-            </div>
-            <div class="section-box">
-                <h2>Regras do Jogo</h2>
-                <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
-                <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
-                <div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div>
-                <div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div>
-            </div>
-            <div class="section-box">
-                <h2>Conteúdo</h2>
-                <div class="input-group">
-                    <label>Carregar do Google Sheets</label>
-                    <div class="input-row">
-                        <input type="text" id="sheet-input" placeholder="Link da planilha...">
-                        <button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button>
-                    </div>
-                    <button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button>
-                </div>
-                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px"><h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2><button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button></div>
-                <div class="input-group" style="margin-bottom: 10px;"><label>Selecionar Aba</label><select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select></div>
-                <div id="editor-container">
-                    <div id="view-table" class="editor-view active">
-                        <div id="table-rows"></div>
-                        <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button>
-                    </div>
-                    <div id="view-json" class="editor-view">
-                        <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
-                    </div>
-                </div>
-                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px">
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
-                    <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
-                    <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button>
-                </div>
-            </div>
+            <div class="section-box"><h2>Visual & Times</h2><div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div><div class="teams-container" style="margin-top:15px"><div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div><div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div></div></div><div class="section-box"><h2>Regras do Jogo</h2><div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div><div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div><div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div><div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div></div><div class="section-box"><h2>Conteúdo</h2><div class="input-group"><label>Carregar do Google Sheets</label><div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button></div><div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px"><h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2><button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button></div><div class="input-group" style="margin-bottom: 10px;"><label>Selecionar Aba</label><select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select></div><div id="editor-container"><div id="view-table" class="editor-view active"><div id="table-rows"></div><button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button></div><div id="view-json" class="editor-view"><div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div></div></div><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px"><button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button><button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button><button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button></div></div>
             <button class="btn" onclick="app.to('home')">VOLTAR</button>
         </div>
     </div>
@@ -430,15 +385,15 @@
     </div>
 
     <!-- TELA RESULTADO (V28.1 Tweaks Applied) -->
-    <div id="screen-res" class="screen" style="padding-bottom: calc(2vh + env(safe-area-inset-bottom) + 40px);">
-        <h1 style="font-size: 4vh; margin: 0 0 0.5vh 0;">FIM DA RODADA</h1>
-        <div id="res-score" style="font-size: 8vh; font-weight: 900; margin: 0 0 2vh 0; color: white;">0 PONTOS</div>
+    <div id="screen-res" class="screen" style="padding-bottom: calc(5vh + env(safe-area-inset-bottom) + 40px); justify-content: center;">
+        <h1 style="font-size: clamp(2rem, 5vh, 4rem); margin: 0; line-height: 1;">FIM DA RODADA</h1>
+        <div id="res-score" style="font-size: clamp(3rem, 6vh, 6rem); font-weight: 900; margin: 1vh 0 2vh 0; color: white; line-height: 1;">0 PONTOS</div>
         
-        <div id="res-list" style="width:100%; max-width:600px; max-height: 35vh; min-height: 150px; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:15px; margin-bottom: 2vh;"></div>
+        <div id="res-list" style="width:100%; max-width:600px; flex: 1; max-height: 30vh; min-height: 100px; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:10px; margin-bottom: 2vh;"></div>
         
-        <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; justify-content: center;">
-            <button class="btn" style="flex: 2;" onclick="app.next()">PRÓXIMO</button>
-            <button class="btn btn-outline" style="flex: 1; font-size: 1rem; padding: 0;" onclick="game.openEdit()">EDITAR</button>
+        <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; justify-content: center; flex-shrink: 0;">
+            <button class="btn" style="flex: 2; margin:0;" onclick="app.next()">PRÓXIMO</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 1rem; padding: 0; margin:0;" onclick="game.openEdit()">EDITAR</button>
         </div>
     </div>
 
@@ -710,25 +665,17 @@
             }
         };
 
-        /* SENSOR (HISTERESE) */
+        /* SENSOR */
         const sensor = {
-            z: 0, wait: false,
-            resetState: true, 
+            z: 0, wait: false, resetState: true, 
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
             handle: (e) => {
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
                     if (sensor.resetState) {
-                        if (sensor.z < -8.0) { 
-                            game.act(true); 
-                            sensor.pause(); 
-                            sensor.resetState = false;
-                        } else if (sensor.z > 8.0) { 
-                            game.act(false); 
-                            sensor.pause(); 
-                            sensor.resetState = false; 
-                        }
+                        if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; } 
+                        else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; }
                     } else {
                         if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
                     }
@@ -738,7 +685,7 @@
         };
         sensor.init();
 
-        /* NAV */
+        /* NAV & LOGIC */
         const app = {
             to: (id) => {
                 if(document.querySelector('#screen-game.active')) game.stop();
@@ -867,6 +814,8 @@
                 
                 wheel.el = document.getElementById('wheel-spinner');
                 wheel.jackpot = document.getElementById('jackpot-strip');
+                
+                // Reset styles
                 wheel.jackpot.style.transition = 'none';
                 wheel.jackpot.style.transform = 'translateY(0px)';
                 wheel.offsetY = 0;
@@ -874,11 +823,16 @@
                 wheel.el.style.transform = 'rotate(0deg)';
                 wheel.ang = 0;
                 
+                if (wheel.mode === 'wheel') wheel.setupWheel();
+                else wheel.setupJackpot();
+                
                 const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
                 wheel.attachDrag(container);
             },
 
             setupWheel: () => {
+                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
+                
                 let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
                 CURRENT_ROUND_CATS.forEach((c, i) => {
                     const color = COLORS[i % COLORS.length];
@@ -894,6 +848,8 @@
             },
 
             setupJackpot: () => {
+                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
+                
                 let h = "";
                 const list = [];
                 for(let k=0; k<30; k++) { 
@@ -1162,17 +1118,9 @@
             end: () => {
                 try {
                     st.on=false; game.stop();
-                    
-                    // Recalculate points strictly from history
                     st.pts = st.h.filter(x => x.ok).length;
-                    
-                    // Add to global score
                     st.t[st.trn].s += st.pts; 
-                    
-                    // Change screen FIRST to avoid layout thrashing/crashes
                     app.to('res');
-                    
-                    // Then render the list
                     game.renderRes();
                 } catch(e) {
                     console.error("Game End Error:", e);
@@ -1209,15 +1157,9 @@
                 }
             },
             openEdit: () => {
-                // Clone history
                 game.editList = st.h && st.h.length ? JSON.parse(JSON.stringify(st.h)) : [];
-                
-                if(game.editList.length === 0) { 
-                    ui.alert("Nada para editar."); 
-                    return; 
-                }
+                if(game.editList.length === 0) { ui.alert("Nada para editar."); return; }
 
-                // Build Edit HTML
                 const html = '<div class="edit-list-container">' +
                     game.editList.map((item, i) => `
                         <div class="edit-item" onclick="game.toggleEditItem(${i}, this)">
@@ -1234,32 +1176,18 @@
                 ]);
             },
             toggleEditItem: (i, el) => {
-                // Toggle status
                 game.editList[i].ok = !game.editList[i].ok;
-                
-                // Update DOM visually immediately
                 const span = el.querySelector('.edit-status');
                 span.innerText = game.editList[i].ok ? 'ACERTOU' : 'PULOU';
                 span.style.color = game.editList[i].ok ? 'var(--success)' : 'var(--danger)';
             },
             saveEdit: () => {
-                // 1. Revert old score
                 st.t[st.trn].s -= st.pts;
-                
-                // 2. Calculate new score
                 const newPts = game.editList.filter(x => x.ok).length;
                 st.pts = newPts;
-                
-                // 3. Add new score
                 st.t[st.trn].s += st.pts;
-                
-                // 4. Update history
                 st.h = game.editList;
-                
-                // 5. Re-render results screen
                 game.renderRes();
-                
-                // 6. Close modal
                 document.getElementById('modal-overlay').style.display = 'none';
             }
         };
