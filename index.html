@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (24).html -->
+<!-- START OF FILE ai_studio_code (25).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -113,7 +113,8 @@
         .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
         
         /* BUTTON SQUARE (NEW) */
-        .btn-square { width: 55px; height: 55px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border-radius: 15px; flex-shrink: 0; margin: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-square { width: 55px; height: 55px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border-radius: 15px; flex-shrink: 0; margin: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; border: none; color: white; transition: transform 0.1s; }
+        .btn-square:active { transform: scale(0.95); }
 
         .input-group { margin-bottom: 1.5vh; width: 100%; max-width: 600px; position: relative; flex-shrink: 0; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
@@ -140,7 +141,7 @@
         .table-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .table-input-cat { flex: 0 0 140px; font-weight: bold; color: var(--accent); }
         .table-input-words { flex: 1; font-size: 0.9rem; }
-        .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; }
+        .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; border: none; color: white; }
         
         /* === MODAL (FIXED SCROLL & HEIGHT) === */
         #modal-overlay {
@@ -378,7 +379,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v29.2</div>
+            <div class="version-tag">v29.3</div>
         </div>
     </div>
     
