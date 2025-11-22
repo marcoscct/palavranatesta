@@ -1,8 +1,17 @@
+<!-- START OF FILE ai_studio_code (18).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <!-- Viewport otimizado para Mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- iOS Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Palavra na Testa">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/100/phone.png">
+
     <meta name="theme-color" content="#0f172a">
     <meta name="color-scheme" content="dark only">
     <title>Palavra na Testa</title>
@@ -30,9 +39,11 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
-        /* FIX FUNDO TOTAL S25 ULTRA + TEMAS */
+        /* FIX FUNDO TOTAL S25 ULTRA + TEMAS + IPHONE FIX (100dvh) */
         html, body {
-            width: 100%; height: 100%;
+            width: 100%; 
+            height: 100%; /* Fallback */
+            height: 100dvh; /* Moderna para iOS */
             margin: 0; padding: 0;
             overflow: hidden;
             font-family: 'Poppins', sans-serif; color: var(--text);
@@ -329,7 +340,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v28.5</div>
+            <div class="version-tag">v28.6</div>
         </div>
     </div>
     
@@ -732,8 +743,17 @@
             },
             start: () => {
                 aud.p('click');
-                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-                else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+                
+                // FIX IOS FULLSCREEN: Detecta se é iOS. Se for, não tenta forçar fullscreen via JS (causa erro).
+                // Confia que o usuário adicionou à Home Screen ou usa o CSS 100dvh.
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
+
+                if (!isIOS) {
+                    // Android/PC: Tenta forçar tela cheia nativa
+                    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+                    else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+                }
 
                 st.t[0].n = document.getElementById('t1').value || "Time A";
                 st.t[1].n = document.getElementById('t2').value || "Time B";
@@ -1200,6 +1220,23 @@
             storage.load();
             themeMgr.init(); // Initialize themes
             sensor.init();
+
+            // DICA IOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
+            
+            if (isIOS && !isStandalone) {
+                // Cria um aviso discreto
+                const div = document.createElement('div');
+                div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); padding:10px 20px; border-radius:20px; font-size:0.8rem; z-index:9999; text-align:center; width:90%; pointer-events:none; animation: fadeOut 5s forwards 5s; color: white; font-family: sans-serif;";
+                div.innerHTML = "Dica: Para tela cheia, toque em <b>Compartilhar</b> <span style='font-size:1.2em'>⎋</span> e <b>Adicionar à Tela de Início</b>.";
+                
+                // CSS da animação
+                const style = document.createElement('style');
+                style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
+                document.head.appendChild(style);
+                document.body.appendChild(div);
+            }
         };
     </script>
 </body>
