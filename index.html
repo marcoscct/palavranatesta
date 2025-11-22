@@ -7,6 +7,7 @@
     <meta name="color-scheme" content="dark only">
     <title>Palavra na Testa</title>
     
+    <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
@@ -128,7 +129,7 @@
         .table-input-words { flex: 1; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; }
         
-        /* === MODAL === */
+        /* === MODAL (FIXED SCROLL & HEIGHT) === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -148,21 +149,27 @@
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
         .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; flex-shrink: 0; }
+        
         .modal-msg { 
-            margin-bottom: 15px; font-size: 1.2rem; line-height: 1.5; color: white; 
-            flex: 1; overflow-y: auto; min-height: 0; 
+            margin-bottom: 15px; 
+            font-size: 1.2rem; line-height: 1.5; color: white; 
+            flex: 1; 
+            overflow-y: auto; 
+            min-height: 0; 
         }
+        
         .modal-actions { 
             display: flex; gap: 15px; justify-content: center; width: 100%; padding-top: 10px; 
             flex-shrink: 0; 
         }
+        
         #result-cat-display {
             font-size: 3rem; font-weight: 900; color: white; 
             margin: 10px 0 30px 0; text-transform: uppercase;
             text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
-        /* === EDIT LIST === */
+        /* === EDIT RESULTS MODAL STYLES === */
         .edit-list-container { 
             width: 100%;
             border-top: 1px solid rgba(255,255,255,0.1); 
@@ -177,13 +184,13 @@
         .edit-word { font-size: 1rem; text-align: left; flex: 1; font-weight: 600; color: var(--text); padding-right: 10px; }
         .edit-status { font-weight: 900; font-size: 1rem; text-transform: uppercase; width: 100px; text-align: right; }
 
-        /* === WINNER TEXT === */
+        /* === FINAL WINNER TEXT === */
         #winner {
             color: var(--accent); font-size: 6vh; text-align: center; width: 100%;
             margin-top: 2vh; text-transform: uppercase;
         }
 
-        /* === ROUND & HUD === */
+        /* === ROUND PILL & GAME HUD === */
         .round-pill {
             background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 10px 30px; border-radius: 50px; margin-bottom: 2vh;
@@ -200,6 +207,7 @@
         .timer-wrapper::after { content: ''; position: absolute; inset: 10%; background: var(--bg-color); border-radius: 50%; z-index: 1; }
         .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 4vh; font-weight: 900; }
 
+        /* === FIX GAME TEXT ALIGNMENT === */
         #word-disp {
             font-family: 'Montserrat'; font-weight: 900; 
             font-size: clamp(2.8rem, 13.5vmin, 7rem); 
@@ -218,7 +226,7 @@
         .hud-left { color: var(--success); } .hud-right { color: var(--danger); }
         .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
 
-        /* === EXTRAS === */
+        /* === EXTRA === */
         #msg-force {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-family: 'Montserrat'; font-weight: 900; font-size: 4vh; color: var(--accent);
@@ -234,7 +242,7 @@
         }
         @keyframes shake { 0% { transform: translate(-49%, -50%) } 25% { transform: translate(-51%, -50%) } 50% { transform: translate(-52%, -50%) } 75% { transform: translate(-48%, -50%) } 100% { transform: translate(-50%, -50%) } }
 
-        /* === WHEEL & JACKPOT === */
+        /* === WHEEL ELEMENTS === */
         #screen-wheel { flex-direction: row; gap: 5vw; }
         .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
         #wheel-container { display:none; width: 85vh; height: 85vh; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
@@ -249,6 +257,7 @@
         #pointer { position: absolute; top: -3vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
+        /* JACKPOT */
         #jackpot-container { 
             display:none; width: 85vh; height: 85vh; position: relative; flex-shrink: 0;
             background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
@@ -278,7 +287,7 @@
             .slice-text { padding-left: 17vh; font-size: 3.5vh; }
         }
 
-        /* LOCK SCREEN */
+        /* LOCK SCREEN FIX */
         #lock { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #020617; z-index: 99999; 
@@ -317,7 +326,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v27.7</div>
+            <div class="version-tag">v28.0</div>
         </div>
     </div>
     
@@ -336,7 +345,80 @@
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
         <div class="options-container">
-            <div class="section-box"><h2>Visual & Times</h2><div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div><div class="teams-container" style="margin-top:15px"><div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div><div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div></div></div><div class="section-box"><h2>Regras do Jogo</h2><div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div><div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div><div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div><div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div></div><div class="section-box"><h2>Conteúdo</h2><div class="input-group"><label>Carregar do Google Sheets</label><div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button></div><div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px"><h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2><button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button></div><div class="input-group" style="margin-bottom: 10px;"><label>Selecionar Aba</label><select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select></div><div id="editor-container"><div id="view-table" class="editor-view active"><div id="table-rows"></div><button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button></div><div id="view-json" class="editor-view"><div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div></div></div><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px"><button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button><button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button><button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button></div></div>
+            
+            <!-- 1. VISUAL & TIMES -->
+            <div class="section-box">
+                <h2>Visual & Times</h2>
+                <div style="margin-bottom: 15px;">
+                    <label style="margin-bottom:10px">Tema do Jogo</label>
+                    <div class="theme-grid" id="theme-selector"></div>
+                </div>
+                <div class="teams-container" style="margin-top:15px">
+                    <div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div>
+                    <div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div>
+                </div>
+            </div>
+
+            <!-- 2. REGRAS DO JOGO -->
+            <div class="section-box">
+                <h2>Regras do Jogo</h2>
+                <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
+                <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
+                
+                <div class="input-group" style="margin-top:15px">
+                    <label>Modo de Sorteio</label>
+                    <select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()">
+                        <option value="auto">Automático (Misto)</option>
+                        <option value="wheel">Sempre Roleta</option>
+                        <option value="jackpot">Sempre Jackpot</option>
+                    </select>
+                </div>
+                <div class="input-group" id="group-threshold" style="margin-top:10px">
+                    <label>Limite para Jackpot</label>
+                    <input type="number" id="opt-threshold" value="12" onchange="storage.save()">
+                </div>
+            </div>
+
+            <!-- 3. CONTEÚDO -->
+            <div class="section-box">
+                <h2>Conteúdo</h2>
+                <div class="input-group">
+                    <label>Carregar do Google Sheets</label>
+                    <div class="input-row">
+                        <input type="text" id="sheet-input" placeholder="Link da planilha...">
+                        <button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button>
+                    </div>
+                    <button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button>
+                </div>
+                
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                    <h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2>
+                    <button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button>
+                </div>
+                
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label>Selecionar Aba</label>
+                    <select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select>
+                </div>
+
+                <div id="editor-container">
+                    <div id="view-table" class="editor-view active">
+                        <div id="table-rows"></div>
+                        <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button>
+                    </div>
+                    <div id="view-json" class="editor-view">
+                        <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
+                    </div>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px">
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
+                    <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button>
+                </div>
+            </div>
+
             <button class="btn" onclick="app.to('home')">VOLTAR</button>
         </div>
     </div>
@@ -372,6 +454,7 @@
         <div id="fb-no" class="flash" style="background: var(--danger);">PULOU!</div>
     </div>
 
+    <!-- TELA RESULTADO -->
     <div id="screen-res" class="screen">
         <h1 style="font-size: 4vh; margin-bottom: 1vh;">FIM DA RODADA</h1>
         <div id="res-score" style="font-size: 8vh; font-weight: 900; margin: 2vh 0; color: white;">0 PONTOS</div>
@@ -401,137 +484,709 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        const THEMES=[{id:'default',name:'Original',bg:'#1e1b4b',grad:'radial-gradient(circle at center, #2e1065 0%, #020617 100%)',p:'#6366f1',s:'#ec4899',a:'#fbbf24'},{id:'dark-amber',name:'Dark/Amber',bg:'#111',grad:'radial-gradient(circle at center, #333 0%, #000 100%)',p:'#e65100',s:'#f6a609',a:'#ffffff'},{id:'blue-orange',name:'Blue/Orange',bg:'#0f172a',grad:'radial-gradient(circle, #1e293b 0%, #020617 100%)',p:'#3b82f6',s:'#f97316',a:'#fbbf24'},{id:'forest',name:'Forest',bg:'#052e16',grad:'linear-gradient(to bottom, #14532d, #022c22)',p:'#22c55e',s:'#84cc16',a:'#fef08a'},{id:'dracula',name:'Vampire',bg:'#2e0202',grad:'radial-gradient(circle, #7f1d1d 0%, #000 100%)',p:'#ef4444',s:'#9333ea',a:'#fca5a5'},{id:'ocean',name:'Ocean',bg:'#083344',grad:'linear-gradient(to bottom, #0e7490, #164e63)',p:'#06b6d4',s:'#22d3ee',a:'#cffafe'},{id:'royal',name:'Royal',bg:'#2e1065',grad:'radial-gradient(circle, #581c87 0%, #0f172a 100%)',p:'#a855f7',s:'#f472b6',a:'#fde047'},{id:'high-contrast',name:'High Contrast',bg:'#000',grad:'none',p:'#0000ff',s:'#ff0000',a:'#ffff00'}];
-        const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
-        const DEFAULT_CATS = [{n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},{n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},{n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},{n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},{n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},{n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}];
+        /* === THEMES === */
+        const THEMES = [
+            { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
+            { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
+            { id: 'blue-orange', name: 'Blue/Orange', bg: '#0f172a', grad: 'radial-gradient(circle, #1e293b 0%, #020617 100%)', p: '#3b82f6', s: '#f97316', a: '#fbbf24' },
+            { id: 'forest', name: 'Forest', bg: '#052e16', grad: 'linear-gradient(to bottom, #14532d, #022c22)', p: '#22c55e', s: '#84cc16', a: '#fef08a' },
+            { id: 'dracula', name: 'Vampire', bg: '#2e0202', grad: 'radial-gradient(circle, #7f1d1d 0%, #000 100%)', p: '#ef4444', s: '#9333ea', a: '#fca5a5' },
+            { id: 'ocean', name: 'Ocean', bg: '#083344', grad: 'linear-gradient(to bottom, #0e7490, #164e63)', p: '#06b6d4', s: '#22d3ee', a: '#cffafe' },
+            { id: 'royal', name: 'Royal', bg: '#2e1065', grad: 'radial-gradient(circle, #581c87 0%, #0f172a 100%)', p: '#a855f7', s: '#f472b6', a: '#fde047' },
+            { id: 'high-contrast', name: 'High Contrast', bg: '#000', grad: 'none', p: '#0000ff', s: '#ff0000', a: '#ffff00' }
+        ];
         
-        let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
-        let CURRENT_SHEET_IDX = 0; let SOURCE_TYPE = 'default'; let CURRENT_ROUND_CATS = []; let CURRENT_THEME = 'default';
-        const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
-        const st = { t:[{n:"Time A",s:0},{n:"Time B",s:0}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
+        let CURRENT_THEME = 'default';
 
-        const themeMgr={init:()=>{const c=document.getElementById('theme-selector');c.innerHTML='';THEMES.forEach(t=>{const d=document.createElement('div');d.className='theme-option';if(t.id===CURRENT_THEME)d.classList.add('active');d.style.background=t.grad!=='none'?t.grad:t.bg;d.onclick=()=>themeMgr.set(t.id);c.appendChild(d)});themeMgr.apply(CURRENT_THEME)},set:(id)=>{CURRENT_THEME=id;themeMgr.init();themeMgr.apply(id);storage.save()},apply:(id)=>{const t=THEMES.find(x=>x.id===id)||THEMES[0];const r=document.documentElement;r.style.setProperty('--bg-color',t.bg);r.style.setProperty('--bg-gradient',t.grad);r.style.setProperty('--primary',t.p);r.style.setProperty('--secondary',t.s);r.style.setProperty('--accent',t.a)}};
-        const storage={save:()=>{localStorage.setItem('pnt_data_v22',JSON.stringify({cats:GLOBAL_SHEETS_DATA,source:SOURCE_TYPE,t1:document.getElementById('t1').value,t2:document.getElementById('t2').value,time:document.getElementById('opt-time').value,rounds:document.getElementById('opt-rounds').value,mode:document.getElementById('opt-mode').value,threshold:document.getElementById('opt-threshold').value,theme:CURRENT_THEME}))},load:()=>{try{const d=JSON.parse(localStorage.getItem('pnt_data_v22'));if(d){if(d.cats&&Array.isArray(d.cats)){if(d.cats.length>0&&Array.isArray(d.cats[0]))GLOBAL_SHEETS_DATA=d.cats;else GLOBAL_SHEETS_DATA=[d.cats]}if(d.source)SOURCE_TYPE=d.source;if(d.t1)document.getElementById('t1').value=d.t1;if(d.t2)document.getElementById('t2').value=d.t2;if(d.time)document.getElementById('opt-time').value=d.time;if(d.rounds)document.getElementById('opt-rounds').value=d.rounds;if(d.mode)document.getElementById('opt-mode').value=d.mode;if(d.threshold)document.getElementById('opt-threshold').value=d.threshold;if(d.theme)CURRENT_THEME=d.theme;app.toggleThresholdVisibility()}}catch(e){localStorage.removeItem('pnt_data_v22')}}};
-        const dataMgr={isTableMode:true,init:()=>{if(CURRENT_SHEET_IDX>=GLOBAL_SHEETS_DATA.length)CURRENT_SHEET_IDX=0;dataMgr.updateSheetSelector();document.getElementById('json-input').value=JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX],null,2);dataMgr.renderTable()},updateSheetSelector:()=>{const s=document.getElementById('sheet-selector');s.innerHTML='';GLOBAL_SHEETS_DATA.forEach((x,i)=>{const o=document.createElement('option');o.value=i;o.text=`Aba ${i+1} (${x.length} cats)`;if(i===parseInt(CURRENT_SHEET_IDX))o.selected=true;s.appendChild(o)})},switchSheet:(i)=>{if(dataMgr.isTableMode)dataMgr.syncFromTable();else dataMgr.syncFromJSON();CURRENT_SHEET_IDX=parseInt(i);dataMgr.init()},toggleView:()=>{dataMgr.isTableMode=!dataMgr.isTableMode;document.getElementById('btn-toggle-view').innerText=dataMgr.isTableMode?"Ver JSON":"Ver Tabela";document.getElementById('view-json').classList.toggle('active',!dataMgr.isTableMode);document.getElementById('view-table').classList.toggle('active',dataMgr.isTableMode);if(dataMgr.isTableMode)dataMgr.syncFromJSON();else dataMgr.syncFromTable()},markDirty:()=>{},syncFromJSON:()=>{try{GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX]=JSON.parse(document.getElementById('json-input').value);dataMgr.renderTable();dataMgr.updateSheetSelector()}catch(e){}},syncFromTable:()=>{const rows=document.querySelectorAll('.table-row');const nc=[];rows.forEach(r=>{const n=r.querySelector('.table-input-cat').value;const w=r.querySelector('.table-input-words').value;if(n&&w){const ws=w.split(',').map(s=>s.trim()).filter(s=>s);if(ws.length)nc.push({n,w:ws})}});GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX]=nc;document.getElementById('json-input').value=JSON.stringify(nc,null,2);dataMgr.updateSheetSelector()},renderTable:()=>{const c=document.getElementById('table-rows');c.innerHTML='';(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX]||[]).forEach(x=>{const r=document.createElement('div');r.className='table-row';r.innerHTML=`<input type="text" class="table-input-cat" value="${x.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${x.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r)})},addTableRow:()=>{const c=document.getElementById('table-rows');const r=document.createElement('div');r.className='table-row';r.innerHTML=`<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r)},save:()=>{if(dataMgr.isTableMode)dataMgr.syncFromTable();else dataMgr.syncFromJSON();SOURCE_TYPE='default';storage.save();ui.alert("Salvo com sucesso!")},reset:()=>{ui.confirm("Resetar tudo para o padrão?",()=>{GLOBAL_SHEETS_DATA=[JSON.parse(JSON.stringify(DEFAULT_CATS))];CURRENT_SHEET_IDX=0;SOURCE_TYPE='default';CURRENT_THEME='default';themeMgr.set('default');dataMgr.init();storage.save()})},copyPrompt:()=>{navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!"))},loadDefault:()=>{document.getElementById('sheet-input').value="https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk";dataMgr.loadSheet()},loadSheet:async()=>{const url=document.getElementById('sheet-input').value;if(!url)return;try{let eu=url;if(url.includes('docs.google.com/spreadsheets')){const id=url.match(/\/d\/(.*?)\//)[1];eu=`https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`}const r=await fetch(eu);if(!r.ok)throw new Error("Network");const b=await r.blob();const fr=new FileReader();fr.onload=(e)=>{const d=new Uint8Array(e.target.result);const wb=XLSX.read(d,{type:'array'});const ps=[];wb.SheetNames.forEach(sn=>{const s=wb.Sheets[sn];const j=XLSX.utils.sheet_to_json(s,{header:1});const c=[];if(j.length>0){const h=j[0];for(let k=0;k<h.length;k++){const n=h[k];if(!n)continue;const w=[];for(let l=1;l<j.length;l++){if(j[l]&&j[l][k])w.push(String(j[l][k]).trim())}if(w.length>0)c.push({n,w})}}if(c.length>0)ps.push(c)});if(ps.length>0){GLOBAL_SHEETS_DATA=ps;SOURCE_TYPE='sheets';CURRENT_SHEET_IDX=0;dataMgr.init();storage.save();ui.alert(`Sucesso! ${ps.length} abas carregadas.`)}else ui.alert("Nenhuma categoria encontrada.")};fr.readAsArrayBuffer(b)}catch(e){ui.alert("Erro ao ler planilha.")}}};
-        
-        const sensor = {
-            z: 0, wait: false, resetState: true, 
-            init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
-            handle: (e) => { const acc = e.accelerationIncludingGravity; if (!acc) return; sensor.z = acc.z || 0; if (st.on && !sensor.wait) { if (sensor.resetState) { if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; } else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; } } else { if (Math.abs(sensor.z) < 2.0) sensor.resetState = true; } } },
-            pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
-        };
-        
-        const app = {
-            to: (id) => { if(document.querySelector('#screen-game.active')) game.stop(); wheel.stop(); document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('screen-'+id).classList.add('active'); if(id === 'options') dataMgr.init(); const homeBtn = document.getElementById('home-btn'); if(id === 'home') { homeBtn.style.display = 'none'; game.stopAll(); document.getElementById('timer-num').innerText = st.cfg.t; st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0; } else { homeBtn.style.display = 'block'; } if(id === 'teams') { document.getElementById('t1-conf').value = document.getElementById('t1').value; document.getElementById('t2-conf').value = document.getElementById('t2').value; const root = getComputedStyle(document.documentElement); document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary'); document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary'); document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary'); document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary'); } },
-            tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
-            toggleThresholdVisibility: () => { const mode = document.getElementById('opt-mode').value; const el = document.getElementById('group-threshold'); if(mode === 'auto') el.style.display = 'block'; else el.style.display = 'none'; },
-            start: () => { aud.p('click'); if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{}); st.t[0].n = document.getElementById('t1').value || "Time A"; st.t[1].n = document.getElementById('t2').value || "Time B"; st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60; st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3; storage.save(); app.to('teams'); },
-            confirmTeams: (onlySave) => { st.t[0].n = document.getElementById('t1-conf').value || "Time A"; st.t[1].n = document.getElementById('t2-conf').value || "Time B"; document.getElementById('t1').value = st.t[0].n; document.getElementById('t2').value = st.t[1].n; storage.save(); if(!onlySave) app.prep(); },
-            prep: () => { 
-                if(st.rd > st.cfg.r) { app.end(); return; } 
-                // SAFETY CHECK
-                if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) { GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; }
-                const turnIdx = (st.rd - 1) * 2 + st.trn; 
-                let effectiveSheets = GLOBAL_SHEETS_DATA.length; 
-                if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1; 
-                const sheetIdx = turnIdx % effectiveSheets; 
-                CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx]; 
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) { CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0]; }
-                const t = st.t[st.trn]; const root = getComputedStyle(document.documentElement); const color = st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary'); document.getElementById('lbl-rd').innerText = st.rd; document.getElementById('lbl-tm').innerText = t.n; document.getElementById('lbl-tm').style.color = color; app.to('intro'); 
-            },
-            toWheel: () => { aud.p('click'); wheel.init(); app.to('wheel'); },
-            next: () => { aud.p('click'); st.trn++; if(st.trn>1){st.trn=0; st.rd++} app.prep(); },
-            end: () => { const t1=st.t[0], t2=st.t[1]; const root = getComputedStyle(document.documentElement); const c1 = root.getPropertyValue('--primary'); const c2 = root.getPropertyValue('--secondary'); document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s; document.getElementById('fn-1').style.color = c1; document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s; document.getElementById('fn-2').style.color = c2; const w=document.getElementById('winner'); if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;} else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;} else {w.innerText="EMPATE"; w.style.color="white";} aud.p('win'); app.to('final'); }
-        };
-
-        const wheel = {
-            el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
-            stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
+        const themeMgr = {
             init: () => {
-                const mode = document.getElementById('opt-mode').value; const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
-                // SAFETY CHECK
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) { CURRENT_ROUND_CATS = DEFAULT_CATS; }
-                if (mode === 'wheel') wheel.mode = 'wheel'; else if (mode === 'jackpot') wheel.mode = 'jackpot'; else wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
-                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none'; document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
-                wheel.el = document.getElementById('wheel-spinner'); wheel.jackpot = document.getElementById('jackpot-strip'); wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = 'translateY(0px)'; wheel.offsetY = 0; wheel.el.style.transition = 'none'; wheel.el.style.transform = 'rotate(0deg)'; wheel.ang = 0;
-                if (wheel.mode === 'wheel') wheel.setupWheel(); else wheel.setupJackpot();
-                const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container'); wheel.attachDrag(container);
+                const container = document.getElementById('theme-selector');
+                container.innerHTML = '';
+                THEMES.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = 'theme-option';
+                    if(t.id === CURRENT_THEME) div.classList.add('active');
+                    div.style.background = t.grad !== 'none' ? t.grad : t.bg;
+                    div.onclick = () => themeMgr.set(t.id);
+                    container.appendChild(div);
+                });
+                themeMgr.apply(CURRENT_THEME);
             },
-            setupWheel: () => {
-                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
-                let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
-                CURRENT_ROUND_CATS.forEach((c, i) => { const color = COLORS[i % COLORS.length]; const start = i * sliceDeg; const end = (i + 1) * sliceDeg; g += `${color} ${start}deg ${end}deg,`; const mid = start + (sliceDeg / 2); const split = smartSplit(c.n); let fontSize = 4; const refLen = split.lines === 1 ? c.n.length : split.maxLen; if(refLen > 8) fontSize = 4 * (8 / refLen); h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`; });
-                wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
+            set: (id) => {
+                CURRENT_THEME = id;
+                themeMgr.init(); 
+                themeMgr.apply(id);
+                storage.save();
             },
-            setupJackpot: () => {
-                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
-                let h = ""; const list = []; for(let k=0; k<30; k++) { CURRENT_ROUND_CATS.forEach(c => list.push(c)); } const n = CURRENT_ROUND_CATS.length;
-                list.forEach((c, i) => { const realIndex = i % n; const color = COLORS[realIndex % COLORS.length]; h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`; });
-                wheel.jackpot.innerHTML = h;
-            },
-            attachDrag: (target) => {
-                let startY=0, lastY=0, startTime=0, lastAng=0, angularVelocity=0, linearVelocity=0, lastMoveTime=0;
-                const getAngle = (e, el) => { const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2; const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI); };
-                const onStart = (e) => { if(wheel.spin) return; if (wheel.mode === 'wheel') lastAng = getAngle(e, target); else { startY = e.touches?e.touches[0].clientY:e.clientY; lastY = startY; } lastMoveTime = Date.now(); startTime = lastMoveTime; angularVelocity = 0; linearVelocity = 0; document.addEventListener('touchmove', onMove, {passive: false}); document.addEventListener('touchend', onEnd); document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd); };
-                const onMove = (e) => { e.preventDefault(); const now = Date.now(); const dt = now - lastMoveTime; if (wheel.mode === 'wheel') { const curAng = getAngle(e, target); let delta = curAng - lastAng; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; wheel.ang += delta; wheel.el.style.transform = `rotate(${wheel.ang}deg)`; if(dt > 0) { const instantVel = delta / dt; angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5); } lastAng = curAng; } else { const curY = e.touches?e.touches[0].clientY:e.clientY; const delta = curY - lastY; wheel.offsetY += delta; const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if(itemEl) { const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length; if(wheel.offsetY > 0) wheel.offsetY -= stripH; if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH; } wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`; if(dt > 0) { const instantVel = delta / dt; linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5); } lastY = curY; } lastMoveTime = now; };
-                const onEnd = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd); const totalDuration = Date.now() - startTime; if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; } if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; } if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); } else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); } };
-                target.onmousedown = onStart; target.ontouchstart = onStart;
-            },
-            go: (velocity) => {
-                if(wheel.spin) return; wheel.spin = true; aud.l('spin', true);
-                let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
-                const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
-                if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
-                const duration = 3; 
-                if (wheel.mode === 'wheel') {
-                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length; const currentAngle = wheel.ang; const spins = 5 * 360; const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2); const dir = Math.sign(velocity) || 1; const totalRot = spins * dir; const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
-                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.el.style.transform = `rotate(${finalAngle}deg)`; wheel.ang = finalAngle; wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
-                } else {
-                    const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if (!itemEl) return; const itemH = itemEl.getBoundingClientRect().height; const n = CURRENT_ROUND_CATS.length; const dir = Math.sign(velocity); const startSet = 15; const startY = -(startSet * n * itemH);
-                    wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = `translateY(${startY}px)`; wheel.jackpot.offsetHeight; 
-                    const targetSetOffset = (dir > 0) ? -3 : 3; const targetSet = startSet + targetSetOffset; const containerH = document.getElementById('jackpot-container').offsetHeight; const centerOffset = containerH / 2;
-                    const winnerItemIndex = (targetSet * n) + winnerIdx; const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
-                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
-                    setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
-                }
-            },
-            finish: (idx) => {
-                aud.l('spin', false); aud.p('win');
-                const cat = CURRENT_ROUND_CATS[idx]; st.cat = cat; 
-                const color = COLORS[(idx % CURRENT_ROUND_CATS.length) % COLORS.length];
-                ui.showResult(cat.n.replace('*', ''), color, () => game.pre()); wheel.spin = false;
+            apply: (id) => {
+                const t = THEMES.find(x => x.id === id) || THEMES[0];
+                const root = document.documentElement;
+                root.style.setProperty('--bg-color', t.bg);
+                root.style.setProperty('--bg-gradient', t.grad);
+                root.style.setProperty('--primary', t.p);
+                root.style.setProperty('--secondary', t.s);
+                root.style.setProperty('--accent', t.a);
             }
         };
 
-        function showForceMsg() { const msg = document.getElementById('msg-force'); msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 1000); }
+        const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
+        const DEFAULT_CATS = [
+            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
+            {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},
+            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},
+            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
+            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
+            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
+        ];
+        
+        let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
+        let CURRENT_SHEET_IDX = 0;
+        let SOURCE_TYPE = 'default';
+        let CURRENT_ROUND_CATS = [];
+
+        const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
+        const st = { t:[{n:"Time A",s:0},{n:"Time B",s:0}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
+
+        const ui = {
+            modal: (title, html, actions) => {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-msg').innerHTML = html;
+                const actionBox = document.getElementById('modal-actions');
+                actionBox.innerHTML = '';
+                actions.forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.className = a.cls || 'btn btn-small';
+                    if(a.style) btn.style = a.style; 
+                    btn.innerText = a.txt;
+                    btn.onclick = () => {
+                        if(a.close !== false) document.getElementById('modal-overlay').style.display = 'none';
+                        if(a.fn) a.fn();
+                    };
+                    actionBox.appendChild(btn);
+                });
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+            alert: (msg) => { ui.modal("Atenção", msg, [{txt:"OK"}]); },
+            confirm: (msg, cb) => { ui.modal("Confirmação", msg, [{txt:"Sim", fn:cb}, {txt:"Não", cls:'btn btn-small btn-outline'}]); },
+            showResult: (catName, catColor, cb) => {
+                const html = `<div id="result-cat-display" style="color:${catColor}; font-size:2.5rem; font-weight:900; text-transform:uppercase; line-height:1.1; margin-bottom:20px">${catName}</div>`;
+                ui.modal("CATEGORIA", html, [{txt:"COMEÇAR", fn:cb}]);
+            }
+        };
+
+        function smartSplit(text) {
+            const clean = text.replace(/\*$/, '');
+            if (clean.length <= 12) return { text: clean, lines: 1 };
+            const words = clean.split(' ');
+            if (words.length === 1) return { text: clean, lines: 1 };
+            let best=0, min=Infinity, cur=0, tot=clean.length;
+            for(let i=0; i<words.length-1; i++) { cur+=words[i].length; const d=Math.abs(cur-(tot-cur)); if(d<min){min=d; best=i;} }
+            return { text: `${words.slice(0, best+1).join(' ')}<br>${words.slice(best+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, best+1).join(' ').length, words.slice(best+1).join(' ').length) };
+        }
+
+        /* STORAGE & DATA */
+        const storage = {
+            save: () => {
+                const data = {
+                    cats: GLOBAL_SHEETS_DATA, source: SOURCE_TYPE,
+                    t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
+                    time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value,
+                    mode: document.getElementById('opt-mode').value,
+                    threshold: document.getElementById('opt-threshold').value,
+                    theme: CURRENT_THEME
+                };
+                localStorage.setItem('pnt_data_v22', JSON.stringify(data));
+            },
+            load: () => {
+                try {
+                    const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
+                    if(data) {
+                        if(data.cats && Array.isArray(data.cats)) {
+                            if(data.cats.length > 0 && Array.isArray(data.cats[0])) {
+                                GLOBAL_SHEETS_DATA = data.cats;
+                            } else {
+                                GLOBAL_SHEETS_DATA = [data.cats];
+                            }
+                        }
+                        
+                        if(data.source) SOURCE_TYPE = data.source;
+                        if(data.t1) document.getElementById('t1').value = data.t1;
+                        if(data.t2) document.getElementById('t2').value = data.t2;
+                        if(data.time) document.getElementById('opt-time').value = data.time;
+                        if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
+                        if(data.mode) document.getElementById('opt-mode').value = data.mode;
+                        if(data.threshold) document.getElementById('opt-threshold').value = data.threshold;
+                        if(data.theme) CURRENT_THEME = data.theme;
+                        app.toggleThresholdVisibility();
+                    }
+                } catch(e) { localStorage.removeItem('pnt_data_v22'); }
+            }
+        };
+
+        const dataMgr = {
+            isTableMode: true,
+            init: () => { 
+                if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0;
+                dataMgr.updateSheetSelector();
+                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2); 
+                dataMgr.renderTable();
+            },
+            updateSheetSelector: () => {
+                const sel = document.getElementById('sheet-selector');
+                sel.innerHTML = '';
+                GLOBAL_SHEETS_DATA.forEach((s, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.text = `Aba ${i+1} (${s.length} cats)`;
+                    if(i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true;
+                    sel.appendChild(opt);
+                });
+            },
+            switchSheet: (idx) => {
+                if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
+                CURRENT_SHEET_IDX = parseInt(idx);
+                dataMgr.init();
+            },
+            toggleView: () => {
+                dataMgr.isTableMode = !dataMgr.isTableMode;
+                document.getElementById('btn-toggle-view').innerText = dataMgr.isTableMode ? "Ver JSON" : "Ver Tabela";
+                document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode);
+                document.getElementById('view-table').classList.toggle('active', dataMgr.isTableMode);
+                if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable();
+            },
+            markDirty: () => {},
+            syncFromJSON: () => { try { GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); dataMgr.updateSheetSelector(); } catch(e) {} },
+            syncFromTable: () => {
+                const rows = document.querySelectorAll('.table-row'); const newCats = [];
+                rows.forEach(r => {
+                    const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
+                    if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
+                });
+                GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats; document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2);
+                dataMgr.updateSheetSelector();
+            },
+            renderTable: () => {
+                const container = document.getElementById('table-rows'); container.innerHTML = '';
+                const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] || [];
+                currentData.forEach((cat, idx) => {
+                    const row = document.createElement('div'); row.className = 'table-row';
+                    row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                    container.appendChild(row);
+                });
+            },
+            addTableRow: () => {
+                const container = document.getElementById('table-rows'); const row = document.createElement('div'); row.className = 'table-row';
+                row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                container.appendChild(row);
+            },
+            save: () => {
+                if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
+                SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
+            },
+            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ 
+                GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; 
+                CURRENT_SHEET_IDX=0; SOURCE_TYPE='default'; 
+                CURRENT_THEME='default'; themeMgr.set('default'); // Reset theme
+                dataMgr.init(); storage.save(); 
+            }); },
+            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
+            loadDefault: () => {
+                document.getElementById('sheet-input').value = "https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk";
+                dataMgr.loadSheet();
+            },
+            loadSheet: async () => {
+                const url = document.getElementById('sheet-input').value;
+                if(!url) return;
+                try {
+                    let exportUrl = url;
+                    if (url.includes('docs.google.com/spreadsheets')) {
+                         const id = url.match(/\/d\/(.*?)\//)[1];
+                         exportUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
+                    }
+                    const response = await fetch(exportUrl);
+                    if (!response.ok) throw new Error("Network");
+                    const blob = await response.blob();
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const parsedSheets = [];
+                        workbook.SheetNames.forEach(sheetName => {
+                            const sheet = workbook.Sheets[sheetName];
+                            const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                            const cats = [];
+                            if (json.length > 0) {
+                                const headers = json[0];
+                                for (let c = 0; c < headers.length; c++) {
+                                    const name = headers[c]; if (!name) continue;
+                                    const words = [];
+                                    for (let r = 1; r < json.length; r++) { if (json[r] && json[r][c]) words.push(String(json[r][c]).trim()); }
+                                    if (words.length > 0) cats.push({n: name, w: words});
+                                }
+                            }
+                            if (cats.length > 0) parsedSheets.push(cats);
+                        });
+                        if (parsedSheets.length > 0) {
+                            GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
+                            CURRENT_SHEET_IDX = 0;
+                            dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
+                        } else { ui.alert("Nenhuma categoria encontrada."); }
+                    };
+                    reader.readAsArrayBuffer(blob);
+                } catch(e) { ui.alert("Erro ao ler planilha."); }
+            }
+        };
+
+        /* SENSOR */
+        const sensor = {
+            z: 0, wait: false, resetState: true, 
+            init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
+            handle: (e) => {
+                const acc = e.accelerationIncludingGravity; if (!acc) return;
+                sensor.z = acc.z || 0;
+                if (st.on && !sensor.wait) {
+                    if (sensor.resetState) {
+                        if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; } 
+                        else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; }
+                    } else {
+                        if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
+                    }
+                }
+            },
+            pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
+        };
+        sensor.init();
+
+        /* NAV & LOGIC */
+        const app = {
+            to: (id) => {
+                if(document.querySelector('#screen-game.active')) game.stop();
+                wheel.stop();
+                document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+                document.getElementById('screen-'+id).classList.add('active');
+                if(id === 'options') dataMgr.init();
+                const homeBtn = document.getElementById('home-btn');
+                
+                if(id === 'home') {
+                    homeBtn.style.display = 'none';
+                    game.stopAll();
+                    document.getElementById('timer-num').innerText = st.cfg.t;
+                    st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0;
+                } else {
+                    homeBtn.style.display = 'block';
+                }
+                
+                if(id === 'teams') {
+                   document.getElementById('t1-conf').value = document.getElementById('t1').value;
+                   document.getElementById('t2-conf').value = document.getElementById('t2').value;
+                   // Update colors based on theme
+                   const root = getComputedStyle(document.documentElement);
+                   document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary');
+                   document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary');
+                   document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary');
+                   document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
+                }
+            },
+            tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
+            toggleThresholdVisibility: () => {
+                const mode = document.getElementById('opt-mode').value;
+                const el = document.getElementById('group-threshold');
+                if(mode === 'auto') el.style.display = 'block'; else el.style.display = 'none';
+            },
+            start: () => {
+                aud.p('click');
+                // Fullscreen request
+                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+                else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+
+                st.t[0].n = document.getElementById('t1').value || "Time A";
+                st.t[1].n = document.getElementById('t2').value || "Time B";
+                st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
+                st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
+                
+                storage.save();
+                app.to('teams');
+            },
+            confirmTeams: (onlySave) => { 
+                st.t[0].n = document.getElementById('t1-conf').value || "Time A";
+                st.t[1].n = document.getElementById('t2-conf').value || "Time B";
+                document.getElementById('t1').value = st.t[0].n;
+                document.getElementById('t2').value = st.t[1].n;
+                storage.save();
+                if(!onlySave) app.prep(); 
+            },
+            prep: () => {
+                if (st.rd > st.cfg.r) { app.end(); return; }
+                
+                // FIX: SAFETY CHECK FOR EMPTY DATA
+                if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) {
+                    GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
+                }
+                
+                const turnIdx = (st.rd - 1) * 2 + st.trn;
+                let effectiveSheets = GLOBAL_SHEETS_DATA.length;
+                if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
+                const sheetIdx = turnIdx % effectiveSheets;
+                
+                CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
+                
+                // FIX: DOUBLE CHECK IF ROUND CATS IS VALID
+                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
+                     CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                }
+
+                const t = st.t[st.trn];
+                
+                const root = getComputedStyle(document.documentElement);
+                const color = st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary');
+
+                document.getElementById('lbl-rd').innerText = st.rd;
+                document.getElementById('lbl-tm').innerText = t.n;
+                document.getElementById('lbl-tm').style.color = color;
+                app.to('intro');
+            },
+            toWheel: () => { aud.p('click'); wheel.init(); app.to('wheel'); },
+            next: () => { aud.p('click'); st.trn++; if(st.trn>1){st.trn=0; st.rd++} app.prep(); },
+            end: () => {
+                const t1=st.t[0], t2=st.t[1];
+                const root = getComputedStyle(document.documentElement);
+                const c1 = root.getPropertyValue('--primary');
+                const c2 = root.getPropertyValue('--secondary');
+                
+                document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s;
+                document.getElementById('fn-1').style.color = c1;
+                
+                document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s;
+                document.getElementById('fn-2').style.color = c2;
+                
+                const w=document.getElementById('winner');
+                if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;}
+                else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;}
+                else {w.innerText="EMPATE"; w.style.color="white";}
+                aud.p('win'); app.to('final');
+            }
+        };
+
+        /* WHEEL & JACKPOT (HYBRID PHYSICS V28.0) */
+        const wheel = {
+            el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
+            
+            stop: () => {
+                if(wheel.timer) clearTimeout(wheel.timer);
+                wheel.spin = false;
+                if(wheel.el) wheel.el.style.transition = 'none';
+                if(wheel.jackpot) wheel.jackpot.style.transition = 'none';
+            },
+
+            init: () => {
+                const mode = document.getElementById('opt-mode').value;
+                const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
+
+                // SAFETY CHECK FOR CURRENT_ROUND_CATS
+                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
+                    CURRENT_ROUND_CATS = DEFAULT_CATS;
+                }
+
+                if (mode === 'wheel') wheel.mode = 'wheel';
+                else if (mode === 'jackpot') wheel.mode = 'jackpot';
+                else {
+                    wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
+                }
+
+                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
+                document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                
+                wheel.el = document.getElementById('wheel-spinner');
+                wheel.jackpot = document.getElementById('jackpot-strip');
+                
+                // Reset styles
+                wheel.jackpot.style.transition = 'none';
+                wheel.jackpot.style.transform = 'translateY(0px)';
+                wheel.offsetY = 0;
+                wheel.el.style.transition = 'none';
+                wheel.el.style.transform = 'rotate(0deg)';
+                wheel.ang = 0;
+                
+                if (wheel.mode === 'wheel') wheel.setupWheel();
+                else wheel.setupJackpot();
+                
+                const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
+                wheel.attachDrag(container);
+            },
+
+            setupWheel: () => {
+                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
+                
+                let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
+                CURRENT_ROUND_CATS.forEach((c, i) => {
+                    const color = COLORS[i % COLORS.length];
+                    const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
+                    g += `${color} ${start}deg ${end}deg,`;
+                    const mid = start + (sliceDeg / 2);
+                    const split = smartSplit(c.n);
+                    let fontSize = 4; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
+                    if(refLen > 8) fontSize = 4 * (8 / refLen);
+                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
+                });
+                wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
+            },
+
+            setupJackpot: () => {
+                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
+                
+                let h = "";
+                const list = [];
+                for(let k=0; k<30; k++) { 
+                    CURRENT_ROUND_CATS.forEach(c => list.push(c));
+                }
+                const n = CURRENT_ROUND_CATS.length;
+                list.forEach((c, i) => {
+                     const realIndex = i % n;
+                     const color = COLORS[realIndex % COLORS.length];
+                     h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
+                });
+                wheel.jackpot.innerHTML = h;
+            },
+
+            attachDrag: (target) => {
+                let startY = 0, lastY = 0, startTime = 0;
+                let startAng = 0, lastAng = 0;
+                let angularVelocity = 0, linearVelocity = 0;
+                let lastMoveTime = 0, lastMoveY = 0;
+
+                const getAngle = (e, el) => {
+                    const rect = el.getBoundingClientRect();
+                    const cx = rect.left + rect.width/2;
+                    const cy = rect.top + rect.height/2;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+                };
+
+                const onStart = (e) => {
+                    if(wheel.spin) return;
+                    
+                    if (wheel.mode === 'wheel') {
+                        startAng = getAngle(e, target);
+                        lastAng = startAng;
+                    } else {
+                        startY = e.touches ? e.touches[0].clientY : e.clientY;
+                        lastY = startY;
+                    }
+                    lastMoveTime = Date.now();
+                    startTime = lastMoveTime;
+                    angularVelocity = 0;
+                    linearVelocity = 0;
+                    document.addEventListener('touchmove', onMove, {passive: false});
+                    document.addEventListener('touchend', onEnd);
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onEnd);
+                };
+
+                const onMove = (e) => {
+                    e.preventDefault(); 
+                    const now = Date.now();
+                    const dt = now - lastMoveTime;
+                    
+                    if (wheel.mode === 'wheel') {
+                        const curAng = getAngle(e, target);
+                        let delta = curAng - lastAng;
+                        if (delta > 180) delta -= 360;
+                        if (delta < -180) delta += 360;
+                        
+                        wheel.ang += delta;
+                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                        
+                        if(dt > 0) {
+                            const instantVel = delta / dt;
+                            angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5);
+                        }
+                        lastAng = curAng;
+                    } else {
+                        const curY = e.touches ? e.touches[0].clientY : e.clientY;
+                        const delta = curY - lastY;
+                        wheel.offsetY += delta;
+                        
+                        const itemEl = wheel.jackpot.querySelector('.jackpot-item');
+                        if(itemEl) {
+                            const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length;
+                            if(wheel.offsetY > 0) wheel.offsetY -= stripH;
+                            if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH;
+                        }
+
+                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                        
+                        if(dt > 0) {
+                            const instantVel = delta / dt;
+                            linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5);
+                        }
+                        lastY = curY;
+                    }
+                    lastMoveTime = now;
+                };
+
+                const onEnd = () => {
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onEnd);
+                    
+                    const totalDuration = Date.now() - startTime;
+                    
+                    if (totalDuration < 30) { 
+                         const msg = document.getElementById('msg-time');
+                         msg.style.opacity = 1;
+                         setTimeout(() => msg.style.opacity = 0, 1500);
+                         return;
+                    }
+                    
+                    if (Date.now() - lastMoveTime > 100) {
+                        angularVelocity = 0; linearVelocity = 0;
+                    }
+
+                    if (wheel.mode === 'wheel') {
+                        if (Math.abs(angularVelocity) < 0.01) {
+                             const msg = document.getElementById('msg-force');
+                             msg.classList.add('show');
+                             setTimeout(() => msg.classList.remove('show'), 1000);
+                             return;
+                        }
+                        wheel.go(angularVelocity);
+                    } else {
+                        if (Math.abs(linearVelocity) < 0.01) {
+                             const msg = document.getElementById('msg-force');
+                             msg.classList.add('show');
+                             setTimeout(() => msg.classList.remove('show'), 1000);
+                             return;
+                        }
+                        wheel.go(linearVelocity);
+                    }
+                };
+
+                target.onmousedown = onStart;
+                target.ontouchstart = onStart;
+            },
+
+            go: (velocity) => {
+                if(wheel.spin) return;
+                wheel.spin = true;
+                aud.l('spin', true);
+
+                let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
+                const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
+                if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
+
+                const duration = 3; 
+
+                if (wheel.mode === 'wheel') {
+                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
+                    const currentAngle = wheel.ang;
+                    const spins = 5 * 360;
+                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
+                    const dir = Math.sign(velocity) || 1;
+                    const totalRot = spins * dir;
+                    const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
+                    
+                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                    wheel.el.style.transform = `rotate(${finalAngle}deg)`;
+                    wheel.ang = finalAngle;
+                    
+                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
+
+                } else {
+                    const itemEl = wheel.jackpot.querySelector('.jackpot-item');
+                    if (!itemEl) return;
+                    const itemH = itemEl.getBoundingClientRect().height; 
+                    const n = CURRENT_ROUND_CATS.length;
+                    const dir = Math.sign(velocity); 
+                    const startSet = 15;
+                    const startY = -(startSet * n * itemH);
+                    
+                    wheel.jackpot.style.transition = 'none';
+                    wheel.jackpot.style.transform = `translateY(${startY}px)`;
+                    wheel.jackpot.offsetHeight; 
+                    
+                    const targetSetOffset = (dir > 0) ? -3 : 3; 
+                    const targetSet = startSet + targetSetOffset;
+                    const containerH = document.getElementById('jackpot-container').offsetHeight;
+                    const centerOffset = containerH / 2;
+                    const winnerItemIndex = (targetSet * n) + winnerIdx;
+                    const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
+                    
+                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                    wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
+                    
+                    setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
+                }
+            },
+
+            finish: (idx) => {
+                aud.l('spin', false); aud.p('win');
+                const cat = CURRENT_ROUND_CATS[idx];
+                st.cat = cat; 
+                const color = COLORS[(idx % CURRENT_ROUND_CATS.length) % COLORS.length];
+                ui.showResult(cat.n.replace('*', ''), color, () => game.pre());
+                wheel.spin = false;
+            }
+        };
+
+        function showForceMsg() {
+            const msg = document.getElementById('msg-force');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 1000);
+        }
 
         /* GAME LOGIC */
         const game = {
-            tmr: null, preTmr: null, editList: [],
+            tmr: null,
+            preTmr: null,
+            editList: [],
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
-            stopAll: () => { if(game.tmr) clearInterval(game.tmr); if(game.preTmr) clearInterval(game.preTmr); st.on = false; },
+            stopAll: () => {
+                if(game.tmr) clearInterval(game.tmr);
+                if(game.preTmr) clearInterval(game.preTmr);
+                st.on = false; 
+            },
             pre: () => {
-                app.to('game'); st.on = false;
+                app.to('game'); 
+                st.on = false; 
                 document.getElementById('timer-num').innerText = st.cfg.t;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`; 
-                const d=document.getElementById('word-disp'); let c=3; d.innerText=c; 
-                game.preTmr = setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(game.preTmr); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
+                const d=document.getElementById('word-disp'); 
+                let c=3; d.innerText=c; 
+                game.preTmr = setInterval(()=>{ 
+                    c--; 
+                    if(c>0) d.innerText=c; 
+                    else { 
+                        clearInterval(game.preTmr); 
+                        d.innerText="VAI!"; 
+                        setTimeout(game.run, 600); 
+                    } 
+                },1000);
             },
             run: () => {
-                game.stop(); st.on=true; 
+                game.stop(); 
+                st.on=true; 
                 st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
                 const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
+                
+                const root = getComputedStyle(document.documentElement);
+                const sec = root.getPropertyValue('--secondary').trim();
+
                 game.tmr = setInterval(()=>{
                     t--; tn.innerText=t;
                     const pct=((totalT-t)/totalT)*360;
-                    tw.style.background=`conic-gradient(var(--secondary) ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
+                    tw.style.background=`conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
                     if(t<=0) { game.stop(); game.end(); }
                 },1000);
             },
             next: () => {
-                if(st.q.length === 0) { if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
+                if(st.q.length === 0) {
+                    if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } 
+                    else { game.stop(); game.end(); return; }
+                }
                 st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw;
             },
             act: (win) => {
@@ -544,60 +1199,104 @@
             end: () => {
                 try {
                     st.on=false; game.stop();
+                    
+                    // Recalculate points strictly from history
                     st.pts = st.h.filter(x => x.ok).length;
+                    
+                    // Add to global score
                     st.t[st.trn].s += st.pts; 
+                    
+                    // Change screen FIRST to avoid layout thrashing/crashes
                     app.to('res');
+                    
+                    // Then render the list
                     game.renderRes();
-                } catch(e) { console.error("Game End Error:", e); app.to('home'); }
+                } catch(e) {
+                    console.error("Game End Error:", e);
+                    app.to('home');
+                }
             },
             renderRes: () => {
-                document.getElementById('res-score').innerText = st.pts + " PONTOS";
+                const scoreEl = document.getElementById('res-score');
+                if(scoreEl) scoreEl.innerText = st.pts + " PONTOS";
+                
                 const l = document.getElementById('res-list');
                 if(l) {
                     l.innerHTML = "";
                     if(st.h && st.h.length > 0) {
                         st.h.forEach(x => {
                             const d = document.createElement('div');
-                            d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
+                            d.style.padding="10px"; 
+                            d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
                             d.style.display="flex";
                             d.style.justifyContent="space-between";
                             d.style.alignItems="center";
+                            
+                            // Using variables for success/danger colors from root might be cleaner,
+                            // but hardcoded hex matches CSS variables for now.
                             const color = x.ok ? '#22c55e' : '#ef4444';
                             const icon = x.ok ? '✓' : '✗';
+                            
                             d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`;
                             l.appendChild(d);
                         });
-                    } else { l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>"; }
+                    } else {
+                        l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>";
+                    }
                 }
             },
             openEdit: () => {
+                // Clone history
                 game.editList = st.h && st.h.length ? JSON.parse(JSON.stringify(st.h)) : [];
-                if(game.editList.length === 0) { ui.alert("Nada para editar."); return; }
+                
+                if(game.editList.length === 0) { 
+                    ui.alert("Nada para editar."); 
+                    return; 
+                }
+
+                // Build Edit HTML
                 const html = '<div class="edit-list-container">' +
                     game.editList.map((item, i) => `
                         <div class="edit-item" onclick="game.toggleEditItem(${i}, this)">
                             <span class="edit-word">${item.w}</span>
-                            <span class="edit-status" style="color:${item.ok ? 'var(--success)' : 'var(--danger)'}">${item.ok ? 'ACERTOU' : 'PULOU'}</span>
+                            <span class="edit-status" style="color:${item.ok ? 'var(--success)' : 'var(--danger)'}">
+                                ${item.ok ? 'ACERTOU' : 'PULOU'}
+                            </span>
                         </div>
                     `).join('') + '</div>';
+                
                 ui.modal("EDITAR RESULTADO", html, [
                     {txt: "SALVAR", fn: game.saveEdit, style: "background:var(--success); flex:1;"},
                     {txt: "CANCELAR", style: "background:var(--danger); flex:1;"}
                 ]);
             },
             toggleEditItem: (i, el) => {
+                // Toggle status
                 game.editList[i].ok = !game.editList[i].ok;
+                
+                // Update DOM visually immediately
                 const span = el.querySelector('.edit-status');
                 span.innerText = game.editList[i].ok ? 'ACERTOU' : 'PULOU';
                 span.style.color = game.editList[i].ok ? 'var(--success)' : 'var(--danger)';
             },
             saveEdit: () => {
+                // 1. Revert old score
                 st.t[st.trn].s -= st.pts;
+                
+                // 2. Calculate new score
                 const newPts = game.editList.filter(x => x.ok).length;
                 st.pts = newPts;
+                
+                // 3. Add new score
                 st.t[st.trn].s += st.pts;
+                
+                // 4. Update history
                 st.h = game.editList;
+                
+                // 5. Re-render results screen
                 game.renderRes();
+                
+                // 6. Close modal
                 document.getElementById('modal-overlay').style.display = 'none';
             }
         };
