@@ -61,21 +61,12 @@
         #screen-game { overflow: hidden; touch-action: none; display: block; } 
         #screen-wheel { overflow: hidden !important; touch-action: none; }
 
-        /* AJUSTE ESPECÍFICO PARA TELA DE RESULTADOS (SOBE O CONTEÚDO) */
-        #screen-res {
-            /* Adiciona espaço embaixo para empurrar o centro para cima */
-            padding-bottom: calc(12vh + env(safe-area-inset-bottom));
-        }
-
         @media (max-height: 850px) {
             .screen:not(#screen-game):not(#screen-wheel) {
                 justify-content: flex-start;
                 padding-top: calc(40px + env(safe-area-inset-top));
                 padding-bottom: calc(80px + env(safe-area-inset-bottom));
             }
-            /* Sobrescreve o ajuste de padding no mobile pequeno para não quebrar */
-            #screen-res { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
-
             h1 { font-size: clamp(2rem, 8vw, 3rem) !important; margin-top: 10px; margin-bottom: 20px !important; flex-shrink: 0; }
             .btn { flex-shrink: 0; margin-top: auto; margin-bottom: 10px; }
         }
@@ -137,7 +128,7 @@
         .table-input-words { flex: 1; font-size: 0.9rem; }
         .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; }
         
-        /* === MODAL === */
+        /* === MODAL (FIXED SCROLL & HEIGHT) === */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
             display: none; align-items: center; justify-content: center;
@@ -145,7 +136,7 @@
         }
         .modal-box {
             background: var(--bg-color); border: 1px solid rgba(255,255,255,0.2);
-            padding: 25px 20px; 
+            padding: 30px; 
             border-radius: 20px; text-align: center;
             width: 95%; max-width: 500px;
             max-height: 80vh; 
@@ -157,8 +148,17 @@
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
         .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; flex-shrink: 0; }
-        .modal-msg { margin-bottom: 15px; font-size: 1.2rem; line-height: 1.5; color: white; flex: 1; overflow-y: auto; min-height: 0; }
-        .modal-actions { display: flex; gap: 15px; justify-content: center; width: 100%; padding-top: 10px; flex-shrink: 0; }
+        
+        .modal-msg { 
+            margin-bottom: 30px; font-size: 1.2rem; line-height: 1.5; color: white; 
+            flex: 1; overflow-y: auto; min-height: 0; 
+        }
+        
+        .modal-actions { 
+            display: flex; gap: 15px; justify-content: center; width: 100%; padding-top: 10px; 
+            flex-shrink: 0; 
+        }
+        
         #result-cat-display {
             font-size: 3rem; font-weight: 900; color: white; 
             margin: 10px 0 30px 0; text-transform: uppercase;
@@ -378,13 +378,12 @@
         <div id="fb-no" class="flash" style="background: var(--danger);">PULOU!</div>
     </div>
 
-    <!-- TELA RESULTADO (COMPACTADA PARA S25 ULTRA LANDSCAPE) -->
-    <div id="screen-res" class="screen">
-        <h1 style="font-size: 4vh; margin-bottom: 0; line-height: 1;">FIM DA RODADA</h1>
-        <div id="res-score" style="font-size: 7vh; font-weight: 900; margin: 0 0 1.5vh 0; color: white;">0 PONTOS</div>
+    <!-- TELA RESULTADO (AJUSTADA V28.1) -->
+    <div id="screen-res" class="screen" style="padding-bottom: calc(2vh + env(safe-area-inset-bottom) + 40px);">
+        <h1 style="font-size: 4vh; margin: 0 0 0.5vh 0;">FIM DA RODADA</h1>
+        <div id="res-score" style="font-size: 8vh; font-weight: 900; margin: 0 0 2vh 0; color: white;">0 PONTOS</div>
         
-        <!-- Altura reduzida para garantir encaixe -->
-        <div id="res-list" style="width:100%; max-width:600px; max-height: 35vh; min-height: 150px; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:15px; margin-bottom: 1.5vh;"></div>
+        <div id="res-list" style="width:100%; max-width:600px; max-height: 35vh; min-height: 150px; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:15px; margin-bottom: 2vh;"></div>
         
         <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; justify-content: center;">
             <button class="btn" style="flex: 2;" onclick="app.next()">PRÓXIMO</button>
@@ -409,19 +408,156 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        /* ... ALL JAVASCRIPT LOGIC RESTORED ... */
-        const THEMES=[{id:'default',name:'Original',bg:'#1e1b4b',grad:'radial-gradient(circle at center, #2e1065 0%, #020617 100%)',p:'#6366f1',s:'#ec4899',a:'#fbbf24'},{id:'dark-amber',name:'Dark/Amber',bg:'#111',grad:'radial-gradient(circle at center, #333 0%, #000 100%)',p:'#e65100',s:'#f6a609',a:'#ffffff'},{id:'blue-orange',name:'Blue/Orange',bg:'#0f172a',grad:'radial-gradient(circle, #1e293b 0%, #020617 100%)',p:'#3b82f6',s:'#f97316',a:'#fbbf24'},{id:'forest',name:'Forest',bg:'#052e16',grad:'linear-gradient(to bottom, #14532d, #022c22)',p:'#22c55e',s:'#84cc16',a:'#fef08a'},{id:'dracula',name:'Vampire',bg:'#2e0202',grad:'radial-gradient(circle, #7f1d1d 0%, #000 100%)',p:'#ef4444',s:'#9333ea',a:'#fca5a5'},{id:'ocean',name:'Ocean',bg:'#083344',grad:'linear-gradient(to bottom, #0e7490, #164e63)',p:'#06b6d4',s:'#22d3ee',a:'#cffafe'},{id:'royal',name:'Royal',bg:'#2e1065',grad:'radial-gradient(circle, #581c87 0%, #0f172a 100%)',p:'#a855f7',s:'#f472b6',a:'#fde047'},{id:'high-contrast',name:'High Contrast',bg:'#000',grad:'none',p:'#0000ff',s:'#ff0000',a:'#ffff00'}];
+        /* === THEMES === */
+        const THEMES = [
+            { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
+            { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
+            { id: 'blue-orange', name: 'Blue/Orange', bg: '#0f172a', grad: 'radial-gradient(circle, #1e293b 0%, #020617 100%)', p: '#3b82f6', s: '#f97316', a: '#fbbf24' },
+            { id: 'forest', name: 'Forest', bg: '#052e16', grad: 'linear-gradient(to bottom, #14532d, #022c22)', p: '#22c55e', s: '#84cc16', a: '#fef08a' },
+            { id: 'dracula', name: 'Vampire', bg: '#2e0202', grad: 'radial-gradient(circle, #7f1d1d 0%, #000 100%)', p: '#ef4444', s: '#9333ea', a: '#fca5a5' },
+            { id: 'ocean', name: 'Ocean', bg: '#083344', grad: 'linear-gradient(to bottom, #0e7490, #164e63)', p: '#06b6d4', s: '#22d3ee', a: '#cffafe' },
+            { id: 'royal', name: 'Royal', bg: '#2e1065', grad: 'radial-gradient(circle, #581c87 0%, #0f172a 100%)', p: '#a855f7', s: '#f472b6', a: '#fde047' },
+            { id: 'high-contrast', name: 'High Contrast', bg: '#000', grad: 'none', p: '#0000ff', s: '#ff0000', a: '#ffff00' }
+        ];
+        
+        let CURRENT_THEME = 'default';
+        const themeMgr = {
+            init: () => {
+                const container = document.getElementById('theme-selector');
+                container.innerHTML = '';
+                THEMES.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = 'theme-option';
+                    if(t.id === CURRENT_THEME) div.classList.add('active');
+                    div.style.background = t.grad !== 'none' ? t.grad : t.bg;
+                    div.onclick = () => themeMgr.set(t.id);
+                    container.appendChild(div);
+                });
+                themeMgr.apply(CURRENT_THEME);
+            },
+            set: (id) => { CURRENT_THEME = id; themeMgr.init(); themeMgr.apply(id); storage.save(); },
+            apply: (id) => {
+                const t = THEMES.find(x => x.id === id) || THEMES[0];
+                const root = document.documentElement;
+                root.style.setProperty('--bg-color', t.bg);
+                root.style.setProperty('--bg-gradient', t.grad);
+                root.style.setProperty('--primary', t.p);
+                root.style.setProperty('--secondary', t.s);
+                root.style.setProperty('--accent', t.a);
+            }
+        };
+
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
-        const DEFAULT_CATS = [{n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},{n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},{n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},{n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},{n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},{n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}];
+        const DEFAULT_CATS = [
+            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
+            {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},
+            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},
+            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
+            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
+            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
+        ];
         
         let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
-        let CURRENT_SHEET_IDX = 0; let SOURCE_TYPE = 'default'; let CURRENT_ROUND_CATS = []; let CURRENT_THEME = 'default';
+        let CURRENT_SHEET_IDX = 0;
+        let SOURCE_TYPE = 'default';
+        let CURRENT_ROUND_CATS = [];
+
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         const st = { t:[{n:"Time A",s:0},{n:"Time B",s:0}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
 
-        const themeMgr={init:()=>{const c=document.getElementById('theme-selector');c.innerHTML='';THEMES.forEach(t=>{const d=document.createElement('div');d.className='theme-option';if(t.id===CURRENT_THEME)d.classList.add('active');d.style.background=t.grad!=='none'?t.grad:t.bg;d.onclick=()=>themeMgr.set(t.id);c.appendChild(d)});themeMgr.apply(CURRENT_THEME)},set:(id)=>{CURRENT_THEME=id;themeMgr.init();themeMgr.apply(id);storage.save()},apply:(id)=>{const t=THEMES.find(x=>x.id===id)||THEMES[0];const r=document.documentElement;r.style.setProperty('--bg-color',t.bg);r.style.setProperty('--bg-gradient',t.grad);r.style.setProperty('--primary',t.p);r.style.setProperty('--secondary',t.s);r.style.setProperty('--accent',t.a)}};
-        const storage={save:()=>{localStorage.setItem('pnt_data_v22',JSON.stringify({cats:GLOBAL_SHEETS_DATA,source:SOURCE_TYPE,t1:document.getElementById('t1').value,t2:document.getElementById('t2').value,time:document.getElementById('opt-time').value,rounds:document.getElementById('opt-rounds').value,mode:document.getElementById('opt-mode').value,threshold:document.getElementById('opt-threshold').value,theme:CURRENT_THEME}))},load:()=>{try{const d=JSON.parse(localStorage.getItem('pnt_data_v22'));if(d){if(d.cats&&Array.isArray(d.cats)){if(d.cats.length>0&&Array.isArray(d.cats[0]))GLOBAL_SHEETS_DATA=d.cats;else GLOBAL_SHEETS_DATA=[d.cats]}if(d.source)SOURCE_TYPE=d.source;if(d.t1)document.getElementById('t1').value=d.t1;if(d.t2)document.getElementById('t2').value=d.t2;if(d.time)document.getElementById('opt-time').value=d.time;if(d.rounds)document.getElementById('opt-rounds').value=d.rounds;if(d.mode)document.getElementById('opt-mode').value=d.mode;if(d.threshold)document.getElementById('opt-threshold').value=d.threshold;if(d.theme)CURRENT_THEME=d.theme;app.toggleThresholdVisibility()}}catch(e){localStorage.removeItem('pnt_data_v22')}}};
-        const dataMgr={isTableMode:true,init:()=>{if(CURRENT_SHEET_IDX>=GLOBAL_SHEETS_DATA.length)CURRENT_SHEET_IDX=0;dataMgr.updateSheetSelector();document.getElementById('json-input').value=JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX],null,2);dataMgr.renderTable()},updateSheetSelector:()=>{const s=document.getElementById('sheet-selector');s.innerHTML='';GLOBAL_SHEETS_DATA.forEach((x,i)=>{const o=document.createElement('option');o.value=i;o.text=`Aba ${i+1} (${x.length} cats)`;if(i===parseInt(CURRENT_SHEET_IDX))o.selected=true;s.appendChild(o)})},switchSheet:(i)=>{if(dataMgr.isTableMode)dataMgr.syncFromTable();else dataMgr.syncFromJSON();CURRENT_SHEET_IDX=parseInt(i);dataMgr.init()},toggleView:()=>{dataMgr.isTableMode=!dataMgr.isTableMode;document.getElementById('btn-toggle-view').innerText=dataMgr.isTableMode?"Ver JSON":"Ver Tabela";document.getElementById('view-json').classList.toggle('active',!dataMgr.isTableMode);document.getElementById('view-table').classList.toggle('active',dataMgr.isTableMode);if(dataMgr.isTableMode)dataMgr.syncFromJSON();else dataMgr.syncFromTable()},markDirty:()=>{},syncFromJSON:()=>{try{GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX]=JSON.parse(document.getElementById('json-input').value);dataMgr.renderTable();dataMgr.updateSheetSelector()}catch(e){}},syncFromTable:()=>{const rows=document.querySelectorAll('.table-row');const nc=[];rows.forEach(r=>{const n=r.querySelector('.table-input-cat').value;const w=r.querySelector('.table-input-words').value;if(n&&w){const ws=w.split(',').map(s=>s.trim()).filter(s=>s);if(ws.length)nc.push({n,w:ws})}});GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX]=nc;document.getElementById('json-input').value=JSON.stringify(nc,null,2);dataMgr.updateSheetSelector()},renderTable:()=>{const c=document.getElementById('table-rows');c.innerHTML='';(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX]||[]).forEach(x=>{const r=document.createElement('div');r.className='table-row';r.innerHTML=`<input type="text" class="table-input-cat" value="${x.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${x.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r)})},addTableRow:()=>{const c=document.getElementById('table-rows');const r=document.createElement('div');r.className='table-row';r.innerHTML=`<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;c.appendChild(r)},save:()=>{if(dataMgr.isTableMode)dataMgr.syncFromTable();else dataMgr.syncFromJSON();SOURCE_TYPE='default';storage.save();ui.alert("Salvo com sucesso!")},reset:()=>{ui.confirm("Resetar tudo para o padrão?",()=>{GLOBAL_SHEETS_DATA=[JSON.parse(JSON.stringify(DEFAULT_CATS))];CURRENT_SHEET_IDX=0;SOURCE_TYPE='default';CURRENT_THEME='default';themeMgr.set('default');dataMgr.init();storage.save()})},copyPrompt:()=>{navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!"))},loadDefault:()=>{document.getElementById('sheet-input').value="https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk";dataMgr.loadSheet()},loadSheet:async()=>{const url=document.getElementById('sheet-input').value;if(!url)return;try{let eu=url;if(url.includes('docs.google.com/spreadsheets')){const id=url.match(/\/d\/(.*?)\//)[1];eu=`https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`}const r=await fetch(eu);if(!r.ok)throw new Error("Network");const b=await r.blob();const fr=new FileReader();fr.onload=(e)=>{const data=new Uint8Array(e.target.result);const wb=XLSX.read(data,{type:'array'});const ps=[];wb.SheetNames.forEach(sn=>{const s=wb.Sheets[sn];const j=XLSX.utils.sheet_to_json(s,{header:1});const c=[];if(j.length>0){const h=j[0];for(let k=0;k<h.length;k++){const n=h[k];if(!n)continue;const w=[];for(let l=1;l<j.length;l++){if(j[l]&&j[l][k])w.push(String(j[l][k]).trim())}if(w.length>0)c.push({n,w})}}if(c.length>0)ps.push(c)});if(ps.length>0){GLOBAL_SHEETS_DATA=ps;SOURCE_TYPE='sheets';CURRENT_SHEET_IDX=0;dataMgr.init();storage.save();ui.alert(`Sucesso! ${ps.length} abas carregadas.`)}else ui.alert("Nenhuma categoria encontrada.")};fr.readAsArrayBuffer(b)}catch(e){ui.alert("Erro ao ler planilha.")}}};
+        const ui = {
+            modal: (title, html, actions) => {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-msg').innerHTML = html;
+                const actionBox = document.getElementById('modal-actions');
+                actionBox.innerHTML = '';
+                actions.forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.className = a.cls || 'btn btn-small';
+                    if(a.style) btn.style = a.style; 
+                    btn.innerText = a.txt;
+                    btn.onclick = () => {
+                        if(a.close !== false) document.getElementById('modal-overlay').style.display = 'none';
+                        if(a.fn) a.fn();
+                    };
+                    actionBox.appendChild(btn);
+                });
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+            alert: (msg) => { ui.modal("Atenção", msg, [{txt:"OK"}]); },
+            confirm: (msg, cb) => { ui.modal("Confirmação", msg, [{txt:"Sim", fn:cb}, {txt:"Não", cls:'btn btn-small btn-outline'}]); },
+            showResult: (catName, catColor, cb) => {
+                const html = `<div id="result-cat-display" style="color:${catColor}; font-size:2.5rem; font-weight:900; text-transform:uppercase; line-height:1.1; margin-bottom:20px">${catName}</div>`;
+                ui.modal("CATEGORIA", html, [{txt:"COMEÇAR", fn:cb}]);
+            }
+        };
+
+        function smartSplit(text) {
+            const clean = text.replace(/\*$/, '');
+            if (clean.length <= 12) return { text: clean, lines: 1 };
+            const words = clean.split(' ');
+            if (words.length === 1) return { text: clean, lines: 1 };
+            let best=0, min=Infinity, cur=0, tot=clean.length;
+            for(let i=0; i<words.length-1; i++) { cur+=words[i].length; const d=Math.abs(cur-(tot-cur)); if(d<min){min=d; best=i;} }
+            return { text: `${words.slice(0, best+1).join(' ')}<br>${words.slice(best+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, best+1).join(' ').length, words.slice(best+1).join(' ').length) };
+        }
+
+        const storage = {
+            save: () => {
+                const data = {
+                    cats: GLOBAL_SHEETS_DATA, source: SOURCE_TYPE,
+                    t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
+                    time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value,
+                    mode: document.getElementById('opt-mode').value,
+                    threshold: document.getElementById('opt-threshold').value,
+                    theme: CURRENT_THEME
+                };
+                localStorage.setItem('pnt_data_v22', JSON.stringify(data));
+            },
+            load: () => {
+                try {
+                    const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
+                    if(data) {
+                        if(data.cats && Array.isArray(data.cats)) {
+                            if(data.cats.length > 0 && Array.isArray(data.cats[0])) GLOBAL_SHEETS_DATA = data.cats;
+                            else GLOBAL_SHEETS_DATA = [data.cats];
+                        }
+                        if(data.source) SOURCE_TYPE = data.source;
+                        if(data.t1) document.getElementById('t1').value = data.t1;
+                        if(data.t2) document.getElementById('t2').value = data.t2;
+                        if(data.time) document.getElementById('opt-time').value = data.time;
+                        if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
+                        if(data.mode) document.getElementById('opt-mode').value = data.mode;
+                        if(data.threshold) document.getElementById('opt-threshold').value = data.threshold;
+                        if(data.theme) CURRENT_THEME = data.theme;
+                        app.toggleThresholdVisibility();
+                    }
+                } catch(e) { localStorage.removeItem('pnt_data_v22'); }
+            }
+        };
+
+        const dataMgr = {
+             isTableMode: true, init: () => { if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0; dataMgr.updateSheetSelector(); document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2); dataMgr.renderTable(); },
+             updateSheetSelector: () => { const sel = document.getElementById('sheet-selector'); sel.innerHTML = ''; GLOBAL_SHEETS_DATA.forEach((s, i) => { const opt = document.createElement('option'); opt.value = i; opt.text = `Aba ${i+1} (${s.length} cats)`; if(i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true; sel.appendChild(opt); }); },
+             switchSheet: (idx) => { if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON(); CURRENT_SHEET_IDX = parseInt(idx); dataMgr.init(); },
+             toggleView: () => { dataMgr.isTableMode = !dataMgr.isTableMode; document.getElementById('btn-toggle-view').innerText = dataMgr.isTableMode ? "Ver JSON" : "Ver Tabela"; document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode); document.getElementById('view-table').classList.toggle('active', dataMgr.isTableMode); if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable(); },
+             markDirty: () => {},
+             syncFromJSON: () => { try { GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); dataMgr.updateSheetSelector(); } catch(e) {} },
+             syncFromTable: () => { const rows = document.querySelectorAll('.table-row'); const newCats = []; rows.forEach(r => { const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value; if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); } }); GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats; document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2); dataMgr.updateSheetSelector(); },
+             renderTable: () => { const container = document.getElementById('table-rows'); container.innerHTML = ''; const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] || []; currentData.forEach((cat, idx) => { const row = document.createElement('div'); row.className = 'table-row'; row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`; container.appendChild(row); }); },
+             addTableRow: () => { const container = document.getElementById('table-rows'); const row = document.createElement('div'); row.className = 'table-row'; row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`; container.appendChild(row); },
+             save: () => { if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON(); SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!"); },
+             reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; CURRENT_SHEET_IDX=0; SOURCE_TYPE='default'; CURRENT_THEME='default'; themeMgr.set('default'); dataMgr.init(); storage.save(); }); },
+             copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
+             loadDefault: () => { document.getElementById('sheet-input').value = "https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk"; dataMgr.loadSheet(); },
+             loadSheet: async () => {
+                 const url = document.getElementById('sheet-input').value; if(!url) return;
+                 try { let exportUrl = url; if (url.includes('docs.google.com/spreadsheets')) { const id = url.match(/\/d\/(.*?)\//)[1]; exportUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`; }
+                 const response = await fetch(exportUrl); if (!response.ok) throw new Error("Network"); const blob = await response.blob(); const reader = new FileReader();
+                 reader.onload = (e) => { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const parsedSheets = [];
+                 workbook.SheetNames.forEach(sheetName => { const sheet = workbook.Sheets[sheetName]; const json = XLSX.utils.sheet_to_json(sheet, {header: 1}); const cats = []; if (json.length > 0) { const headers = json[0]; for (let c = 0; c < headers.length; c++) { const name = headers[c]; if (!name) continue; const words = []; for (let r = 1; r < json.length; r++) { if (json[r] && json[r][c]) words.push(String(json[r][c]).trim()); } if (words.length > 0) cats.push({n: name, w: words}); } } if (cats.length > 0) parsedSheets.push(cats); });
+                 if (parsedSheets.length > 0) { GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets'; CURRENT_SHEET_IDX = 0; dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`); } else { ui.alert("Nenhuma categoria encontrada."); } }; reader.readAsArrayBuffer(blob); } catch(e) { ui.alert("Erro ao ler planilha."); } }
+        };
         
         const sensor = {
             z: 0, wait: false, resetState: true, 
@@ -431,17 +567,18 @@
         };
         
         const app = {
-            to: (id) => { if(document.querySelector('#screen-game.active')) game.stop(); wheel.stop(); document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('screen-'+id).classList.add('active'); if(id === 'options') dataMgr.init(); const hb = document.getElementById('home-btn'); if(id === 'home') { hb.style.display = 'none'; game.stopAll(); document.getElementById('timer-num').innerText = st.cfg.t; st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0; } else { hb.style.display = 'block'; } if(id === 'teams') { document.getElementById('t1-conf').value = document.getElementById('t1').value; document.getElementById('t2-conf').value = document.getElementById('t2').value; const r = getComputedStyle(document.documentElement); document.getElementById('lbl-t1').style.color = r.getPropertyValue('--primary'); document.getElementById('lbl-t2').style.color = r.getPropertyValue('--secondary'); document.getElementById('t1-conf').style.borderLeftColor = r.getPropertyValue('--primary'); document.getElementById('t2-conf').style.borderLeftColor = r.getPropertyValue('--secondary'); } },
+            to: (id) => { if(document.querySelector('#screen-game.active')) game.stop(); wheel.stop(); document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById('screen-'+id).classList.add('active'); if(id === 'options') dataMgr.init(); const homeBtn = document.getElementById('home-btn'); if(id === 'home') { homeBtn.style.display = 'none'; game.stopAll(); document.getElementById('timer-num').innerText = st.cfg.t; st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0; } else { homeBtn.style.display = 'block'; } if(id === 'teams') { document.getElementById('t1-conf').value = document.getElementById('t1').value; document.getElementById('t2-conf').value = document.getElementById('t2').value; const root = getComputedStyle(document.documentElement); document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary'); document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary'); document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary'); document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary'); } },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
-            toggleThresholdVisibility: () => { const m = document.getElementById('opt-mode').value; const el = document.getElementById('group-threshold'); if(m === 'auto') el.style.display = 'block'; else el.style.display = 'none'; },
+            toggleThresholdVisibility: () => { const mode = document.getElementById('opt-mode').value; const el = document.getElementById('group-threshold'); if(mode === 'auto') el.style.display = 'block'; else el.style.display = 'none'; },
             start: () => { aud.p('click'); if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{}); st.t[0].n = document.getElementById('t1').value || "Time A"; st.t[1].n = document.getElementById('t2').value || "Time B"; st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60; st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3; storage.save(); app.to('teams'); },
             confirmTeams: (onlySave) => { st.t[0].n = document.getElementById('t1-conf').value || "Time A"; st.t[1].n = document.getElementById('t2-conf').value || "Time B"; document.getElementById('t1').value = st.t[0].n; document.getElementById('t2').value = st.t[1].n; storage.save(); if(!onlySave) app.prep(); },
-            prep: () => { if(st.rd > st.cfg.r) { app.end(); return; } const turnIdx = (st.rd - 1) * 2 + st.trn; let effectiveSheets = GLOBAL_SHEETS_DATA.length; if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1; const sheetIdx = turnIdx % effectiveSheets; CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx]; const t = st.t[st.trn]; const r = getComputedStyle(document.documentElement); const color = st.trn === 0 ? r.getPropertyValue('--primary') : r.getPropertyValue('--secondary'); document.getElementById('lbl-rd').innerText = st.rd; document.getElementById('lbl-tm').innerText = t.n; document.getElementById('lbl-tm').style.color = color; app.to('intro'); },
+            prep: () => { if(st.rd > st.cfg.r) { app.end(); return; } const turnIdx = (st.rd - 1) * 2 + st.trn; let effectiveSheets = GLOBAL_SHEETS_DATA.length; if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1; const sheetIdx = turnIdx % effectiveSheets; CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx]; const t = st.t[st.trn]; const root = getComputedStyle(document.documentElement); const color = st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary'); document.getElementById('lbl-rd').innerText = st.rd; document.getElementById('lbl-tm').innerText = t.n; document.getElementById('lbl-tm').style.color = color; app.to('intro'); },
             toWheel: () => { aud.p('click'); wheel.init(); app.to('wheel'); },
             next: () => { aud.p('click'); st.trn++; if(st.trn>1){st.trn=0; st.rd++} app.prep(); },
-            end: () => { const t1=st.t[0], t2=st.t[1]; const r = getComputedStyle(document.documentElement); const c1 = r.getPropertyValue('--primary'); const c2 = r.getPropertyValue('--secondary'); document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s; document.getElementById('fn-1').style.color = c1; document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s; document.getElementById('fn-2').style.color = c2; const w=document.getElementById('winner'); if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;} else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;} else {w.innerText="EMPATE"; w.style.color="white";} aud.p('win'); app.to('final'); }
+            end: () => { const t1=st.t[0], t2=st.t[1]; const root = getComputedStyle(document.documentElement); const c1 = root.getPropertyValue('--primary'); const c2 = root.getPropertyValue('--secondary'); document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s; document.getElementById('fn-1').style.color = c1; document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s; document.getElementById('fn-2').style.color = c2; const w=document.getElementById('winner'); if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;} else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;} else {w.innerText="EMPATE"; w.style.color="white";} aud.p('win'); app.to('final'); }
         };
 
+        /* WHEEL & JACKPOT LOGIC (SAME AS V27) */
         const wheel = {
             el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
             stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
@@ -491,7 +628,7 @@
 
         function showForceMsg() { const msg = document.getElementById('msg-force'); msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 1000); }
 
-        /* GAME OBJECT (UPDATED END/EDIT LOGIC) */
+        /* GAME OBJECT */
         const game = {
             tmr: null, preTmr: null, editList: [],
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
