@@ -255,15 +255,18 @@
             .slice-text { padding-left: 17vh; font-size: 3.5vh; }
         }
 
-        /* LOCK SCREEN FIX (NO MARGIN/PADDING) */
+        /* LOCK SCREEN FIX - FORÇA O TAMANHO DA TELA */
         #lock { 
-            position: fixed; inset: 0; background: #020617; z-index: 99999; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #020617; z-index: 99999; 
             display: none; flex-direction: column; align-items: center; justify-content: center; color: white; 
             margin: 0 !important; padding: 0 !important;
+            /* Ignora safe area para cobrir tudo */
         }
         .rotate-phone-icon { width: 80px; height: 80px; fill: white; animation: rotateAnim 2s infinite ease-in-out; }
         @keyframes rotateAnim { 0% { transform: rotate(0deg); } 30% { transform: rotate(-90deg); } 70% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
         .version-tag { margin-top: 20px; opacity: 0.3; font-family: monospace; font-size: 14px; letter-spacing: 2px; }
+        
         @media screen and (orientation: portrait) { 
             #lock { display: flex; } .screen:not(.allow-portrait) { display: none !important; } 
             .allow-portrait { display: flex !important; } .allow-portrait ~ #lock { display: none; }
@@ -291,7 +294,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v26.1</div>
+        <div class="version-tag">v26.2</div>
     </div>
     
     <div id="home-btn" style="position:absolute; top:20px; left:20px; z-index:100; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
@@ -305,7 +308,7 @@
         <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
     </div>
 
-    <!-- TELA 0.5: OPÇÕES -->
+    <!-- TELA 0.5: OPÇÕES (REDESENHADA) -->
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
         <div class="options-container">
@@ -387,7 +390,7 @@
         </div>
     </div>
 
-    <!-- OUTRAS TELAS -->
+    <!-- OUTRAS TELAS IGUAIS ÀS ANTERIORES -->
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
@@ -413,7 +416,6 @@
 
     <div id="screen-game" class="screen">
         <div class="timer-wrapper"><div class="timer-text" id="timer-num">60</div></div>
-        <!-- PALAVRA ABSOLUTA NO MEIO -->
         <div id="word-disp">PALAVRA</div>
         <div class="hud-bar"><div class="hud-left">▼ ACERTOU</div><div class="hud-right">▲ PULAR</div></div>
         <div id="fb-ok" class="flash" style="background: var(--success);">ACERTOU!</div>
@@ -444,10 +446,10 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        /* === THEMES === */
+        /* === THEMES (UPDATED) === */
         const THEMES = [
             { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
-            { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'linear-gradient(to bottom, #222, #000)', p: '#d97706', s: '#b45309', a: '#f59e0b' },
+            { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
             { id: 'blue-orange', name: 'Blue/Orange', bg: '#0f172a', grad: 'radial-gradient(circle, #1e293b 0%, #020617 100%)', p: '#3b82f6', s: '#f97316', a: '#fbbf24' },
             { id: 'forest', name: 'Forest', bg: '#052e16', grad: 'linear-gradient(to bottom, #14532d, #022c22)', p: '#22c55e', s: '#84cc16', a: '#fef08a' },
             { id: 'dracula', name: 'Vampire', bg: '#2e0202', grad: 'radial-gradient(circle, #7f1d1d 0%, #000 100%)', p: '#ef4444', s: '#9333ea', a: '#fca5a5' },
@@ -474,7 +476,7 @@
             },
             set: (id) => {
                 CURRENT_THEME = id;
-                themeMgr.init(); 
+                themeMgr.init(); // Re-render actives
                 themeMgr.apply(id);
                 storage.save();
             },
@@ -486,6 +488,11 @@
                 root.style.setProperty('--primary', t.p);
                 root.style.setProperty('--secondary', t.s);
                 root.style.setProperty('--accent', t.a);
+                
+                // Update wheel colors dynamically?
+                // Re-render wheel if on wheel screen? 
+                // Ideally, wheel colors should be neutral or variable. 
+                // For now, we keep wheel rainbow to stand out.
             }
         };
 
