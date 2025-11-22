@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (18).html -->
+<!-- START OF FILE ai_studio_code (19).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -340,7 +340,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v28.6</div>
+            <div class="version-tag">v28.7</div>
         </div>
     </div>
     
@@ -419,8 +419,9 @@
             </div>
         </div>
         <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
-        <!-- CORREÇÃO DO BOTÃO DE VOLTAR -->
-        <button class="btn" style="width:auto; margin-top: 3vh;" onclick="app.to('home')">MENU PRINCIPAL</button>
+        <!-- NOVO BOTÃO DE EXPORTAR -->
+        <button class="btn" style="width:auto; margin-top: 2vh; background: var(--success);" onclick="dataMgr.exportExcel()">BAIXAR PLANILHA COMPLETA</button>
+        <button class="btn" style="width:auto; margin-top: 1vh;" onclick="app.to('home')">MENU PRINCIPAL</button>
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
@@ -487,7 +488,8 @@
         let CURRENT_ROUND_CATS = [];
 
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
-        const st = { t:[{n:"Time A",s:0},{n:"Time B",s:0}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false };
+        // NOVO STATE: "logs" para guardar histórico de rodadas
+        const st = { t:[{n:"Time A",s:0},{n:"Time B",s:0}], cfg:{t:60,r:3}, rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false, logs: [] };
 
         const ui = {
             modal: (title, html, actions) => {
@@ -675,6 +677,48 @@
                     };
                     reader.readAsArrayBuffer(blob);
                 } catch(e) { ui.alert("Erro ao ler planilha."); }
+            },
+            /* FUNÇÃO DE EXPORTAÇÃO INTELIGENTE */
+            exportExcel: () => {
+                try {
+                    const t1Name = st.t[0].n;
+                    const t2Name = st.t[1].n;
+                    const rows = [];
+                    let accA = 0;
+                    let accB = 0;
+                    const maxRounds = st.cfg.r;
+
+                    for (let r = 1; r <= maxRounds; r++) {
+                        // Busca pontuação específica de cada time naquela rodada
+                        const logA = st.logs.find(l => l.r === r && l.t === 0);
+                        const logB = st.logs.find(l => l.r === r && l.t === 1);
+                        
+                        const sA = logA ? logA.s : 0;
+                        const sB = logB ? logB.s : 0;
+
+                        // Calcula acumulados
+                        accA += sA;
+                        accB += sB;
+
+                        // Monta a linha da planilha
+                        const row = {};
+                        row["Rodada"] = r;
+                        row[t1Name] = sA;
+                        row[t2Name] = sB;
+                        row["Total " + t1Name] = accA;
+                        row["Total " + t2Name] = accB;
+                        rows.push(row);
+                    }
+                    
+                    const ws = XLSX.utils.json_to_sheet(rows);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Placar");
+                    
+                    // Gera e baixa. No mobile, isso dispara o "Salvar em..."
+                    XLSX.writeFile(wb, "palavra_na_testa_placar.xlsx");
+                } catch(e) {
+                    ui.alert("Erro ao gerar planilha: " + e.message);
+                }
             }
         };
 
@@ -721,6 +765,7 @@
                     game.stopAll();
                     document.getElementById('timer-num').innerText = st.cfg.t;
                     st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0;
+                    st.logs = []; // Reseta histórico ao voltar pra home
                 } else {
                     homeBtn.style.display = 'block';
                 }
@@ -744,13 +789,11 @@
             start: () => {
                 aud.p('click');
                 
-                // FIX IOS FULLSCREEN: Detecta se é iOS. Se for, não tenta forçar fullscreen via JS (causa erro).
-                // Confia que o usuário adicionou à Home Screen ou usa o CSS 100dvh.
+                // FIX IOS FULLSCREEN
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                 const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
 
                 if (!isIOS) {
-                    // Android/PC: Tenta forçar tela cheia nativa
                     if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
                     else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
                 }
@@ -1145,6 +1188,11 @@
                 try {
                     st.on=false; game.stop();
                     st.pts = st.h.filter(x => x.ok).length;
+                    
+                    // LOG LOGIC: Remove registro anterior desta rodada/time (se houver) e adiciona o novo
+                    st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn));
+                    st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
+
                     st.t[st.trn].s += st.pts; 
                     app.to('res');
                     game.renderRes();
@@ -1206,11 +1254,19 @@
                 span.style.color = game.editList[i].ok ? 'var(--success)' : 'var(--danger)';
             },
             saveEdit: () => {
+                // Remove pontuação antiga
                 st.t[st.trn].s -= st.pts;
+                
+                // Recalcula
                 const newPts = game.editList.filter(x => x.ok).length;
                 st.pts = newPts;
                 st.t[st.trn].s += st.pts;
                 st.h = game.editList;
+
+                // Atualiza LOG no histórico
+                st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn));
+                st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
+
                 game.renderRes();
                 document.getElementById('modal-overlay').style.display = 'none';
             }
