@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (20).html -->
+<!-- START OF FILE ai_studio_code (21).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -340,7 +340,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v28.8</div>
+            <div class="version-tag">v28.9</div>
         </div>
     </div>
     
@@ -792,6 +792,18 @@
             start: () => {
                 aud.p('click');
                 
+                // --- FIX IOS PERMISSION REQUEST ---
+                // Tenta pedir permissão para usar o acelerômetro no iOS 13+
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission()
+                        .then(response => {
+                            if (response === 'granted') {
+                                // Permissão concedida
+                            }
+                        })
+                        .catch(console.error);
+                }
+
                 // FIX IOS FULLSCREEN
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                 const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
