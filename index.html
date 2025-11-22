@@ -2,15 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- VIEWPORT OTIMIZADO PARA IOS E ANDROID -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- META TAGS PARA IOS FULLSCREEN -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     <meta name="color-scheme" content="dark only">
-    
     <title>Palavra na Testa</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,15 +30,9 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
 
-        /* FIX FUNDO E TAMANHO PARA IOS/ANDROID */
-        html {
-            background-color: #000; /* Fundo base preto para evitar flash branco */
-        }
-
-        body {
-            width: 100vw; 
-            /* 100dvh é CRUCIAL para iPhone Mini (altura dinâmica que ignora a barra do safari) */
-            height: 100dvh;
+        /* FIX FUNDO TOTAL S25 ULTRA */
+        html, body {
+            width: 100%; height: 100%;
             margin: 0; padding: 0;
             overflow: hidden;
             font-family: 'Poppins', sans-serif; color: var(--text);
@@ -59,7 +47,7 @@
         .screen {
             position: absolute; inset: 0;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            /* PADDING APENAS NAS TELAS DE CONTEÚDO */
+            /* PADDING APENAS NAS TELAS DE CONTEÚDO, NÃO NO BODY */
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
             padding-left: calc(4vw + env(safe-area-inset-left));
@@ -72,7 +60,7 @@
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         
         /* Tela de jogo e roleta sem scroll */
-        #screen-game { overflow: hidden; touch-action: none; display: block; } 
+        #screen-game { overflow: hidden; touch-action: none; display: block; } /* Block para permitir absolute centering */
         #screen-wheel { overflow: hidden !important; touch-action: none; }
 
         @media (max-height: 850px) {
@@ -185,9 +173,11 @@
         /* === FIX GAME TEXT ALIGNMENT === */
         #word-disp {
             font-family: 'Montserrat'; font-weight: 900; 
+            /* Tamanho ajustado para legibilidade */
             font-size: clamp(2.8rem, 13.5vmin, 7rem); 
             text-align: center; line-height: 1.1; text-transform: uppercase;
             width: 90%; 
+            /* Absolute Center - Ignora Safe Area */
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -198,6 +188,7 @@
             position: absolute; bottom: calc(5vh + env(safe-area-inset-bottom)); 
             width: 90%; display: flex; justify-content: space-between;
             font-family: 'Montserrat'; font-weight: 800; font-size: 3.5vh; z-index: 10;
+            /* Centraliza a barra também */
             left: 50%; transform: translateX(-50%);
         }
         .hud-left { color: var(--success); } .hud-right { color: var(--danger); }
@@ -264,22 +255,14 @@
             .slice-text { padding-left: 17vh; font-size: 3.5vh; }
         }
 
-        /* LOCK SCREEN CORRIGIDA */
+        /* LOCK SCREEN FIX (NO MARGIN/PADDING) */
         #lock { 
-            position: fixed; 
-            top: 0; left: 0; bottom: 0; right: 0;
-            width: 100vw; height: 100dvh;
-            background: #020617; 
-            z-index: 2147483647; /* Max z-index possible */
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            color: white; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #020617; z-index: 99999; 
+            display: none; flex-direction: column; align-items: center; justify-content: center; color: white; 
             margin: 0 !important; padding: 0 !important;
-            overscroll-behavior: none;
+            /* Ignora safe area para cobrir tudo */
         }
-        /* CENTRALIZAÇÃO EXATA */
         .lock-content {
             position: absolute;
             top: 50%;
@@ -325,7 +308,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v26.3</div>
+            <div class="version-tag">v26.4</div>
         </div>
     </div>
     
@@ -413,15 +396,14 @@
         </div>
     </div>
 
-    <!-- OUTRAS TELAS -->
+    <!-- TELA 1: TIMES -->
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
-            <div class="input-group"><label style="color: var(--primary);" id="lbl-t1">Time A</label><input type="text" id="t1-conf" value="Time A" style="border-left: 6px solid var(--primary)" disabled></div>
-            <div class="input-group"><label style="color: var(--secondary);" id="lbl-t2">Time B</label><input type="text" id="t2-conf" value="Time B" style="border-left: 6px solid var(--secondary)" disabled></div>
+            <div class="input-group"><label style="color: var(--primary);" id="lbl-t1">Time A</label><input type="text" id="t1-conf" placeholder="Nome do Time A" onchange="app.confirmTeams(true)"></div>
+            <div class="input-group"><label style="color: var(--secondary);" id="lbl-t2">Time B</label><input type="text" id="t2-conf" placeholder="Nome do Time B" onchange="app.confirmTeams(true)"></div>
         </div>
-        <button class="btn" onclick="app.prep()">JOGAR AGORA</button>
-        <button class="btn btn-outline" onclick="app.to('options')">EDITAR NOMES</button>
+        <button class="btn" onclick="app.confirmTeams()">JOGAR AGORA</button>
     </div>
 
     <div id="screen-intro" class="screen">
@@ -511,6 +493,11 @@
                 root.style.setProperty('--primary', t.p);
                 root.style.setProperty('--secondary', t.s);
                 root.style.setProperty('--accent', t.a);
+                
+                // Update wheel colors dynamically?
+                // Re-render wheel if on wheel screen? 
+                // Ideally, wheel colors should be neutral or variable. 
+                // For now, we keep wheel rainbow to stand out.
             }
         };
 
@@ -778,8 +765,9 @@
             },
             start: () => {
                 aud.p('click');
-                // Fullscreen request logic... (same as before)
+                // Fullscreen request
                 if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+                else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
 
                 st.t[0].n = document.getElementById('t1').value || "Time A";
                 st.t[1].n = document.getElementById('t2').value || "Time B";
@@ -789,7 +777,15 @@
                 storage.save();
                 app.to('teams');
             },
-            confirmTeams: () => { app.prep(); },
+            confirmTeams: (onlySave) => { 
+                st.t[0].n = document.getElementById('t1-conf').value || "Time A";
+                st.t[1].n = document.getElementById('t2-conf').value || "Time B";
+                // Sync back to options
+                document.getElementById('t1').value = st.t[0].n;
+                document.getElementById('t2').value = st.t[1].n;
+                storage.save();
+                if(!onlySave) app.prep(); 
+            },
             prep: () => {
                 if(st.rd > st.cfg.r) { app.end(); return; }
                 const turnIdx = (st.rd - 1) * 2 + st.trn;
@@ -915,8 +911,6 @@
                     const totalDuration = Date.now() - startTime;
                     if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; }
                     if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; }
-                    
-                    // START SPIN IF ANY MOVEMENT DETECTED (Low Threshold)
                     if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); }
                     else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); }
                 };
