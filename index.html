@@ -214,10 +214,14 @@
         /* === FIX GAME TEXT ALIGNMENT === */
         #word-disp {
             font-family: 'Montserrat'; font-weight: 900; 
+            /* Tamanho ajustado para legibilidade */
             font-size: clamp(2.8rem, 13.5vmin, 7rem); 
             text-align: center; line-height: 1.1; text-transform: uppercase;
             width: 90%; 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            /* Absolute Center - Ignora Safe Area */
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
             z-index: 5; word-wrap: break-word;
         }
 
@@ -349,8 +353,70 @@
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
         <div class="options-container">
-            <!-- (Options hidden for brevity, functionality intact) -->
-            <div class="section-box"><h2>Visual & Times</h2><div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div><div class="teams-container" style="margin-top:15px"><div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div><div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div></div></div><div class="section-box"><h2>Regras do Jogo</h2><div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div><div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div><div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div><div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div></div><div class="section-box"><h2>Conteúdo</h2><div class="input-group"><label>Carregar do Google Sheets</label><div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button></div><div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px"><h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2><button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button></div><div class="input-group" style="margin-bottom: 10px;"><label>Selecionar Aba</label><select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select></div><div id="editor-container"><div id="view-table" class="editor-view active"><div id="table-rows"></div><button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button></div><div id="view-json" class="editor-view"><div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div></div></div><div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px"><button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button><button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button><button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button></div></div>
+            <div class="section-box">
+                <h2>Visual & Times</h2>
+                <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div>
+                <div class="teams-container" style="margin-top:15px">
+                    <div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div>
+                    <div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div>
+                </div>
+            </div>
+            <div class="section-box">
+                <h2>Regras do Jogo</h2>
+                <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
+                <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
+                
+                <div class="input-group" style="margin-top:15px">
+                    <label>Modo de Sorteio</label>
+                    <select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()">
+                        <option value="auto">Automático (Misto)</option>
+                        <option value="wheel">Sempre Roleta</option>
+                        <option value="jackpot">Sempre Jackpot</option>
+                    </select>
+                </div>
+                <div class="input-group" id="group-threshold" style="margin-top:10px">
+                    <label>Limite para Jackpot</label>
+                    <input type="number" id="opt-threshold" value="12" onchange="storage.save()">
+                </div>
+            </div>
+            <div class="section-box">
+                <h2>Conteúdo</h2>
+                <div class="input-group">
+                    <label>Carregar do Google Sheets</label>
+                    <div class="input-row">
+                        <input type="text" id="sheet-input" placeholder="Link da planilha...">
+                        <button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button>
+                    </div>
+                    <button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button>
+                </div>
+                
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                    <h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2>
+                    <button class="btn btn-small btn-outline" id="btn-toggle-view" onclick="dataMgr.toggleView()">Ver Tabela</button>
+                </div>
+                
+                <div class="input-group" style="margin-bottom: 10px;">
+                    <label>Selecionar Aba</label>
+                    <select id="sheet-selector" onchange="dataMgr.switchSheet(this.value)"></select>
+                </div>
+
+                <div id="editor-container">
+                    <div id="view-table" class="editor-view active">
+                        <div id="table-rows"></div>
+                        <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button>
+                    </div>
+                    <div id="view-json" class="editor-view">
+                        <div class="input-group"><textarea id="json-input" oninput="dataMgr.markDirty()"></textarea></div>
+                    </div>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px">
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.copyPrompt()">🤖 Prompt IA</button>
+                    <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
+                    <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button>
+                </div>
+            </div>
             <button class="btn" onclick="app.to('home')">VOLTAR</button>
         </div>
     </div>
@@ -386,11 +452,9 @@
         <div id="fb-no" class="flash" style="background: var(--danger);">PULOU!</div>
     </div>
 
-    <!-- TELA RESULTADO -->
     <div id="screen-res" class="screen">
         <h1 style="font-size: 4vh; margin-bottom: 1vh;">FIM DA RODADA</h1>
-        <div id="res-score" style="font-size: 8vh; font-weight: 900; margin: 0 0 1.5vh 0; color: white;">0 PONTOS</div>
-        <!-- FIX: Altura ajustada -->
+        <div id="res-score" style="font-size: 8vh; font-weight: 900; margin: 2vh 0; color: white;">0 PONTOS</div>
         <div id="res-list" style="width:100%; max-width:600px; max-height: 35vh; min-height: 150px; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:15px; margin-bottom: 2vh;"></div>
         
         <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; justify-content: center;">
@@ -526,11 +590,12 @@
                     threshold: document.getElementById('opt-threshold').value,
                     theme: CURRENT_THEME
                 };
-                localStorage.setItem('pnt_data_v22', JSON.stringify(data));
+                localStorage.setItem('pnt_data_v27', JSON.stringify(data));
             },
             load: () => {
                 try {
-                    const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
+                    // Force v27 key to clear old caches
+                    const data = JSON.parse(localStorage.getItem('pnt_data_v27'));
                     if(data) {
                         if(data.cats && Array.isArray(data.cats)) {
                             if(data.cats.length > 0 && Array.isArray(data.cats[0])) {
@@ -550,7 +615,7 @@
                         if(data.theme) CURRENT_THEME = data.theme;
                         app.toggleThresholdVisibility();
                     }
-                } catch(e) { localStorage.removeItem('pnt_data_v22'); }
+                } catch(e) { localStorage.removeItem('pnt_data_v27'); }
             }
         };
 
@@ -668,25 +733,17 @@
             }
         };
 
-        /* SENSOR (HISTERESE) */
+        /* SENSOR */
         const sensor = {
-            z: 0, wait: false,
-            resetState: true, 
+            z: 0, wait: false, resetState: true, 
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
             handle: (e) => {
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
                     if (sensor.resetState) {
-                        if (sensor.z < -8.0) { 
-                            game.act(true); 
-                            sensor.pause(); 
-                            sensor.resetState = false;
-                        } else if (sensor.z > 8.0) { 
-                            game.act(false); 
-                            sensor.pause(); 
-                            sensor.resetState = false; 
-                        }
+                        if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; } 
+                        else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; }
                     } else {
                         if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
                     }
@@ -696,7 +753,7 @@
         };
         sensor.init();
 
-        /* NAV */
+        /* NAV & LOGIC */
         const app = {
             to: (id) => {
                 if(document.querySelector('#screen-game.active')) game.stop();
@@ -731,56 +788,48 @@
                 const el = document.getElementById('group-threshold');
                 if(mode === 'auto') el.style.display = 'block'; else el.style.display = 'none';
             },
-            confirmTeams: () => {
-                try {
-                    st.t[0].n = document.getElementById('t1').value || "Time A";
-                    st.t[1].n = document.getElementById('t2').value || "Time B";
-                    st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
-                    st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
-                    storage.save();
-                    app.prep();
-                } catch(e) {
-                    ui.alert("Erro ao iniciar. Reiniciando...");
-                    localStorage.clear();
-                    location.reload();
-                }
-            },
             start: () => {
-                try {
-                    aud.p('click');
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen().catch(()=>{});
-                    } else if (document.documentElement.webkitRequestFullscreen) {
-                        document.documentElement.webkitRequestFullscreen();
-                    }
-                    
-                    if(!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0) {
-                         GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
-                    }
-                    
-                    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') { 
-                        DeviceMotionEvent.requestPermission().catch(()=>{}); 
-                    }
-                    
-                    st.t[0].n = document.getElementById('t1').value || "Time A";
-                    st.t[1].n = document.getElementById('t2').value || "Time B";
-                    st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
-                    st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
-                    
-                    storage.save();
-                    app.to('teams');
-                } catch(e) {
-                    localStorage.removeItem('pnt_data_v22');
-                    location.reload();
-                }
+                aud.p('click');
+                // Fullscreen request
+                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+                else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+
+                st.t[0].n = document.getElementById('t1').value || "Time A";
+                st.t[1].n = document.getElementById('t2').value || "Time B";
+                st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
+                st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
+                
+                storage.save();
+                app.to('teams');
+            },
+            confirmTeams: (onlySave) => { 
+                st.t[0].n = document.getElementById('t1-conf').value || "Time A";
+                st.t[1].n = document.getElementById('t2-conf').value || "Time B";
+                document.getElementById('t1').value = st.t[0].n;
+                document.getElementById('t2').value = st.t[1].n;
+                storage.save();
+                if(!onlySave) app.prep(); 
             },
             prep: () => {
                 if(st.rd > st.cfg.r) { app.end(); return; }
+                
+                // FIX: SAFETY CHECK FOR EMPTY DATA
+                if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) {
+                    GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
+                }
+                
                 const turnIdx = (st.rd - 1) * 2 + st.trn;
                 let effectiveSheets = GLOBAL_SHEETS_DATA.length;
                 if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
                 const sheetIdx = turnIdx % effectiveSheets;
+                
                 CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
+                
+                // FIX: DOUBLE CHECK IF ROUND CATS IS VALID
+                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
+                     CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                }
+
                 const t = st.t[st.trn];
                 
                 const root = getComputedStyle(document.documentElement);
@@ -813,7 +862,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (HYBRID PHYSICS) */
+        /* WHEEL & JACKPOT */
         const wheel = {
             el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
             stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
@@ -848,6 +897,8 @@
             },
 
             setupWheel: () => {
+                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
+
                 let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
                 CURRENT_ROUND_CATS.forEach((c, i) => {
                     const color = COLORS[i % COLORS.length];
@@ -863,6 +914,8 @@
             },
 
             setupJackpot: () => {
+                if(!CURRENT_ROUND_CATS || !CURRENT_ROUND_CATS.length) return;
+
                 let h = "";
                 const list = [];
                 for(let k=0; k<30; k++) { 
@@ -1006,8 +1059,10 @@
                     const currentAngle = wheel.ang;
                     const spins = 5 * 360;
                     const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
+                    
                     const dir = Math.sign(velocity) || 1;
                     const totalRot = spins * dir;
+
                     const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
                     
                     wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
@@ -1021,7 +1076,9 @@
                     if (!itemEl) return;
                     const itemH = itemEl.getBoundingClientRect().height; 
                     const n = CURRENT_ROUND_CATS.length;
+                    
                     const dir = Math.sign(velocity); 
+                    
                     const startSet = 15;
                     const startY = -(startSet * n * itemH);
                     
@@ -1031,13 +1088,16 @@
                     
                     const targetSetOffset = (dir > 0) ? -3 : 3; 
                     const targetSet = startSet + targetSetOffset;
+                    
                     const containerH = document.getElementById('jackpot-container').offsetHeight;
                     const centerOffset = containerH / 2;
+                    
                     const winnerItemIndex = (targetSet * n) + winnerIdx;
                     const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
                     
                     wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
                     wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
+                    
                     setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 }
             },
@@ -1052,16 +1112,28 @@
             }
         };
 
+        function showForceMsg() {
+            const msg = document.getElementById('msg-force');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 1000);
+        }
+
         /* GAME LOGIC */
         const game = {
-            tmr: null, preTmr: null, editList: [],
+            tmr: null,
+            preTmr: null,
+            editList: [],
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
-            stopAll: () => { if(game.tmr) clearInterval(game.tmr); if(game.preTmr) clearInterval(game.preTmr); st.on = false; },
+            stopAll: () => {
+                if(game.tmr) clearInterval(game.tmr);
+                if(game.preTmr) clearInterval(game.preTmr);
+                st.on = false; 
+            },
             pre: () => {
                 app.to('game'); 
                 st.on = false; 
                 document.getElementById('timer-num').innerText = st.cfg.t;
-                document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`; 
+                document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
                 const d=document.getElementById('word-disp'); 
                 let c=3; d.innerText=c; 
                 game.preTmr = setInterval(()=>{ 
@@ -1081,10 +1153,14 @@
                 game.next();
                 let totalT=st.cfg.t; let t=totalT;
                 const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
+                
+                const root = getComputedStyle(document.documentElement);
+                const sec = root.getPropertyValue('--secondary').trim();
+
                 game.tmr = setInterval(()=>{
                     t--; tn.innerText=t;
                     const pct=((totalT-t)/totalT)*360;
-                    tw.style.background=`conic-gradient(var(--secondary) ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
+                    tw.style.background=`conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
                     if(t<=0) { game.stop(); game.end(); }
                 },1000);
             },
@@ -1105,14 +1181,27 @@
             end: () => {
                 try {
                     st.on=false; game.stop();
+                    
+                    // Recalculate points strictly from history
                     st.pts = st.h.filter(x => x.ok).length;
+                    
+                    // Add to global score
                     st.t[st.trn].s += st.pts; 
+                    
+                    // Change screen FIRST to avoid layout thrashing/crashes
                     app.to('res');
+                    
+                    // Then render the list
                     game.renderRes();
-                } catch(e) { console.error("Game End Error:", e); app.to('home'); }
+                } catch(e) {
+                    console.error("Game End Error:", e);
+                    app.to('home');
+                }
             },
             renderRes: () => {
-                document.getElementById('res-score').innerText = st.pts + " PONTOS";
+                const scoreEl = document.getElementById('res-score');
+                if(scoreEl) scoreEl.innerText = st.pts + " PONTOS";
+                
                 const l = document.getElementById('res-list');
                 if(l) {
                     l.innerHTML = "";
@@ -1121,16 +1210,33 @@
                             const d = document.createElement('div');
                             d.style.padding="10px"; 
                             d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
-                            d.innerHTML = `<b style="color:${x.ok? 'var(--success)' : 'var(--danger)'}">${x.ok?'✓':'✗'}</b> ${x.w}`;
+                            d.style.display="flex";
+                            d.style.justifyContent="space-between";
+                            d.style.alignItems="center";
+                            
+                            // Using variables for success/danger colors from root might be cleaner,
+                            // but hardcoded hex matches CSS variables for now.
+                            const color = x.ok ? '#22c55e' : '#ef4444';
+                            const icon = x.ok ? '✓' : '✗';
+                            
+                            d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`;
                             l.appendChild(d);
                         });
-                    } else { l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>"; }
+                    } else {
+                        l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>";
+                    }
                 }
             },
             openEdit: () => {
+                // Clone history
                 game.editList = st.h && st.h.length ? JSON.parse(JSON.stringify(st.h)) : [];
-                if(game.editList.length === 0) { ui.alert("Nada para editar."); return; }
+                
+                if(game.editList.length === 0) { 
+                    ui.alert("Nada para editar."); 
+                    return; 
+                }
 
+                // Build Edit HTML
                 const html = '<div class="edit-list-container">' +
                     game.editList.map((item, i) => `
                         <div class="edit-item" onclick="game.toggleEditItem(${i}, this)">
@@ -1147,18 +1253,32 @@
                 ]);
             },
             toggleEditItem: (i, el) => {
+                // Toggle status
                 game.editList[i].ok = !game.editList[i].ok;
+                
+                // Update DOM visually immediately
                 const span = el.querySelector('.edit-status');
                 span.innerText = game.editList[i].ok ? 'ACERTOU' : 'PULOU';
                 span.style.color = game.editList[i].ok ? 'var(--success)' : 'var(--danger)';
             },
             saveEdit: () => {
+                // 1. Revert old score
                 st.t[st.trn].s -= st.pts;
+                
+                // 2. Calculate new score
                 const newPts = game.editList.filter(x => x.ok).length;
                 st.pts = newPts;
+                
+                // 3. Add new score
                 st.t[st.trn].s += st.pts;
+                
+                // 4. Update history
                 st.h = game.editList;
+                
+                // 5. Re-render results screen
                 game.renderRes();
+                
+                // 6. Close modal
                 document.getElementById('modal-overlay').style.display = 'none';
             }
         };
