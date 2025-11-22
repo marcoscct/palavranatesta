@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (19).html -->
+<!-- START OF FILE ai_studio_code (20).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -340,7 +340,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v28.7</div>
+            <div class="version-tag">v28.8</div>
         </div>
     </div>
     
@@ -419,9 +419,12 @@
             </div>
         </div>
         <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
-        <!-- NOVO BOTÃO DE EXPORTAR -->
-        <button class="btn" style="width:auto; margin-top: 2vh; background: var(--success);" onclick="dataMgr.exportExcel()">BAIXAR PLANILHA COMPLETA</button>
-        <button class="btn" style="width:auto; margin-top: 1vh;" onclick="app.to('home')">MENU PRINCIPAL</button>
+        
+        <!-- BOTÕES NA MESMA LINHA: MENU + BAIXAR -->
+        <div style="display: flex; gap: 10px; width: 90%; max-width: 600px; justify-content: center; margin-top: 3vh;">
+             <button class="btn" style="flex: 1; margin: 0;" onclick="app.to('home')">MENU PRINCIPAL</button>
+             <button class="btn btn-outline" style="flex: 1; margin: 0; font-size: 0.9rem; padding: 0;" onclick="dataMgr.exportExcel()">BAIXAR RESULTADOS</button>
+        </div>
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
