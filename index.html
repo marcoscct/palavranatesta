@@ -200,10 +200,10 @@
 
         #word-disp {
             font-family: 'Montserrat'; font-weight: 900; 
-            /* VOLTEI PARA VMIN PARA GARANTIR QUE CAIBA NA TELA EM LANDSCAPE */
-            font-size: clamp(2.5rem, 12vmin, 6rem); 
+            /* AUMENTADO EM 10-12% */
+            font-size: clamp(2.8rem, 13.5vmin, 7rem); 
             text-align: center; line-height: 1.1; text-transform: uppercase;
-            width: 80%; /* Reduzi a largura para evitar bordas */
+            width: 80%; 
             z-index: 5; word-wrap: break-word;
         }
 
@@ -318,7 +318,7 @@
     <div id="lock">
         <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
         <h2 style="margin-top:20px">GIRE A TELA</h2>
-        <div class="version-tag">v25.1</div>
+        <div class="version-tag">v25.2</div>
     </div>
     
     <!-- HOME ICON -->
@@ -810,7 +810,7 @@
             }
         };
 
-        /* WHEEL & JACKPOT (HYBRID PHYSICS V25.1) */
+        /* WHEEL & JACKPOT (HYBRID PHYSICS V25.2) */
         const wheel = {
             el: document.getElementById('wheel-spinner'),
             jackpot: document.getElementById('jackpot-strip'),
@@ -872,6 +872,7 @@
 
             setupJackpot: () => {
                 let h = "";
+                // 30 COPIES FOR SAFETY
                 const list = [];
                 for(let k=0; k<30; k++) { 
                     CURRENT_ROUND_CATS.forEach(c => list.push(c));
@@ -889,7 +890,7 @@
                 let startY = 0, lastY = 0, startTime = 0;
                 let startAng = 0, lastAng = 0;
                 let angularVelocity = 0, linearVelocity = 0;
-                let lastMoveTime = 0;
+                let lastMoveTime = 0, lastMoveY = 0;
 
                 const getAngle = (e, el) => {
                     const rect = el.getBoundingClientRect();
@@ -902,6 +903,7 @@
 
                 const onStart = (e) => {
                     if(wheel.spin) return;
+                    
                     if (wheel.mode === 'wheel') {
                         startAng = getAngle(e, target);
                         lastAng = startAng;
@@ -1020,7 +1022,6 @@
                     const spins = 5 * 360;
                     const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
                     
-                    // DIRECTION BASED ON VELOCITY
                     const dir = Math.sign(velocity) || 1;
                     const totalRot = spins * dir;
 
@@ -1030,7 +1031,7 @@
                     wheel.el.style.transform = `rotate(${finalAngle}deg)`;
                     wheel.ang = finalAngle;
                     
-                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
+                    setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
 
                 } else {
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item');
@@ -1038,15 +1039,8 @@
                     const itemH = itemEl.getBoundingClientRect().height; 
                     const n = CURRENT_ROUND_CATS.length;
                     
-                    // DIRECTION BASED ON VELOCITY
-                    // Drag Down (Vel > 0) -> Strip moves Down (Y increases). 
-                    // To continue momentum, we target a higher Y (lower index set).
-                    // Drag Up (Vel < 0) -> Strip moves Up (Y decreases).
-                    // To continue momentum, we target a lower Y (higher index set).
-                    
                     const dir = Math.sign(velocity); 
                     
-                    // Start in middle
                     const startSet = 15;
                     const startY = -(startSet * n * itemH);
                     
@@ -1054,9 +1048,6 @@
                     wheel.jackpot.style.transform = `translateY(${startY}px)`;
                     wheel.jackpot.offsetHeight; 
                     
-                    // Move 3 sets in direction of momentum
-                    // If dragging down (dir > 0), we move strip down (target Y > start Y).
-                    // That means decreasing set index.
                     const targetSetOffset = (dir > 0) ? -3 : 3; 
                     const targetSet = startSet + targetSetOffset;
                     
