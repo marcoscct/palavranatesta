@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (26).html -->
+<!-- START OF FILE ai_studio_code (27).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -379,7 +379,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v29.4</div>
+            <div class="version-tag">v29.5</div>
         </div>
     </div>
     
@@ -601,11 +601,12 @@
 
         const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
         
+        // STATE UPDATE: New Survival Configs
         const st = { 
             t:[{n:"Time A",s:0},{n:"Time B",s:0}], 
             cfg:{t:60, r:3, survTime: 30, survBonus: 5}, 
             rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false, logs: [],
-            roundMode: 'normal'
+            roundMode: 'normal' // 'normal' or 'survival'
         };
 
         const ui = {
@@ -679,6 +680,7 @@
                         if(data.mode) document.getElementById('opt-mode').value = data.mode;
                         if(data.threshold) document.getElementById('opt-threshold').value = data.threshold;
                         if(data.theme) CURRENT_THEME = data.theme;
+                        // Load Survival Options
                         if(data.survTime) document.getElementById('opt-surv-time').value = data.survTime;
                         if(data.survBonus) document.getElementById('opt-surv-bonus').value = data.survBonus;
                         
@@ -689,9 +691,11 @@
         };
 
         const dataMgr = {
+            isTableMode: true,
             init: () => { 
                 if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0;
                 dataMgr.updateSheetSelector();
+                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2); 
                 dataMgr.renderTable();
             },
             updateSheetSelector: () => {
@@ -710,11 +714,24 @@
                 CURRENT_SHEET_IDX = parseInt(idx);
                 dataMgr.init();
             },
-            toggleView: () => { },
+            toggleView: () => {
+                dataMgr.isTableMode = !dataMgr.isTableMode;
+                document.getElementById('btn-toggle-view').innerText = dataMgr.isTableMode ? "Ver JSON" : "Ver Tabela";
+                document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode);
+                document.getElementById('view-table').classList.toggle('active', dataMgr.isTableMode);
+                if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable();
+            },
             addSheet: () => {
+                // BUG FIX: Ensure current changes are saved before adding new sheet
                 dataMgr.syncFromTable();
+                
+                // Add new empty sheet
                 GLOBAL_SHEETS_DATA.push([{n: "NOVA CAT", w: ["A", "B"]}]);
+                
+                // Switch to new sheet
                 CURRENT_SHEET_IDX = GLOBAL_SHEETS_DATA.length - 1;
+                
+                // Re-init UI
                 dataMgr.init();
                 storage.save();
             },
@@ -731,37 +748,68 @@
                 });
             },
             markDirty: () => {},
-            syncFromJSON: () => { },
+            syncFromJSON: () => { try { GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); dataMgr.updateSheetSelector(); } catch(e) {} },
             syncFromTable: () => {
-                const rows = document.querySelectorAll('.table-row'); const newCats = [];
-                rows.forEach(r => {
-                    const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
-                    if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
-                });
-                // BUG FIX: If view is hidden or empty, don't overwrite with empty array unless intended.
-                // However, since editor is always active now, this is safe.
-                GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats; 
-                dataMgr.updateSheetSelector();
+                const rows = document.querySelectorAll('.table-row');
+                const newCats = [];
+                
+                if (rows.length > 0) {
+                    rows.forEach(r => {
+                        const nInput = r.querySelector('.table-input-cat');
+                        const wInput = r.querySelector('.table-input-words');
+                        
+                        if (nInput && wInput) {
+                            const n = nInput.value;
+                            const wStr = wInput.value;
+                            if(n && wStr) { 
+                                const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); 
+                                if(w.length) newCats.push({n, w}); 
+                            }
+                        }
+                    });
+                    // Only update if valid data exists to prevent wiping
+                    if (newCats.length > 0) {
+                        GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats; 
+                    }
+                }
+                // Update the hidden JSON input for backup
+                const jsonInput = document.getElementById('json-input');
+                if(jsonInput) jsonInput.value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2);
             },
             renderTable: () => {
-                const container = document.getElementById('table-rows'); 
+                const container = document.getElementById('table-rows');
                 if(!container) return;
                 container.innerHTML = '';
+                
                 const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] || [];
+                
                 currentData.forEach((cat, idx) => {
-                    const row = document.createElement('div'); row.className = 'table-row';
-                    row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                    const row = document.createElement('div'); 
+                    row.className = 'table-row';
+                    row.innerHTML = `
+                        <input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria">
+                        <input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras">
+                        <button class="btn btn-del" onclick="this.parentElement.remove()">×</button>
+                    `;
                     container.appendChild(row);
                 });
             },
             addTableRow: () => {
-                const container = document.getElementById('table-rows'); const row = document.createElement('div'); row.className = 'table-row';
-                row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                const container = document.getElementById('table-rows'); 
+                const row = document.createElement('div'); 
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <input type="text" class="table-input-cat" placeholder="NOVA">
+                    <input type="text" class="table-input-words" placeholder="A, B, C...">
+                    <button class="btn btn-del" onclick="this.parentElement.remove()">×</button>
+                `;
                 container.appendChild(row);
             },
             save: () => {
                 dataMgr.syncFromTable();
-                SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
+                SOURCE_TYPE='default'; 
+                storage.save(); 
+                ui.alert("Salvo com sucesso!");
             },
             reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ 
                 GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; 
@@ -809,12 +857,27 @@
                         if (parsedSheets.length > 0) {
                             GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
                             CURRENT_SHEET_IDX = 0;
-                            dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
+                            
+                            // BUG FIX: Ensure UI updates immediately after loading new data
+                            dataMgr.init(); 
+                            storage.save(); 
+                            
+                            // Force render again just to be safe
+                            setTimeout(() => {
+                                dataMgr.renderTable();
+                                dataMgr.updateSheetSelector();
+                            }, 100);
+
+                            ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
                         } else { ui.alert("Nenhuma categoria encontrada."); }
                     };
                     reader.readAsArrayBuffer(blob);
-                } catch(e) { ui.alert("Erro ao ler planilha."); }
+                } catch(e) { 
+                    console.error(e);
+                    ui.alert("Erro ao ler planilha."); 
+                }
             },
+            /* FUNÇÃO DE EXPORTAÇÃO INTELIGENTE */
             exportExcel: () => {
                 try {
                     const t1Name = st.t[0].n;
@@ -825,15 +888,18 @@
                     const maxRounds = st.cfg.r;
 
                     for (let r = 1; r <= maxRounds; r++) {
+                        // Busca pontuação específica de cada time naquela rodada
                         const logA = st.logs.find(l => l.r === r && l.t === 0);
                         const logB = st.logs.find(l => l.r === r && l.t === 1);
                         
                         const sA = logA ? logA.s : 0;
                         const sB = logB ? logB.s : 0;
 
+                        // Calcula acumulados
                         accA += sA;
                         accB += sB;
 
+                        // Monta a linha da planilha
                         const row = {};
                         row["Rodada"] = r;
                         row[t1Name] = sA;
@@ -846,6 +912,8 @@
                     const ws = XLSX.utils.json_to_sheet(rows);
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, "Placar");
+                    
+                    // Gera e baixa. No mobile, isso dispara o "Salvar em..."
                     XLSX.writeFile(wb, "palavra_na_testa_placar.xlsx");
                 } catch(e) {
                     ui.alert("Erro ao gerar planilha: " + e.message);
@@ -853,7 +921,7 @@
             }
         };
 
-        /* SENSOR & NAV LOGIC REMAINS SAME ... */
+        /* SENSOR (HISTERESE) */
         const sensor = {
             z: 0, wait: false,
             resetState: true, 
@@ -881,6 +949,7 @@
         };
         sensor.init();
 
+        /* NAV */
         const app = {
             to: (id) => {
                 if(document.querySelector('#screen-game.active')) game.stop();
@@ -895,7 +964,7 @@
                     game.stopAll();
                     document.getElementById('timer-num').innerText = st.cfg.t;
                     st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0;
-                    st.logs = [];
+                    st.logs = []; // Reseta histórico ao voltar pra home
                 } else {
                     homeBtn.style.display = 'block';
                 }
@@ -910,7 +979,11 @@
                    document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
                 }
                 
-                if(id === 'intro') app.setMode(st.roundMode); 
+                if(id === 'intro') {
+                    // Reset selector per round logic, defaulting to Normal or Keeping last? 
+                    // Let's update UI based on st.roundMode default
+                    app.setMode(st.roundMode); 
+                }
             },
             setMode: (m) => {
                 st.roundMode = m;
@@ -926,20 +999,32 @@
             },
             start: () => {
                 aud.p('click');
+                
+                // --- FIX IOS PERMISSION REQUEST ---
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().then(response => {}).catch(console.error);
+                    DeviceMotionEvent.requestPermission()
+                        .then(response => {
+                            if (response === 'granted') { }
+                        })
+                        .catch(console.error);
                 }
+
+                // FIX IOS FULLSCREEN
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
+
                 if (!isIOS) {
                     if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
                     else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
                 }
+
                 st.t[0].n = document.getElementById('t1').value || "Time A";
                 st.t[1].n = document.getElementById('t2').value || "Time B";
                 st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
                 st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
                 st.cfg.survTime = parseInt(document.getElementById('opt-surv-time').value) || 30;
                 st.cfg.survBonus = parseInt(document.getElementById('opt-surv-bonus').value) || 5;
+                
                 storage.save();
                 app.to('teams');
             },
@@ -953,18 +1038,27 @@
             },
             prep: () => {
                 if (st.rd > st.cfg.r) { app.end(); return; }
+                
                 if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) {
                     GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
                 }
+                
                 const turnIdx = (st.rd - 1) * 2 + st.trn;
                 let effectiveSheets = GLOBAL_SHEETS_DATA.length;
                 if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
                 const sheetIdx = turnIdx % effectiveSheets;
+                
                 CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                
+                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
+                     CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                }
+
                 const t = st.t[st.trn];
+                
                 const root = getComputedStyle(document.documentElement);
                 const color = st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary');
+
                 document.getElementById('lbl-rd').innerText = st.rd;
                 document.getElementById('lbl-tm').innerText = t.n;
                 document.getElementById('lbl-tm').style.color = color;
@@ -977,10 +1071,13 @@
                 const root = getComputedStyle(document.documentElement);
                 const c1 = root.getPropertyValue('--primary');
                 const c2 = root.getPropertyValue('--secondary');
+                
                 document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s;
                 document.getElementById('fn-1').style.color = c1;
+                
                 document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s;
                 document.getElementById('fn-2').style.color = c2;
+                
                 const w=document.getElementById('winner');
                 if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;}
                 else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;}
@@ -989,31 +1086,45 @@
             }
         };
 
-        /* WHEEL LOGIC */
+        /* WHEEL & JACKPOT (HYBRID PHYSICS) */
         const wheel = {
             el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
             stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
             init: () => {
                 const mode = document.getElementById('opt-mode').value;
                 const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) CURRENT_ROUND_CATS = DEFAULT_CATS;
+
+                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
+                    CURRENT_ROUND_CATS = DEFAULT_CATS;
+                }
+
                 if (mode === 'wheel') wheel.mode = 'wheel';
                 else if (mode === 'jackpot') wheel.mode = 'jackpot';
-                else { wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel'; }
+                else {
+                    wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel';
+                }
+
                 document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                
                 wheel.el = document.getElementById('wheel-spinner');
                 wheel.jackpot = document.getElementById('jackpot-strip');
+                
+                // Reset styles
                 wheel.jackpot.style.transition = 'none';
                 wheel.jackpot.style.transform = 'translateY(0px)';
                 wheel.offsetY = 0;
                 wheel.el.style.transition = 'none';
                 wheel.el.style.transform = 'rotate(0deg)';
                 wheel.ang = 0;
-                if (wheel.mode === 'wheel') wheel.setupWheel(); else wheel.setupJackpot();
+                
+                if (wheel.mode === 'wheel') wheel.setupWheel();
+                else wheel.setupJackpot();
+                
                 const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
                 wheel.attachDrag(container);
             },
+
             setupWheel: () => {
                 let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
                 CURRENT_ROUND_CATS.forEach((c, i) => {
@@ -1028,173 +1139,417 @@
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
             },
+
             setupJackpot: () => {
-                let h = ""; const list = [];
-                for(let k=0; k<30; k++) { CURRENT_ROUND_CATS.forEach(c => list.push(c)); }
+                let h = "";
+                const list = [];
+                for(let k=0; k<30; k++) { 
+                    CURRENT_ROUND_CATS.forEach(c => list.push(c));
+                }
                 const n = CURRENT_ROUND_CATS.length;
                 list.forEach((c, i) => {
-                     const realIndex = i % n; const color = COLORS[realIndex % COLORS.length];
+                     const realIndex = i % n;
+                     const color = COLORS[realIndex % COLORS.length];
                      h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
             },
+
             attachDrag: (target) => {
-                let startY = 0, lastY = 0, startTime = 0, startAng = 0, lastAng = 0, angularVelocity = 0, linearVelocity = 0, lastMoveTime = 0;
+                let startY = 0, lastY = 0, startTime = 0;
+                let startAng = 0, lastAng = 0;
+                let angularVelocity = 0, linearVelocity = 0;
+                let lastMoveTime = 0;
+
                 const getAngle = (e, el) => {
-                    const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
-                    const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    const rect = el.getBoundingClientRect();
+                    const cx = rect.left + rect.width/2;
+                    const cy = rect.top + rect.height/2;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                     return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
                 };
+
                 const onStart = (e) => {
                     if(wheel.spin) return;
-                    if (wheel.mode === 'wheel') { startAng = getAngle(e, target); lastAng = startAng; } else { startY = e.touches ? e.touches[0].clientY : e.clientY; lastY = startY; }
-                    lastMoveTime = Date.now(); startTime = lastMoveTime; angularVelocity = 0; linearVelocity = 0;
-                    document.addEventListener('touchmove', onMove, {passive: false}); document.addEventListener('touchend', onEnd);
-                    document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd);
-                };
-                const onMove = (e) => {
-                    e.preventDefault(); const now = Date.now(); const dt = now - lastMoveTime;
                     if (wheel.mode === 'wheel') {
-                        const curAng = getAngle(e, target); let delta = curAng - lastAng;
-                        if (delta > 180) delta -= 360; if (delta < -180) delta += 360;
-                        wheel.ang += delta; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                        if(dt > 0) { const instantVel = delta / dt; angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5); }
+                        startAng = getAngle(e, target);
+                        lastAng = startAng;
+                    } else {
+                        startY = e.touches ? e.touches[0].clientY : e.clientY;
+                        lastY = startY;
+                    }
+                    lastMoveTime = Date.now();
+                    startTime = lastMoveTime;
+                    angularVelocity = 0;
+                    linearVelocity = 0;
+                    document.addEventListener('touchmove', onMove, {passive: false});
+                    document.addEventListener('touchend', onEnd);
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onEnd);
+                };
+
+                const onMove = (e) => {
+                    e.preventDefault(); 
+                    const now = Date.now();
+                    const dt = now - lastMoveTime;
+                    
+                    if (wheel.mode === 'wheel') {
+                        const curAng = getAngle(e, target);
+                        let delta = curAng - lastAng;
+                        if (delta > 180) delta -= 360;
+                        if (delta < -180) delta += 360;
+                        
+                        wheel.ang += delta;
+                        wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                        
+                        if(dt > 0) {
+                            const instantVel = delta / dt;
+                            angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5);
+                        }
                         lastAng = curAng;
                     } else {
-                        const curY = e.touches ? e.touches[0].clientY : e.clientY; const delta = curY - lastY; wheel.offsetY += delta;
+                        const curY = e.touches ? e.touches[0].clientY : e.clientY;
+                        const delta = curY - lastY;
+                        wheel.offsetY += delta;
+                        
                         const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                        if(itemEl) { const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length; if(wheel.offsetY > 0) wheel.offsetY -= stripH; if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH; }
+                        if(itemEl) {
+                            const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length;
+                            if(wheel.offsetY > 0) wheel.offsetY -= stripH;
+                            if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH;
+                        }
+
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                        if(dt > 0) { const instantVel = delta / dt; linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5); }
+                        
+                        if(dt > 0) {
+                            const instantVel = delta / dt;
+                            linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5);
+                        }
                         lastY = curY;
                     }
                     lastMoveTime = now;
                 };
+
                 const onEnd = () => {
-                    document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd);
-                    document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onEnd);
+                    
                     const totalDuration = Date.now() - startTime;
-                    if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; }
-                    if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; }
-                    if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); } 
-                    else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); }
+                    
+                    if (totalDuration < 30) { 
+                         const msg = document.getElementById('msg-time');
+                         msg.style.opacity = 1;
+                         setTimeout(() => msg.style.opacity = 0, 1500);
+                         return;
+                    }
+
+                    if (Date.now() - lastMoveTime > 100) {
+                        angularVelocity = 0; linearVelocity = 0;
+                    }
+
+                    if (wheel.mode === 'wheel') {
+                        if (Math.abs(angularVelocity) < 0.01) {
+                             const msg = document.getElementById('msg-force');
+                             msg.classList.add('show');
+                             setTimeout(() => msg.classList.remove('show'), 1000);
+                             return;
+                        }
+                        wheel.go(angularVelocity);
+                    } else {
+                        if (Math.abs(linearVelocity) < 0.01) {
+                             const msg = document.getElementById('msg-force');
+                             msg.classList.add('show');
+                             setTimeout(() => msg.classList.remove('show'), 1000);
+                             return;
+                        }
+                        wheel.go(linearVelocity);
+                    }
                 };
-                target.onmousedown = onStart; target.ontouchstart = onStart;
+
+                target.onmousedown = onStart;
+                target.ontouchstart = onStart;
             },
+
             go: (velocity) => {
-                if(wheel.spin) return; wheel.spin = true; aud.l('spin', true);
+                if(wheel.spin) return;
+                wheel.spin = true;
+                aud.l('spin', true);
+
                 let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
                 const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
+
                 const duration = 3; 
+
                 if (wheel.mode === 'wheel') {
-                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length; const currentAngle = wheel.ang; const spins = 5 * 360;
-                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2); const dir = Math.sign(velocity) || 1; const totalRot = spins * dir;
+                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length;
+                    const currentAngle = wheel.ang;
+                    const spins = 5 * 360;
+                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2);
+                    
+                    const dir = Math.sign(velocity) || 1;
+                    const totalRot = spins * dir;
+
                     const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
-                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.el.style.transform = `rotate(${finalAngle}deg)`; wheel.ang = finalAngle;
+                    
+                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                    wheel.el.style.transform = `rotate(${finalAngle}deg)`;
+                    wheel.ang = finalAngle;
+                    
                     wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
+
                 } else {
-                    const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if (!itemEl) return;
-                    const itemH = itemEl.getBoundingClientRect().height; const n = CURRENT_ROUND_CATS.length; const dir = Math.sign(velocity); 
-                    const startSet = 15; const startY = -(startSet * n * itemH);
-                    wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = `translateY(${startY}px)`; wheel.jackpot.offsetHeight; 
-                    const targetSetOffset = (dir > 0) ? -3 : 3; const targetSet = startSet + targetSetOffset;
-                    const containerH = document.getElementById('jackpot-container').offsetHeight; const centerOffset = containerH / 2;
-                    const winnerItemIndex = (targetSet * n) + winnerIdx; const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
-                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
+                    const itemEl = wheel.jackpot.querySelector('.jackpot-item');
+                    if (!itemEl) return;
+                    const itemH = itemEl.getBoundingClientRect().height; 
+                    const n = CURRENT_ROUND_CATS.length;
+                    
+                    const dir = Math.sign(velocity); 
+                    
+                    const startSet = 15;
+                    const startY = -(startSet * n * itemH);
+                    
+                    wheel.jackpot.style.transition = 'none';
+                    wheel.jackpot.style.transform = `translateY(${startY}px)`;
+                    wheel.jackpot.offsetHeight; 
+                    
+                    const targetSetOffset = (dir > 0) ? -3 : 3; 
+                    const targetSet = startSet + targetSetOffset;
+                    const containerH = document.getElementById('jackpot-container').offsetHeight;
+                    const centerOffset = containerH / 2;
+                    const winnerItemIndex = (targetSet * n) + winnerIdx;
+                    const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
+                    
+                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                    wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
+                    
                     setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 }
             },
+
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
-                const cat = CURRENT_ROUND_CATS[idx]; st.cat = cat; 
+                const cat = CURRENT_ROUND_CATS[idx];
+                st.cat = cat; 
                 const color = COLORS[(idx % CURRENT_ROUND_CATS.length) % COLORS.length];
-                ui.showResult(cat.n.replace('*', ''), color, () => game.pre()); wheel.spin = false;
+                ui.showResult(cat.n.replace('*', ''), color, () => game.pre());
+                wheel.spin = false;
             }
         };
 
-        function showForceMsg() { const msg = document.getElementById('msg-force'); msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 1000); }
+        function showForceMsg() {
+            const msg = document.getElementById('msg-force');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 1000);
+        }
 
+        /* GAME LOGIC */
         const game = {
-            tmr: null, preTmr: null, editList: [], curTime: 0, maxTime: 0,
+            tmr: null,
+            preTmr: null,
+            editList: [],
+            curTime: 0,
+            maxTime: 0,
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
-            stopAll: () => { if(game.tmr) clearInterval(game.tmr); if(game.preTmr) clearInterval(game.preTmr); st.on = false; },
+            stopAll: () => {
+                if(game.tmr) clearInterval(game.tmr);
+                if(game.preTmr) clearInterval(game.preTmr);
+                st.on = false; 
+            },
             pre: () => {
-                app.to('game'); st.on = false; 
-                const isSurv = st.roundMode === 'survival'; game.maxTime = isSurv ? st.cfg.survTime : st.cfg.t; game.curTime = game.maxTime;
+                app.to('game'); 
+                st.on = false; 
+                
+                // MODE LOGIC: Determine initial time based on mode
+                const isSurv = st.roundMode === 'survival';
+                game.maxTime = isSurv ? st.cfg.survTime : st.cfg.t;
+                game.curTime = game.maxTime;
+
                 document.getElementById('timer-num').innerText = game.curTime;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
-                const d=document.getElementById('word-disp'); let c=3; d.innerText=c; 
-                game.preTmr = setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(game.preTmr); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
+                
+                const d=document.getElementById('word-disp'); 
+                let c=3; d.innerText=c; 
+                game.preTmr = setInterval(()=>{ 
+                    c--; 
+                    if(c>0) d.innerText=c; 
+                    else { 
+                        clearInterval(game.preTmr); 
+                        d.innerText="VAI!"; 
+                        setTimeout(game.run, 600); 
+                    } 
+                },1000);
             },
             run: () => {
-                game.stop(); st.on=true; st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5); game.next();
+                game.stop(); 
+                st.on=true; 
+                st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5);
+                game.next();
+                
                 const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
-                const root = getComputedStyle(document.documentElement); const sec = root.getPropertyValue('--secondary').trim();
+                const root = getComputedStyle(document.documentElement);
+                const sec = root.getPropertyValue('--secondary').trim();
+
                 game.tmr = setInterval(()=>{
-                    game.curTime--; tn.innerText = game.curTime;
-                    let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360; if (pct < 0) pct = 0; 
+                    game.curTime--;
+                    tn.innerText = game.curTime;
+                    
+                    // Calculate Percentage based on initial Max time. 
+                    // If Bonus exceeds initial time, circle stays full (pct < 0).
+                    let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360;
+                    if (pct < 0) pct = 0; 
+                    
                     tw.style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
+                    
                     if(game.curTime <= 0) { game.stop(); game.end(); }
                 },1000);
             },
             next: () => {
-                if(st.q.length === 0) { if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
+                if(st.q.length === 0) {
+                    if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } 
+                    else { game.stop(); game.end(); return; }
+                }
                 st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw;
             },
             act: (win) => {
                 if(!st.on) return;
                 if(win){ 
                     aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); 
+                    // SURVIVAL BONUS LOGIC
                     if(st.roundMode === 'survival') {
-                        game.curTime += st.cfg.survBonus; document.getElementById('timer-num').innerText = game.curTime;
-                        const animEl = document.getElementById('bonus-anim'); animEl.innerText = `+${st.cfg.survBonus}s`;
-                        animEl.classList.remove('anim'); void animEl.offsetWidth; animEl.classList.add('anim');
-                        let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360; if (pct < 0) pct = 0;
-                        const root = getComputedStyle(document.documentElement); const sec = root.getPropertyValue('--secondary').trim();
+                        game.curTime += st.cfg.survBonus;
+                        document.getElementById('timer-num').innerText = game.curTime;
+                        
+                        // Bonus Animation
+                        const animEl = document.getElementById('bonus-anim');
+                        animEl.innerText = `+${st.cfg.survBonus}s`;
+                        animEl.classList.remove('anim');
+                        void animEl.offsetWidth; // trigger reflow
+                        animEl.classList.add('anim');
+                        
+                        // Update Circle immediately
+                        let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360;
+                        if (pct < 0) pct = 0;
+                        const root = getComputedStyle(document.documentElement);
+                        const sec = root.getPropertyValue('--secondary').trim();
                         document.querySelector('.timer-wrapper').style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
                     }
-                } else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); }
+                }
+                else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); }
                 game.next();
             },
             flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
             end: () => {
                 try {
-                    st.on=false; game.stop(); st.pts = st.h.filter(x => x.ok).length;
-                    st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn)); st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
-                    st.t[st.trn].s += st.pts; app.to('res'); game.renderRes();
-                } catch(e) { console.error("Game End Error:", e); app.to('home'); }
+                    st.on=false; game.stop();
+                    st.pts = st.h.filter(x => x.ok).length;
+                    
+                    // LOG LOGIC: Remove registro anterior desta rodada/time (se houver) e adiciona o novo
+                    st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn));
+                    st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
+
+                    st.t[st.trn].s += st.pts; 
+                    app.to('res');
+                    game.renderRes();
+                } catch(e) {
+                    console.error("Game End Error:", e);
+                    app.to('home');
+                }
             },
             renderRes: () => {
-                const scoreEl = document.getElementById('res-score'); if(scoreEl) scoreEl.innerText = st.pts + " PONTOS";
-                const l = document.getElementById('res-list'); if(l) { l.innerHTML = ""; if(st.h && st.h.length > 0) { st.h.forEach(x => { const d = document.createElement('div'); d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)"; d.style.display="flex"; d.style.justifyContent="space-between"; d.style.alignItems="center"; const color = x.ok ? '#22c55e' : '#ef4444'; const icon = x.ok ? '✓' : '✗'; d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`; l.appendChild(d); }); } else { l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>"; } }
+                const scoreEl = document.getElementById('res-score');
+                if(scoreEl) scoreEl.innerText = st.pts + " PONTOS";
+                
+                const l = document.getElementById('res-list');
+                if(l) {
+                    l.innerHTML = "";
+                    if(st.h && st.h.length > 0) {
+                        st.h.forEach(x => {
+                            const d = document.createElement('div');
+                            d.style.padding="10px"; 
+                            d.style.borderBottom="1px solid rgba(255,255,255,0.1)";
+                            d.style.display="flex";
+                            d.style.justifyContent="space-between";
+                            d.style.alignItems="center";
+                            
+                            const color = x.ok ? '#22c55e' : '#ef4444';
+                            const icon = x.ok ? '✓' : '✗';
+                            
+                            d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`;
+                            l.appendChild(d);
+                        });
+                    } else {
+                        l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>";
+                    }
+                }
             },
             openEdit: () => {
                 game.editList = st.h && st.h.length ? JSON.parse(JSON.stringify(st.h)) : [];
                 if(game.editList.length === 0) { ui.alert("Nada para editar."); return; }
-                const html = '<div class="edit-list-container">' + game.editList.map((item, i) => ` <div class="edit-item" onclick="game.toggleEditItem(${i}, this)"> <span class="edit-word">${item.w}</span> <span class="edit-status" style="color:${item.ok ? 'var(--success)' : 'var(--danger)'}"> ${item.ok ? 'ACERTOU' : 'PULOU'} </span> </div> `).join('') + '</div>';
-                ui.modal("EDITAR RESULTADO", html, [ {txt: "SALVAR", fn: game.saveEdit, style: "background:var(--success); flex:1;"}, {txt: "CANCELAR", style: "background:var(--danger); flex:1;"} ]);
+
+                const html = '<div class="edit-list-container">' +
+                    game.editList.map((item, i) => `
+                        <div class="edit-item" onclick="game.toggleEditItem(${i}, this)">
+                            <span class="edit-word">${item.w}</span>
+                            <span class="edit-status" style="color:${item.ok ? 'var(--success)' : 'var(--danger)'}">
+                                ${item.ok ? 'ACERTOU' : 'PULOU'}
+                            </span>
+                        </div>
+                    `).join('') + '</div>';
+                
+                ui.modal("EDITAR RESULTADO", html, [
+                    {txt: "SALVAR", fn: game.saveEdit, style: "background:var(--success); flex:1;"},
+                    {txt: "CANCELAR", style: "background:var(--danger); flex:1;"}
+                ]);
             },
             toggleEditItem: (i, el) => {
-                game.editList[i].ok = !game.editList[i].ok; const span = el.querySelector('.edit-status');
-                span.innerText = game.editList[i].ok ? 'ACERTOU' : 'PULOU'; span.style.color = game.editList[i].ok ? 'var(--success)' : 'var(--danger)';
+                game.editList[i].ok = !game.editList[i].ok;
+                const span = el.querySelector('.edit-status');
+                span.innerText = game.editList[i].ok ? 'ACERTOU' : 'PULOU';
+                span.style.color = game.editList[i].ok ? 'var(--success)' : 'var(--danger)';
             },
             saveEdit: () => {
-                st.t[st.trn].s -= st.pts; const newPts = game.editList.filter(x => x.ok).length; st.pts = newPts; st.t[st.trn].s += st.pts; st.h = game.editList;
-                st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn)); st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
-                game.renderRes(); document.getElementById('modal-overlay').style.display = 'none';
+                // Remove pontuação antiga
+                st.t[st.trn].s -= st.pts;
+                
+                // Recalcula
+                const newPts = game.editList.filter(x => x.ok).length;
+                st.pts = newPts;
+                st.t[st.trn].s += st.pts;
+                st.h = game.editList;
+
+                // Atualiza LOG no histórico
+                st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn));
+                st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
+
+                game.renderRes();
+                document.getElementById('modal-overlay').style.display = 'none';
             }
         };
 
         window.onload = () => {
-            storage.load(); themeMgr.init(); sensor.init();
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
+            storage.load();
+            themeMgr.init(); // Initialize themes
+            sensor.init();
+
+            // DICA IOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
+            
             if (isIOS && !isStandalone) {
+                // Cria um aviso discreto
                 const div = document.createElement('div');
                 div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); padding:10px 20px; border-radius:20px; font-size:0.8rem; z-index:9999; text-align:center; width:90%; pointer-events:none; animation: fadeOut 5s forwards 5s; color: white; font-family: sans-serif;";
                 div.innerHTML = "Dica: Para tela cheia, toque em <b>Compartilhar</b> <span style='font-size:1.2em'>⎋</span> e <b>Adicionar à Tela de Início</b>.";
-                const style = document.createElement('style'); style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
-                document.head.appendChild(style); document.body.appendChild(div);
+                
+                // CSS da animação
+                const style = document.createElement('style');
+                style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
+                document.head.appendChild(style);
+                document.body.appendChild(div);
             }
         };
     </script>
