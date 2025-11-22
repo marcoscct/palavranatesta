@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (23).html -->
+<!-- START OF FILE ai_studio_code (24).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -111,11 +111,14 @@
         .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
         .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
         .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
+        
+        /* BUTTON SQUARE (NEW) */
+        .btn-square { width: 55px; height: 55px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border-radius: 15px; flex-shrink: 0; margin: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
         .input-group { margin-bottom: 1.5vh; width: 100%; max-width: 600px; position: relative; flex-shrink: 0; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
         
-        label { display: block; font-size: clamp(0.8rem, 2vh, 1rem); color: rgba(255,255,255,0.6); font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; }
+        label { display: block; font-size: clamp(0.7rem, 1.8vh, 0.9rem); color: rgba(255,255,255,0.6); font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         input, textarea, select {
             width: 100%; padding: 1.5vh; background: rgba(255,255,255,0.1); 
             border: var(--border); color: white; border-radius: 12px; 
@@ -375,7 +378,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v29.1</div>
+            <div class="version-tag">v29.2</div>
         </div>
     </div>
     
@@ -406,8 +409,8 @@
             <div class="section-box">
                 <h2>Regras do Jogo</h2>
                 <div class="input-row">
-                    <div class="input-group"><label>Tempo (s)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
-                    <div class="input-group"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Tempo (em segundos)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
                 </div>
                 
                 <div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div>
@@ -417,8 +420,8 @@
                 <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
                 <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Modo Sobrevivente</h2>
                 <div class="input-row">
-                    <div class="input-group" style="flex:2"><label>Início (s)</label><input type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div>
-                    <div class="input-group" style="flex:1"><label>Bônus (s)</label><input type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Início (em segundos)</label><input type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Bônus (em segundos)</label><input type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div>
                 </div>
             </div>
             
@@ -434,10 +437,10 @@
                 
                 <div class="input-group" style="margin-bottom: 10px;">
                     <label>Selecionar Aba</label>
-                    <div style="display: flex; gap: 5px;">
-                        <select id="sheet-selector" style="flex: 1;" onchange="dataMgr.switchSheet(this.value)"></select>
-                        <button class="btn btn-small btn-outline" style="width: auto; padding: 0 15px; font-size: 1.2rem; margin:0;" onclick="dataMgr.addSheet()" title="Nova Aba">+</button>
-                        <button class="btn btn-small btn-danger" style="width: auto; padding: 0 15px; font-size: 1.2rem; margin:0;" onclick="dataMgr.removeSheet()" title="Excluir Aba">🗑️</button>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="sheet-selector" style="flex: 1; margin:0;" onchange="dataMgr.switchSheet(this.value)"></select>
+                        <button class="btn btn-square" style="background:var(--success)" onclick="dataMgr.addSheet()" title="Nova Aba">+</button>
+                        <button class="btn btn-square" style="background:var(--danger)" onclick="dataMgr.removeSheet()" title="Excluir Aba">-</button>
                     </div>
                 </div>
                 
@@ -454,7 +457,7 @@
                 </div>
             </div>
             
-            <button class="btn" onclick="app.to('home')">VOLTAR</button>
+            <button class="btn" style="margin: 20px auto 0 auto; display: block;" onclick="app.to('home')">VOLTAR</button>
         </div>
     </div>
 
@@ -690,6 +693,7 @@
             init: () => { 
                 if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0;
                 dataMgr.updateSheetSelector();
+                document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2); 
                 dataMgr.renderTable();
             },
             updateSheetSelector: () => {
@@ -704,9 +708,16 @@
                 });
             },
             switchSheet: (idx) => {
-                dataMgr.syncFromTable();
+                if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
                 CURRENT_SHEET_IDX = parseInt(idx);
                 dataMgr.init();
+            },
+            toggleView: () => {
+                dataMgr.isTableMode = !dataMgr.isTableMode;
+                document.getElementById('btn-toggle-view').innerText = dataMgr.isTableMode ? "Ver JSON" : "Ver Tabela";
+                document.getElementById('view-json').classList.toggle('active', !dataMgr.isTableMode);
+                document.getElementById('view-table').classList.toggle('active', dataMgr.isTableMode);
+                if(dataMgr.isTableMode) dataMgr.syncFromJSON(); else dataMgr.syncFromTable();
             },
             addSheet: () => {
                 dataMgr.syncFromTable();
@@ -727,18 +738,15 @@
                     storage.save();
                 });
             },
-            toggleView: () => {
-                // Deprecated feature, maintained logic just in case but removed UI
-            },
             markDirty: () => {},
-            syncFromJSON: () => { },
+            syncFromJSON: () => { try { GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = JSON.parse(document.getElementById('json-input').value); dataMgr.renderTable(); dataMgr.updateSheetSelector(); } catch(e) {} },
             syncFromTable: () => {
                 const rows = document.querySelectorAll('.table-row'); const newCats = [];
                 rows.forEach(r => {
                     const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
                     if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
                 });
-                GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats; 
+                GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats; document.getElementById('json-input').value = JSON.stringify(GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX], null, 2);
                 dataMgr.updateSheetSelector();
             },
             renderTable: () => {
@@ -756,7 +764,7 @@
                 container.appendChild(row);
             },
             save: () => {
-                dataMgr.syncFromTable();
+                if(dataMgr.isTableMode) dataMgr.syncFromTable(); else dataMgr.syncFromJSON();
                 SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!");
             },
             reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ 
