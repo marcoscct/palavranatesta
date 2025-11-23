@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (29).html -->
+<!-- START OF FILE ai_studio_code (30).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -379,7 +379,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v29.7</div>
+            <div class="version-tag">v29.8</div>
         </div>
     </div>
     
@@ -697,6 +697,7 @@
                         if(data.mode) document.getElementById('opt-mode').value = data.mode;
                         if(data.threshold) document.getElementById('opt-threshold').value = data.threshold;
                         if(data.theme) CURRENT_THEME = data.theme;
+                        // Load Survival Options
                         if(data.survTime) document.getElementById('opt-surv-time').value = data.survTime;
                         if(data.survBonus) document.getElementById('opt-surv-bonus').value = data.survBonus;
                         
@@ -857,6 +858,7 @@
                     ui.alert("Erro ao ler planilha."); 
                 }
             },
+            /* FUNÇÃO DE EXPORTAÇÃO INTELIGENTE */
             exportExcel: () => {
                 try {
                     const t1Name = st.t[0].n;
@@ -867,15 +869,18 @@
                     const maxRounds = st.cfg.r;
 
                     for (let r = 1; r <= maxRounds; r++) {
+                        // Busca pontuação específica de cada time naquela rodada
                         const logA = st.logs.find(l => l.r === r && l.t === 0);
                         const logB = st.logs.find(l => l.r === r && l.t === 1);
                         
                         const sA = logA ? logA.s : 0;
                         const sB = logB ? logB.s : 0;
 
+                        // Calcula acumulados
                         accA += sA;
                         accB += sB;
 
+                        // Monta a linha da planilha
                         const row = {};
                         row["Rodada"] = r;
                         row[t1Name] = sA;
@@ -888,6 +893,8 @@
                     const ws = XLSX.utils.json_to_sheet(rows);
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, "Placar");
+                    
+                    // Gera e baixa. No mobile, isso dispara o "Salvar em..."
                     XLSX.writeFile(wb, "palavra_na_testa_placar.xlsx");
                 } catch(e) {
                     ui.alert("Erro ao gerar planilha: " + e.message);
