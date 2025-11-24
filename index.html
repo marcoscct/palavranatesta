@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (32).html -->
+<!-- START OF FILE ai_studio_code (33).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -69,8 +69,8 @@
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         
-        /* NO SCROLL SCREENS (FIX REQUESTED) */
-        #screen-game, #screen-intro, #screen-final { 
+        /* NO SCROLL SCREENS (FIXED TEAMS SCREEN) */
+        #screen-game, #screen-intro, #screen-final, #screen-teams { 
             overflow: hidden; 
             touch-action: none; 
         }
@@ -78,9 +78,9 @@
         #screen-game { display: block; } 
         #screen-wheel { overflow: hidden !important; touch-action: none; }
 
-        /* Adjust scrollable logic to exclude intro and final */
+        /* Adjust scrollable logic to exclude static screens */
         @media (max-height: 850px) {
-            .screen:not(#screen-game):not(#screen-wheel):not(#screen-intro):not(#screen-final) {
+            .screen:not(#screen-game):not(#screen-wheel):not(#screen-intro):not(#screen-final):not(#screen-teams) {
                 justify-content: flex-start;
                 padding-top: calc(40px + env(safe-area-inset-top));
                 padding-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -386,7 +386,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v30.1</div>
+            <div class="version-tag">v30.2</div>
         </div>
     </div>
     
@@ -404,9 +404,19 @@
             <div class="section-box">
                 <h2>Visual & Times</h2>
                 <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div>
+                
+                <!-- RESTORED DROPDOWN -->
+                <div class="input-group">
+                    <label>Estrutura</label>
+                    <select id="opt-players" onchange="app.toggleSolo(); storage.save()">
+                        <option value="2">Versus (2 Times)</option>
+                        <option value="1">Solo (1 Time)</option>
+                    </select>
+                </div>
+
                 <div class="teams-container" style="margin-top:15px">
                     <div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div>
-                    <div class="input-group"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div>
+                    <div class="input-group" id="group-t2"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div>
                 </div>
             </div>
             
@@ -470,7 +480,7 @@
         <h1>EQUIPES</h1>
         <div class="teams-container">
             <div class="input-group"><label style="color: var(--primary);" id="lbl-t1">Time A</label><input type="text" id="t1-conf" placeholder="Nome do Time A" onchange="app.confirmTeams(true)"></div>
-            <div class="input-group"><label style="color: var(--secondary);" id="lbl-t2">Time B</label><input type="text" id="t2-conf" placeholder="Nome do Time B" onchange="app.confirmTeams(true)"></div>
+            <div class="input-group" id="group-t2-conf"><label style="color: var(--secondary);" id="lbl-t2">Time B</label><input type="text" id="t2-conf" placeholder="Nome do Time B" onchange="app.confirmTeams(true)"></div>
         </div>
         <button class="btn" onclick="app.prep()">JOGAR AGORA</button>
     </div>
@@ -520,15 +530,18 @@
     </div>
 
     <div id="screen-final" class="screen">
-        <h1 style="font-size: 8vh;">FIM DE JOGO</h1>
-        <div style="display:flex; gap:4vw; margin: 4vh 0; flex-wrap: wrap; justify-content: center;">
+        <h1 style="font-size: 8vh;" id="final-title">FIM DE JOGO</h1>
+        
+        <!-- SCORE CONTAINER -->
+        <div id="final-scores-container" style="display:flex; gap:4vw; margin: 4vh 0; flex-wrap: wrap; justify-content: center;">
             <div style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
                 <div id="fn-1" style="color:var(--primary); font-weight:bold; font-size: 3vh">Time A</div><div id="fs-1" style="font-size:8vh; font-weight:900">0</div>
             </div>
-            <div style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
+            <div id="score-box-2" style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
                 <div id="fn-2" style="color:var(--secondary); font-weight:bold; font-size: 3vh">Time B</div><div id="fs-2" style="font-size:8vh; font-weight:900">0</div>
             </div>
         </div>
+        
         <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
         
         <!-- BOTÕES NA MESMA LINHA: MENU + BAIXAR -->
@@ -628,9 +641,9 @@
         
         const st = { 
             t:[{n:"Time A",s:0},{n:"Time B",s:0}], 
-            cfg:{t:60, r:3, survTime: 30, survBonus: 5}, 
+            cfg:{t:60, r:3, survTime: 30, survBonus: 5, solo: false}, // Added 'solo'
             rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false, logs: [],
-            roundMode: 'normal' // 'normal' or 'survival'
+            roundMode: 'normal'
         };
 
         const ui = {
@@ -680,7 +693,8 @@
                     threshold: document.getElementById('opt-threshold').value,
                     theme: CURRENT_THEME,
                     survTime: document.getElementById('opt-surv-time').value,
-                    survBonus: document.getElementById('opt-surv-bonus').value
+                    survBonus: document.getElementById('opt-surv-bonus').value,
+                    solo: document.getElementById('opt-players').value
                 };
                 localStorage.setItem('pnt_data_v22', JSON.stringify(data));
             },
@@ -704,11 +718,15 @@
                         if(data.mode) document.getElementById('opt-mode').value = data.mode;
                         if(data.threshold) document.getElementById('opt-threshold').value = data.threshold;
                         if(data.theme) CURRENT_THEME = data.theme;
-                        // Load Survival Options
                         if(data.survTime) document.getElementById('opt-surv-time').value = data.survTime;
                         if(data.survBonus) document.getElementById('opt-surv-bonus').value = data.survBonus;
+                        if(data.solo) {
+                            document.getElementById('opt-players').value = data.solo;
+                            st.cfg.solo = data.solo == '1';
+                        }
                         
                         app.toggleThresholdVisibility();
+                        app.toggleSolo();
                     }
                 } catch(e) { localStorage.removeItem('pnt_data_v22'); }
             }
@@ -761,7 +779,6 @@
             syncFromJSON: () => { },
             syncFromTable: () => {
                 const rows = document.querySelectorAll('.table-row');
-                // FIX: Don't sync if view is hidden/empty to avoid wiping data
                 if (rows.length === 0 && !document.getElementById('screen-options').classList.contains('active')) return;
                 
                 const newCats = [];
@@ -774,7 +791,6 @@
                     }
                 });
                 
-                // Update only if we have valid data or user intentionally cleared it (but usually we have 1 row min)
                 if (document.getElementById('view-table').classList.contains('active')) {
                      GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats;
                 }
@@ -852,11 +868,7 @@
                         if (parsedSheets.length > 0) {
                             GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
                             CURRENT_SHEET_IDX = 0;
-                            
-                            // FIX: Reset UI immediately
-                            dataMgr.init(); 
-                            storage.save(); 
-                            ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
+                            dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
                         } else { ui.alert("Nenhuma categoria encontrada."); }
                     };
                     reader.readAsArrayBuffer(blob);
@@ -865,43 +877,39 @@
                     ui.alert("Erro ao ler planilha."); 
                 }
             },
-            /* FUNÇÃO DE EXPORTAÇÃO INTELIGENTE */
             exportExcel: () => {
                 try {
                     const t1Name = st.t[0].n;
                     const t2Name = st.t[1].n;
+                    const isSolo = st.cfg.solo;
                     const rows = [];
                     let accA = 0;
                     let accB = 0;
                     const maxRounds = st.cfg.r;
 
                     for (let r = 1; r <= maxRounds; r++) {
-                        // Busca pontuação específica de cada time naquela rodada
                         const logA = st.logs.find(l => l.r === r && l.t === 0);
-                        const logB = st.logs.find(l => l.r === r && l.t === 1);
-                        
                         const sA = logA ? logA.s : 0;
-                        const sB = logB ? logB.s : 0;
-
-                        // Calcula acumulados
                         accA += sA;
-                        accB += sB;
 
-                        // Monta a linha da planilha
                         const row = {};
                         row["Rodada"] = r;
                         row[t1Name] = sA;
-                        row[t2Name] = sB;
                         row["Total " + t1Name] = accA;
-                        row["Total " + t2Name] = accB;
+
+                        if(!isSolo) {
+                            const logB = st.logs.find(l => l.r === r && l.t === 1);
+                            const sB = logB ? logB.s : 0;
+                            accB += sB;
+                            row[t2Name] = sB;
+                            row["Total " + t2Name] = accB;
+                        }
                         rows.push(row);
                     }
                     
                     const ws = XLSX.utils.json_to_sheet(rows);
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, "Placar");
-                    
-                    // Gera e baixa. No mobile, isso dispara o "Salvar em..."
                     XLSX.writeFile(wb, "palavra_na_testa_placar.xlsx");
                 } catch(e) {
                     ui.alert("Erro ao gerar planilha: " + e.message);
@@ -909,7 +917,7 @@
             }
         };
 
-        /* SENSOR (HISTERESE) */
+        /* SENSOR & NAV LOGIC */
         const sensor = {
             z: 0, wait: false,
             resetState: true, 
@@ -937,7 +945,6 @@
         };
         sensor.init();
 
-        /* NAV */
         const app = {
             to: (id) => {
                 if(document.querySelector('#screen-game.active')) game.stop();
@@ -949,7 +956,7 @@
                 
                 if(id === 'home') {
                     homeBtn.style.display = 'none';
-                    wakeLockMgr.release(); // Release Screen Lock
+                    wakeLockMgr.release();
                     game.stopAll();
                     document.getElementById('timer-num').innerText = st.cfg.t;
                     st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0;
@@ -961,14 +968,28 @@
                 if(id === 'teams') {
                    document.getElementById('t1-conf').value = document.getElementById('t1').value;
                    document.getElementById('t2-conf').value = document.getElementById('t2').value;
+                   
+                   // Solo logic for Teams Screen
+                   const t2Group = document.getElementById('group-t2-conf');
+                   if (st.cfg.solo && t2Group) t2Group.style.display = 'none';
+                   else if(t2Group) t2Group.style.display = 'block';
+
                    const root = getComputedStyle(document.documentElement);
                    document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary');
-                   document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary');
+                   if(!st.cfg.solo) document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary');
                    document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary');
-                   document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
+                   if(!st.cfg.solo) document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
                 }
                 
                 if(id === 'intro') app.setMode(st.roundMode); 
+            },
+            toggleSolo: () => {
+                const val = document.getElementById('opt-players').value;
+                st.cfg.solo = (val == '1');
+                
+                const t2Input = document.getElementById('group-t2');
+                if(st.cfg.solo) t2Input.style.display = 'none';
+                else t2Input.style.display = 'block';
             },
             setMode: (m) => {
                 st.roundMode = m;
@@ -984,7 +1005,7 @@
             },
             start: () => {
                 aud.p('click');
-                wakeLockMgr.request(); // Request Screen Lock
+                wakeLockMgr.request();
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                     DeviceMotionEvent.requestPermission().then(response => {}).catch(console.error);
                 }
@@ -999,15 +1020,18 @@
                 st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
                 st.cfg.survTime = parseInt(document.getElementById('opt-surv-time').value) || 30;
                 st.cfg.survBonus = parseInt(document.getElementById('opt-surv-bonus').value) || 5;
+                st.cfg.solo = (document.getElementById('opt-players').value == '1');
                 
                 storage.save();
                 app.to('teams');
             },
             confirmTeams: (onlySave) => { 
                 st.t[0].n = document.getElementById('t1-conf').value || "Time A";
-                st.t[1].n = document.getElementById('t2-conf').value || "Time B";
+                if(!st.cfg.solo) st.t[1].n = document.getElementById('t2-conf').value || "Time B";
+                
                 document.getElementById('t1').value = st.t[0].n;
-                document.getElementById('t2').value = st.t[1].n;
+                if(!st.cfg.solo) document.getElementById('t2').value = st.t[1].n;
+                
                 storage.save();
                 if(!onlySave) app.prep(); 
             },
@@ -1016,40 +1040,90 @@
                 if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) {
                     GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
                 }
-                const turnIdx = (st.rd - 1) * 2 + st.trn;
+                
+                // Logic for rounds in Solo vs Versus
+                let turnIdx = 0;
                 let effectiveSheets = GLOBAL_SHEETS_DATA.length;
-                if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
+                
+                if (st.cfg.solo) {
+                    // In solo, turn index is simply round index - 1
+                    turnIdx = st.rd - 1;
+                } else {
+                    // In versus, it calculates based on 2 turns per round
+                    turnIdx = (st.rd - 1) * 2 + st.trn;
+                    if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
+                }
+                
                 const sheetIdx = turnIdx % effectiveSheets;
                 CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                
+                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
+                     CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                }
+
                 const t = st.t[st.trn];
                 const root = getComputedStyle(document.documentElement);
-                const color = st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary');
+                
+                // Solo Mode always uses Primary Color
+                const color = (st.cfg.solo) ? root.getPropertyValue('--primary') : 
+                              (st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary'));
+
                 document.getElementById('lbl-rd').innerText = st.rd;
                 document.getElementById('lbl-tm').innerText = t.n;
                 document.getElementById('lbl-tm').style.color = color;
                 app.to('intro');
             },
             toWheel: () => { aud.p('click'); wheel.init(); app.to('wheel'); },
-            next: () => { aud.p('click'); st.trn++; if(st.trn>1){st.trn=0; st.rd++} app.prep(); },
+            next: () => { 
+                aud.p('click'); 
+                
+                if (st.cfg.solo) {
+                    st.rd++; // Solo just increments round
+                } else {
+                    st.trn++; 
+                    if(st.trn > 1){ st.trn=0; st.rd++; } 
+                }
+                app.prep(); 
+            },
             end: () => {
                 const t1=st.t[0], t2=st.t[1];
                 const root = getComputedStyle(document.documentElement);
                 const c1 = root.getPropertyValue('--primary');
                 const c2 = root.getPropertyValue('--secondary');
+                
                 document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s;
                 document.getElementById('fn-1').style.color = c1;
-                document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s;
-                document.getElementById('fn-2').style.color = c2;
-                const w=document.getElementById('winner');
-                if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;}
-                else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;}
-                else {w.innerText="EMPATE"; w.style.color="white";}
+                
+                if(st.cfg.solo) {
+                    // Hide T2 box and center T1
+                    document.getElementById('score-box-2').style.display = 'none';
+                    document.getElementById('final-title').innerText = "FIM DE JOGO";
+                    
+                    let msg = "";
+                    if(t1.s > 20) msg = "INCRÍVEL!";
+                    else if(t1.s > 10) msg = "MANDOU BEM!";
+                    else msg = "BOA TENTATIVA!";
+                    
+                    const w=document.getElementById('winner');
+                    w.innerText = msg;
+                    w.style.color = c1;
+                } else {
+                    // Normal Versus Logic
+                    document.getElementById('score-box-2').style.display = 'block';
+                    document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s;
+                    document.getElementById('fn-2').style.color = c2;
+                    
+                    const w=document.getElementById('winner');
+                    if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;}
+                    else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;}
+                    else {w.innerText="EMPATE"; w.style.color="white";}
+                }
+                
                 aud.p('win'); app.to('final');
             }
         };
 
-        /* WHEEL & JACKPOT (HYBRID PHYSICS) */
+        /* WHEEL LOGIC REMAINS SAME */
         const wheel = {
             el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
             stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
@@ -1247,14 +1321,25 @@
         };
 
         window.onload = () => {
-            storage.load(); themeMgr.init(); sensor.init();
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
+            storage.load();
+            themeMgr.init(); // Initialize themes
+            sensor.init();
+
+            // DICA IOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
+            
             if (isIOS && !isStandalone) {
+                // Cria um aviso discreto
                 const div = document.createElement('div');
                 div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); padding:10px 20px; border-radius:20px; font-size:0.8rem; z-index:9999; text-align:center; width:90%; pointer-events:none; animation: fadeOut 5s forwards 5s; color: white; font-family: sans-serif;";
                 div.innerHTML = "Dica: Para tela cheia, toque em <b>Compartilhar</b> <span style='font-size:1.2em'>⎋</span> e <b>Adicionar à Tela de Início</b>.";
-                const style = document.createElement('style'); style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
-                document.head.appendChild(style); document.body.appendChild(div);
+                
+                // CSS da animação
+                const style = document.createElement('style');
+                style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
+                document.head.appendChild(style);
+                document.body.appendChild(div);
             }
         };
     </script>
