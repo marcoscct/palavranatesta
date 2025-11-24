@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (33).html -->
+<!-- START OF FILE ai_studio_code (35).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -69,7 +69,7 @@
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         
-        /* NO SCROLL SCREENS (FIXED TEAMS SCREEN) */
+        /* NO SCROLL SCREENS */
         #screen-game, #screen-intro, #screen-final, #screen-teams { 
             overflow: hidden; 
             touch-action: none; 
@@ -78,7 +78,7 @@
         #screen-game { display: block; } 
         #screen-wheel { overflow: hidden !important; touch-action: none; }
 
-        /* Adjust scrollable logic to exclude static screens */
+        /* Adjust scrollable logic */
         @media (max-height: 850px) {
             .screen:not(#screen-game):not(#screen-wheel):not(#screen-intro):not(#screen-final):not(#screen-teams) {
                 justify-content: flex-start;
@@ -386,15 +386,15 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v30.2</div>
+            <div class="version-tag">v31.1</div>
         </div>
     </div>
     
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
         <h1>PALAVRA NA TESTA</h1>
-        <button class="btn" onclick="app.start()">INICIAR JOGO</button>
-        <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
+        <button class="btn" aria-label="Iniciar Jogo" onclick="app.start()">INICIAR JOGO</button>
+        <button class="btn btn-outline" aria-label="Opções" onclick="app.to('options')">OPÇÕES / EDITOR</button>
     </div>
 
     <!-- TELA 0.5: OPÇÕES -->
@@ -405,7 +405,19 @@
                 <h2>Visual & Times</h2>
                 <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div>
                 
-                <!-- RESTORED DROPDOWN -->
+                <!-- ACCESSIBILITY OPTIONS -->
+                <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                    <h2 style="border:none; font-size:1rem; margin-bottom:10px">Acessibilidade</h2>
+                    <div class="input-group" style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom: 10px;" onclick="document.getElementById('opt-tts').click()">
+                        <input type="checkbox" id="opt-tts" style="width:25px; height:25px;" onchange="storage.save()">
+                        <label style="margin:0; cursor:pointer;">Narrador de Jogo (Geral)</label>
+                    </div>
+                    <div class="input-group" style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="document.getElementById('opt-tts-word').click()">
+                        <input type="checkbox" id="opt-tts-word" style="width:25px; height:25px;" onchange="storage.save()">
+                        <label style="margin:0; cursor:pointer;">Ler Palavra (Modo Mímica)</label>
+                    </div>
+                </div>
+
                 <div class="input-group">
                     <label>Estrutura</label>
                     <select id="opt-players" onchange="app.toggleSolo(); storage.save()">
@@ -541,7 +553,6 @@
                 <div id="fn-2" style="color:var(--secondary); font-weight:bold; font-size: 3vh">Time B</div><div id="fs-2" style="font-size:8vh; font-weight:900">0</div>
             </div>
         </div>
-        
         <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
         
         <!-- BOTÕES NA MESMA LINHA: MENU + BAIXAR -->
@@ -588,6 +599,17 @@
                     wakeLockMgr.sentinel.release();
                     wakeLockMgr.sentinel = null;
                 }
+            }
+        };
+
+        // ACCESSIBILITY TTS
+        const tts = {
+            speak: (text) => {
+                if(!st.cfg.tts && !st.cfg.ttsWord) return;
+                window.speechSynthesis.cancel(); 
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'pt-BR';
+                window.speechSynthesis.speak(u);
             }
         };
 
@@ -641,7 +663,7 @@
         
         const st = { 
             t:[{n:"Time A",s:0},{n:"Time B",s:0}], 
-            cfg:{t:60, r:3, survTime: 30, survBonus: 5, solo: false}, // Added 'solo'
+            cfg:{t:60, r:3, survTime: 30, survBonus: 5, solo: false, tts: false, ttsWord: false}, 
             rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false, logs: [],
             roundMode: 'normal'
         };
@@ -670,6 +692,7 @@
             showResult: (catName, catColor, cb) => {
                 const html = `<div id="result-cat-display" style="color:${catColor}; font-size:2.5rem; font-weight:900; text-transform:uppercase; line-height:1.1; margin-bottom:20px">${catName}</div>`;
                 ui.modal("CATEGORIA", html, [{txt:"COMEÇAR", fn:cb}]);
+                if(st.cfg.tts) tts.speak(`Categoria sorteada: ${catName}. Toque em começar.`);
             }
         };
 
@@ -694,8 +717,12 @@
                     theme: CURRENT_THEME,
                     survTime: document.getElementById('opt-surv-time').value,
                     survBonus: document.getElementById('opt-surv-bonus').value,
-                    solo: document.getElementById('opt-players').value
+                    solo: document.getElementById('opt-players').value,
+                    tts: document.getElementById('opt-tts').checked,
+                    ttsWord: document.getElementById('opt-tts-word').checked
                 };
+                st.cfg.tts = data.tts;
+                st.cfg.ttsWord = data.ttsWord;
                 localStorage.setItem('pnt_data_v22', JSON.stringify(data));
             },
             load: () => {
@@ -723,6 +750,14 @@
                         if(data.solo) {
                             document.getElementById('opt-players').value = data.solo;
                             st.cfg.solo = data.solo == '1';
+                        }
+                        if(data.tts !== undefined) {
+                            document.getElementById('opt-tts').checked = data.tts;
+                            st.cfg.tts = data.tts;
+                        }
+                        if(data.ttsWord !== undefined) {
+                            document.getElementById('opt-tts-word').checked = data.ttsWord;
+                            st.cfg.ttsWord = data.ttsWord;
                         }
                         
                         app.toggleThresholdVisibility();
@@ -981,7 +1016,9 @@
                    if(!st.cfg.solo) document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
                 }
                 
-                if(id === 'intro') app.setMode(st.roundMode); 
+                if(id === 'intro') {
+                    app.setMode(st.roundMode); 
+                }
             },
             toggleSolo: () => {
                 const val = document.getElementById('opt-players').value;
@@ -1107,6 +1144,7 @@
                     const w=document.getElementById('winner');
                     w.innerText = msg;
                     w.style.color = c1;
+                    if(st.cfg.tts) tts.speak(`Fim de jogo. Sua pontuação final foi ${t1.s} pontos. ${msg}`);
                 } else {
                     // Normal Versus Logic
                     document.getElementById('score-box-2').style.display = 'block';
@@ -1114,9 +1152,18 @@
                     document.getElementById('fn-2').style.color = c2;
                     
                     const w=document.getElementById('winner');
-                    if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;}
-                    else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;}
-                    else {w.innerText="EMPATE"; w.style.color="white";}
+                    if(t1.s>t2.s) {
+                        w.innerText=t1.n+" VENCEU!"; w.style.color=c1;
+                        if(st.cfg.tts) tts.speak(`Fim de jogo. O vencedor foi ${t1.n} com ${t1.s} pontos.`);
+                    }
+                    else if(t2.s>t1.s) {
+                        w.innerText=t2.n+" VENCEU!"; w.style.color=c2;
+                        if(st.cfg.tts) tts.speak(`Fim de jogo. O vencedor foi ${t2.n} com ${t2.s} pontos.`);
+                    }
+                    else {
+                        w.innerText="EMPATE"; w.style.color="white";
+                        if(st.cfg.tts) tts.speak(`Fim de jogo. Empate com ${t1.s} pontos.`);
+                    }
                 }
                 
                 aud.p('win'); app.to('final');
@@ -1259,6 +1306,7 @@
                 document.getElementById('timer-num').innerText = game.curTime;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
                 const d=document.getElementById('word-disp'); let c=3; d.innerText=c; 
+                if(st.cfg.tts) tts.speak("Três, dois, um, Valendo!");
                 game.preTmr = setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(game.preTmr); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000);
             },
             run: () => {
@@ -1269,17 +1317,19 @@
                     game.curTime--; tn.innerText = game.curTime;
                     let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360; if (pct < 0) pct = 0; 
                     tw.style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
+                    if(st.cfg.tts && game.curTime === 10) tts.speak("Dez segundos");
                     if(game.curTime <= 0) { game.stop(); game.end(); }
                 },1000);
             },
             next: () => {
                 if(st.q.length === 0) { if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
                 st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw;
+                if(st.cfg.ttsWord) setTimeout(() => tts.speak(st.cw), 800); // Reads word if mode active
             },
             act: (win) => {
                 if(!st.on) return;
                 if(win){ 
-                    aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); 
+                    aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); if(st.cfg.tts) tts.speak("Acertou!");
                     if(st.roundMode === 'survival') {
                         game.curTime += st.cfg.survBonus; document.getElementById('timer-num').innerText = game.curTime;
                         const animEl = document.getElementById('bonus-anim'); animEl.innerText = `+${st.cfg.survBonus}s`;
@@ -1288,7 +1338,7 @@
                         const root = getComputedStyle(document.documentElement); const sec = root.getPropertyValue('--secondary').trim();
                         document.querySelector('.timer-wrapper').style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
                     }
-                } else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); }
+                } else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); if(st.cfg.tts) tts.speak("Pulou!"); }
                 game.next();
             },
             flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
