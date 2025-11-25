@@ -584,7 +584,7 @@
         
         let CURRENT_THEME = 'default';
 
-        // WAKE LOCK MANAGER
+        // WAKE LOCK MANAGER (PREVENT SCREEN SLEEP)
         const wakeLockMgr = {
             sentinel: null,
             request: async () => {
@@ -599,17 +599,6 @@
                     wakeLockMgr.sentinel.release();
                     wakeLockMgr.sentinel = null;
                 }
-            }
-        };
-
-        // ACCESSIBILITY TTS
-        const tts = {
-            speak: (text) => {
-                if(!st.cfg.tts && !st.cfg.ttsWord) return;
-                window.speechSynthesis.cancel(); 
-                const u = new SpeechSynthesisUtterance(text);
-                u.lang = 'pt-BR';
-                window.speechSynthesis.speak(u);
             }
         };
 
@@ -1005,6 +994,137 @@
                 }
             }
         });
+
+        /* WHEEL & JACKPOT (HYBRID PHYSICS) */
+        const wheel = {
+            el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
+            roundColors: [], // FIX: Initialize
+            stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
+            init: () => {
+                const mode = document.getElementById('opt-mode').value;
+                const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
+                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) CURRENT_ROUND_CATS = DEFAULT_CATS;
+                if (mode === 'wheel') wheel.mode = 'wheel';
+                else if (mode === 'jackpot') wheel.mode = 'jackpot';
+                else { wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel'; }
+                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
+                document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                
+                // Generate Dynamic Palette using helper function
+                wheel.roundColors = generateGradientPalette(CURRENT_ROUND_CATS.length);
+
+                wheel.el = document.getElementById('wheel-spinner');
+                wheel.jackpot = document.getElementById('jackpot-strip');
+                wheel.jackpot.style.transition = 'none';
+                wheel.jackpot.style.transform = 'translateY(0px)';
+                wheel.offsetY = 0;
+                wheel.el.style.transition = 'none';
+                wheel.el.style.transform = 'rotate(0deg)';
+                wheel.ang = 0;
+                if (wheel.mode === 'wheel') wheel.setupWheel(); else wheel.setupJackpot();
+                const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
+                wheel.attachDrag(container);
+            },
+            setupWheel: () => {
+                let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
+                CURRENT_ROUND_CATS.forEach((c, i) => {
+                    const color = wheel.roundColors[i % wheel.roundColors.length];
+                    const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
+                    g += `${color} ${start}deg ${end}deg,`;
+                    const mid = start + (sliceDeg / 2);
+                    const split = smartSplit(c.n);
+                    let fontSize = 4; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
+                    if(refLen > 8) fontSize = 4 * (8 / refLen);
+                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
+                });
+                wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
+            },
+            setupJackpot: () => {
+                let h = ""; const list = [];
+                for(let k=0; k<30; k++) { CURRENT_ROUND_CATS.forEach(c => list.push(c)); }
+                const n = CURRENT_ROUND_CATS.length;
+                list.forEach((c, i) => {
+                     const realIndex = i % n; const color = wheel.roundColors[realIndex % wheel.roundColors.length];
+                     h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`;
+                });
+                wheel.jackpot.innerHTML = h;
+            },
+            attachDrag: (target) => {
+                let startY = 0, lastY = 0, startTime = 0, startAng = 0, lastAng = 0, angularVelocity = 0, linearVelocity = 0, lastMoveTime = 0;
+                const getAngle = (e, el) => {
+                    const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+                };
+                const onStart = (e) => {
+                    if(wheel.spin) return;
+                    window.focus();
+                    if (wheel.mode === 'wheel') { startAng = getAngle(e, target); lastAng = startAng; } else { startY = e.touches ? e.touches[0].clientY : e.clientY; lastY = startY; }
+                    lastMoveTime = Date.now(); startTime = lastMoveTime; angularVelocity = 0; linearVelocity = 0;
+                    document.addEventListener('touchmove', onMove, {passive: false}); document.addEventListener('touchend', onEnd);
+                    document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd);
+                };
+                const onMove = (e) => {
+                    e.preventDefault(); const now = Date.now(); const dt = now - lastMoveTime;
+                    if (wheel.mode === 'wheel') {
+                        const curAng = getAngle(e, target); let delta = curAng - lastAng;
+                        if (delta > 180) delta -= 360; if (delta < -180) delta += 360;
+                        wheel.ang += delta; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
+                        if(dt > 0) { const instantVel = delta / dt; angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5); }
+                        lastAng = curAng;
+                    } else {
+                        const curY = e.touches ? e.touches[0].clientY : e.clientY; const delta = curY - lastY; wheel.offsetY += delta;
+                        const itemEl = wheel.jackpot.querySelector('.jackpot-item');
+                        if(itemEl) { const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length; if(wheel.offsetY > 0) wheel.offsetY -= stripH; if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH; }
+                        wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                        if(dt > 0) { const instantVel = delta / dt; linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5); }
+                        lastY = curY;
+                    }
+                    lastMoveTime = now;
+                };
+                const onEnd = () => {
+                    document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd);
+                    document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd);
+                    const totalDuration = Date.now() - startTime;
+                    if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; }
+                    if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; }
+                    if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); } 
+                    else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); }
+                };
+                target.onmousedown = onStart; target.ontouchstart = onStart;
+            },
+            go: (velocity) => {
+                if(wheel.spin) return; wheel.spin = true; aud.l('spin', true);
+                let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
+                const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
+                if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
+                const duration = 3; 
+                if (wheel.mode === 'wheel') {
+                    const sliceDeg = 360 / CURRENT_ROUND_CATS.length; const currentAngle = wheel.ang; const spins = 5 * 360;
+                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2); const dir = Math.sign(velocity) || 1; const totalRot = spins * dir;
+                    const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
+                    wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.el.style.transform = `rotate(${finalAngle}deg)`; wheel.ang = finalAngle;
+                    wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
+                } else {
+                    const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if (!itemEl) return;
+                    const itemH = itemEl.getBoundingClientRect().height; const n = CURRENT_ROUND_CATS.length; const dir = Math.sign(velocity); 
+                    const startSet = 15; const startY = -(startSet * n * itemH);
+                    wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = `translateY(${startY}px)`; wheel.jackpot.offsetHeight; 
+                    const targetSetOffset = (dir > 0) ? -3 : 3; const targetSet = startSet + targetSetOffset;
+                    const containerH = document.getElementById('jackpot-container').offsetHeight; const centerOffset = containerH / 2;
+                    const winnerItemIndex = (targetSet * n) + winnerIdx; const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
+                    wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
+                    setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
+                }
+            },
+            finish: (idx) => {
+                aud.l('spin', false); aud.p('win');
+                const cat = CURRENT_ROUND_CATS[idx]; st.cat = cat; 
+                // SAFE CHECK for colors
+                const color = (wheel.roundColors && wheel.roundColors.length > 0) ? wheel.roundColors[idx % wheel.roundColors.length] : COLORS[0];
+                ui.showResult(cat.n.replace('*', ''), color, () => game.pre()); wheel.spin = false;
+            }
+        };
 
         window.onload = () => {
             storage.load();
