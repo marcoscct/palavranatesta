@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (48).html -->
+<!-- START OF FILE ai_studio_code (49).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -20,9 +20,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* === CSS RESET & VARS === */
+        /* === VARS & RESET === */
         :root {
-            /* DEFAULT THEME */
             --bg-color: #1e1b4b;
             --bg-gradient: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
             --primary: #6366f1;
@@ -55,7 +54,7 @@
         }
         .screen.active { display: flex; opacity: 1; z-index: 10; }
         
-        /* PREVENT SCROLL ON GAME SCREENS */
+        /* NO SCROLL SCREENS */
         #screen-game, #screen-intro, #screen-final, #screen-teams { overflow: hidden; touch-action: none; }
         #screen-game { display: block; } 
         #screen-wheel { overflow: hidden !important; touch-action: none; }
@@ -68,7 +67,7 @@
             .btn { flex-shrink: 0; margin-top: auto; margin-bottom: 10px; }
         }
 
-        /* === UI ELEMENTS === */
+        /* === TYPOGRAPHY === */
         h1 {
             font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: clamp(2rem, 6vw, 4rem); text-transform: uppercase; 
             background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -76,6 +75,7 @@
         }
         h2 { font-family: 'Montserrat'; font-size: 1.3rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; width: 100%; }
 
+        /* === UI COMPONENTS === */
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 50px;
             padding: 1.5vh 4vw; font-size: clamp(1.2rem, 2.5vh, 1.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
@@ -91,7 +91,6 @@
 
         .input-group { margin-bottom: 1.5vh; width: 100%; max-width: 600px; position: relative; flex-shrink: 0; }
         .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
-        
         label { display: block; font-size: clamp(0.7rem, 1.8vh, 0.9rem); color: rgba(255,255,255,0.6); font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         input, textarea, select {
             width: 100%; padding: 1.5vh; background: rgba(255,255,255,0.1); border: var(--border); color: white; border-radius: 12px; 
@@ -105,7 +104,6 @@
         .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; padding-bottom: 50px; }
         .section-box { background: var(--panel-bg); padding: 20px; border-radius: 15px; border: var(--border); }
 
-        /* === EDITOR === */
         #editor-container { width: 100%; }
         .editor-view { display: none; width: 100%; }
         .editor-view.active { display: block; }
@@ -255,7 +253,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v34.1</div>
+            <div class="version-tag">v34.2</div>
         </div>
     </div>
     
@@ -274,7 +272,6 @@
                 <h2>Visual & Times</h2>
                 <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div>
                 
-                <!-- ACCESSIBILITY OPTIONS -->
                 <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
                     <h2 style="border:none; font-size:1rem; margin-bottom:10px">Acessibilidade</h2>
                     <div class="input-group" style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom: 10px;" onclick="document.getElementById('opt-tts').click()">
@@ -311,7 +308,6 @@
                 <div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div>
                 <div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div>
                 
-                <!-- SURVIVAL OPTIONS -->
                 <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
                 <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Modo Sobrevivente</h2>
                 <div class="input-row">
@@ -370,7 +366,6 @@
         <div class="round-pill"><h2>RODADA</h2><span id="lbl-rd">1</span></div>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
         
-        <!-- MODE SELECTOR -->
         <div class="mode-selector">
             <button class="mode-btn active" id="btn-mode-normal" onclick="app.setMode('normal')">NORMAL</button>
             <button class="mode-btn" id="btn-mode-surv" onclick="app.setMode('survival')">SOBREVIVENTE</button>
@@ -397,13 +392,10 @@
         <div id="fb-no" class="flash" style="background: var(--danger);">PULOU!</div>
     </div>
 
-    <!-- TELA RESULTADO (V28.3 Tweaks Applied) -->
     <div id="screen-res" class="screen" style="padding-bottom: calc(5vh + env(safe-area-inset-bottom) + 40px); justify-content: center;">
         <h1 style="font-size: clamp(2rem, 5vh, 4rem); margin: 0; line-height: 1;">FIM DA RODADA</h1>
         <div id="res-score" style="font-size: clamp(3rem, 6vh, 6rem); font-weight: 900; margin: 1vh 0 2vh 0; color: white; line-height: 1;">0 PONTOS</div>
-        
         <div id="res-list" style="width:100%; max-width:600px; flex: 1; max-height: 30vh; min-height: 100px; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:10px; margin-bottom: 2vh;"></div>
-        
         <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; justify-content: center; flex-shrink: 0;">
             <button class="btn" style="flex: 2; margin:0;" onclick="app.next()">PRÓXIMO</button>
             <button class="btn btn-outline" style="flex: 1; font-size: 1rem; padding: 0; margin:0;" onclick="game.openEdit()">EDITAR</button>
@@ -412,8 +404,6 @@
 
     <div id="screen-final" class="screen">
         <h1 style="font-size: 8vh;" id="final-title">FIM DE JOGO</h1>
-        
-        <!-- SCORE CONTAINER -->
         <div id="final-scores-container" style="display:flex; gap:4vw; margin: 4vh 0; flex-wrap: wrap; justify-content: center;">
             <div style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
                 <div id="fn-1" style="color:var(--primary); font-weight:bold; font-size: 3vh">Time A</div><div id="fs-1" style="font-size:8vh; font-weight:900">0</div>
@@ -423,15 +413,12 @@
             </div>
         </div>
         <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
-        
-        <!-- BOTÕES NA MESMA LINHA: MENU + BAIXAR -->
         <div style="display: flex; gap: 10px; width: 90%; max-width: 600px; justify-content: center; margin-top: 3vh;">
              <button class="btn" style="flex: 1; margin: 0;" onclick="app.to('home')">MENU PRINCIPAL</button>
              <button class="btn btn-outline" style="flex: 1; margin: 0; font-size: 0.9rem; padding: 0;" onclick="dataMgr.exportExcel()">BAIXAR RESULTADOS</button>
         </div>
     </div>
     
-    <!-- BUTTON HOME FIXED Z-INDEX -->
     <div id="home-btn" style="position:fixed; top:20px; left:20px; z-index:9999; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     </div>
@@ -439,31 +426,18 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        /* === HELPERS & CONSTANTS (MUST BE DEFINED FIRST) === */
+        /* === HELPERS === */
         const STOPS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#06B6D4", "#3B82F6", "#8B5CF6", "#EC4899"];
-        
         function hexToRgb(hex) {
             const bigint = parseInt(hex.replace('#', ''), 16);
             return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
         }
-
         function interpolateColor(c1, c2, factor) {
             const r = Math.round(c1.r + (c2.r - c1.r) * factor);
             const g = Math.round(c1.g + (c2.g - c1.g) * factor);
             const b = Math.round(c1.b + (c2.b - c1.b) * factor);
             return `rgb(${r}, ${g}, ${b})`;
         }
-
-        function smartSplit(text) {
-            const clean = text.replace(/\*$/, '');
-            if (clean.length <= 12) return { text: clean, lines: 1 };
-            const words = clean.split(' ');
-            if (words.length === 1) return { text: clean, lines: 1 };
-            let best=0, min=Infinity, cur=0, tot=clean.length;
-            for(let i=0; i<words.length-1; i++) { cur+=words[i].length; const d=Math.abs(cur-(tot-cur)); if(d<min){min=d; best=i;} }
-            return { text: `${words.slice(0, best+1).join(' ')}<br>${words.slice(best+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, best+1).join(' ').length, words.slice(best+1).join(' ').length) };
-        }
-
         const generateGradientPalette = (count) => {
              if (count <= 1) return [STOPS[0]];
              const palette = [];
@@ -479,37 +453,17 @@
              }
              return palette;
         };
+        function smartSplit(text) {
+            const clean = text.replace(/\*$/, '');
+            if (clean.length <= 12) return { text: clean, lines: 1 };
+            const words = clean.split(' ');
+            if (words.length === 1) return { text: clean, lines: 1 };
+            let best=0, min=Infinity, cur=0, tot=clean.length;
+            for(let i=0; i<words.length-1; i++) { cur+=words[i].length; const d=Math.abs(cur-(tot-cur)); if(d<min){min=d; best=i;} }
+            return { text: `${words.slice(0, best+1).join(' ')}<br>${words.slice(best+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, best+1).join(' ').length, words.slice(best+1).join(' ').length) };
+        }
 
-        /* === UI MANAGER (DEFINED EARLY) === */
-        const ui = {
-            modal: (title, html, actions) => {
-                document.getElementById('modal-title').innerText = title;
-                document.getElementById('modal-msg').innerHTML = html;
-                const actionBox = document.getElementById('modal-actions');
-                actionBox.innerHTML = '';
-                actions.forEach(a => {
-                    const btn = document.createElement('button');
-                    btn.className = a.cls || 'btn btn-small';
-                    if(a.style) btn.style = a.style; 
-                    btn.innerText = a.txt;
-                    btn.onclick = () => {
-                        if(a.close !== false) document.getElementById('modal-overlay').style.display = 'none';
-                        if(a.fn) a.fn();
-                    };
-                    actionBox.appendChild(btn);
-                });
-                document.getElementById('modal-overlay').style.display = 'flex';
-            },
-            alert: (msg) => { ui.modal("Atenção", msg, [{txt:"OK"}]); },
-            confirm: (msg, cb) => { ui.modal("Confirmação", msg, [{txt:"Sim", fn:cb}, {txt:"Não", cls:'btn btn-small btn-outline'}]); },
-            showResult: (catName, catColor, cb) => {
-                const html = `<div id="result-cat-display" style="color:${catColor}; font-size:2.5rem; font-weight:900; text-transform:uppercase; line-height:1.1; margin-bottom:20px">${catName}</div>`;
-                ui.modal("CATEGORIA", html, [{txt:"COMEÇAR", fn:cb}]);
-                if(st.cfg.tts) tts.speak(`Categoria sorteada: ${catName}. Toque em começar.`);
-            }
-        };
-
-        /* === GLOBAL STATE & MANAGERS === */
+        /* === GLOBALS & STATE === */
         const THEMES = [
             { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
             { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
@@ -521,7 +475,6 @@
             { id: 'royal', name: 'Royal', bg: '#2e1065', grad: 'radial-gradient(circle, #581c87 0%, #0f172a 100%)', p: '#a855f7', s: '#f472b6', a: '#fde047' },
             { id: 'high-contrast', name: 'High Contrast', bg: '#000', grad: 'radial-gradient(circle, #1a1a1a 0%, #000 100%)', p: '#0055ff', s: '#ff0000', a: '#ffff00' }
         ];
-
         const DEFAULT_CATS = [
             {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
             {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},
@@ -530,13 +483,13 @@
             {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
             {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
         ];
-
-        let CURRENT_THEME = 'default';
+        
         let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
         let CURRENT_SHEET_IDX = 0;
         let SOURCE_TYPE = 'default';
         let CURRENT_ROUND_CATS = [];
-        const COLORS = STOPS; 
+        let CURRENT_THEME = 'default';
+        const COLORS = STOPS;
 
         const st = { 
             t:[{n:"Time A",s:0},{n:"Time B",s:0}], 
@@ -545,44 +498,66 @@
             roundMode: 'normal'
         };
 
-        const aud = {
-            p: (i) => { document.getElementById('snd-' + i).play().catch(() => {}); },
-            l: (i, o) => { const a = document.getElementById('snd-' + i); if (o) { a.play().catch(() => {}); } else { a.pause(); } }
-        };
-
-        const wakeLockMgr = {
-            sentinel: null,
-            request: async () => { try { if ('wakeLock' in navigator) wakeLockMgr.sentinel = await navigator.wakeLock.request('screen'); } catch (err) { console.log(err); } },
-            release: () => { if (wakeLockMgr.sentinel) { wakeLockMgr.sentinel.release(); wakeLockMgr.sentinel = null; } }
-        };
-
-        const tts = {
-            speak: (text) => {
-                if(!st.cfg.tts && !st.cfg.ttsWord) return;
-                window.speechSynthesis.cancel(); 
-                const u = new SpeechSynthesisUtterance(text);
-                u.lang = 'pt-BR';
-                window.speechSynthesis.speak(u);
+        /* === MANAGERS === */
+        const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
+        const wakeLockMgr = { sentinel: null, request: async () => { try { if ('wakeLock' in navigator) wakeLockMgr.sentinel = await navigator.wakeLock.request('screen'); } catch (err) { console.log(err); } }, release: () => { if (wakeLockMgr.sentinel) { wakeLockMgr.sentinel.release(); wakeLockMgr.sentinel = null; } } };
+        const tts = { speak: (text) => { if(!st.cfg.tts && !st.cfg.ttsWord) return; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'pt-BR'; window.speechSynthesis.speak(u); } };
+        
+        const themeMgr = {
+            init: () => {
+                const container = document.getElementById('theme-selector');
+                container.innerHTML = '';
+                THEMES.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = 'theme-option';
+                    if(t.id === CURRENT_THEME) div.classList.add('active');
+                    div.style.background = t.grad !== 'none' ? t.grad : t.bg;
+                    div.onclick = () => themeMgr.set(t.id);
+                    container.appendChild(div);
+                });
+                themeMgr.apply(CURRENT_THEME);
+            },
+            set: (id) => { CURRENT_THEME = id; themeMgr.init(); themeMgr.apply(id); storage.save(); },
+            apply: (id) => {
+                const t = THEMES.find(x => x.id === id) || THEMES[0];
+                const root = document.documentElement;
+                root.style.setProperty('--bg-color', t.bg);
+                root.style.setProperty('--bg-gradient', t.grad);
+                root.style.setProperty('--primary', t.p);
+                root.style.setProperty('--secondary', t.s);
+                root.style.setProperty('--accent', t.a);
             }
+        };
+
+        const sensor = {
+            z: 0, wait: false, resetState: true, 
+            init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
+            handle: (e) => {
+                const acc = e.accelerationIncludingGravity; if (!acc) return;
+                sensor.z = acc.z || 0;
+                if (st.on && !sensor.wait) {
+                    if (sensor.resetState) {
+                        if (sensor.z < -8.0) { game.act(true); sensor.pause(); sensor.resetState = false; } 
+                        else if (sensor.z > 8.0) { game.act(false); sensor.pause(); sensor.resetState = false; }
+                    } else {
+                        if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
+                    }
+                }
+            },
+            pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
         };
 
         const storage = {
             save: () => {
                 const data = {
-                    cats: GLOBAL_SHEETS_DATA, source: SOURCE_TYPE,
-                    t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
+                    cats: GLOBAL_SHEETS_DATA, source: SOURCE_TYPE, t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
                     time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value,
-                    mode: document.getElementById('opt-mode').value,
-                    threshold: document.getElementById('opt-threshold').value,
-                    theme: CURRENT_THEME,
-                    survTime: document.getElementById('opt-surv-time').value,
-                    survBonus: document.getElementById('opt-surv-bonus').value,
-                    solo: document.getElementById('opt-players').value,
-                    tts: document.getElementById('opt-tts').checked,
-                    ttsWord: document.getElementById('opt-tts-word').checked
+                    mode: document.getElementById('opt-mode').value, threshold: document.getElementById('opt-threshold').value,
+                    theme: CURRENT_THEME, survTime: document.getElementById('opt-surv-time').value,
+                    survBonus: document.getElementById('opt-surv-bonus').value, solo: document.getElementById('opt-players').value,
+                    tts: document.getElementById('opt-tts').checked, ttsWord: document.getElementById('opt-tts-word').checked
                 };
-                st.cfg.tts = data.tts;
-                st.cfg.ttsWord = data.ttsWord;
+                st.cfg.tts = data.tts; st.cfg.ttsWord = data.ttsWord;
                 localStorage.setItem('pnt_data_v22', JSON.stringify(data));
             },
             load: () => {
@@ -598,22 +573,13 @@
                     if(data.solo !== undefined) st.cfg.solo = (data.solo == '1' || data.solo === true);
                     if(data.tts !== undefined) st.cfg.tts = data.tts;
                     if(data.ttsWord !== undefined) st.cfg.ttsWord = data.ttsWord;
-
-                    // Safe DOM assignments
                     const sVal = (id, val) => { const el=document.getElementById(id); if(el) el.value = val; };
                     const sChk = (id, val) => { const el=document.getElementById(id); if(el) el.checked = val; };
-
-                    sVal('t1', data.t1);
-                    sVal('t2', data.t2);
-                    sVal('opt-time', data.time);
-                    sVal('opt-rounds', data.rounds);
-                    sVal('opt-mode', data.mode);
-                    sVal('opt-threshold', data.threshold);
-                    sVal('opt-surv-time', data.survTime);
-                    sVal('opt-surv-bonus', data.survBonus);
-                    sVal('opt-players', st.cfg.solo ? "1" : "2");
-                    sChk('opt-tts', data.tts);
-                    sChk('opt-tts-word', data.ttsWord);
+                    sVal('t1', data.t1); sVal('t2', data.t2); sVal('opt-time', data.time); sVal('opt-rounds', data.rounds);
+                    sVal('opt-mode', data.mode); sVal('opt-threshold', data.threshold); sVal('opt-surv-time', data.survTime);
+                    sVal('opt-surv-bonus', data.survBonus); sVal('opt-players', st.cfg.solo ? "1" : "2");
+                    sChk('opt-tts', data.tts); sChk('opt-tts-word', data.ttsWord);
+                    app.toggleThresholdVisibility(); app.toggleSolo();
                 } catch(e) { console.error("Load Error:", e); }
             }
         };
@@ -626,230 +592,85 @@
                 dataMgr.renderTable();
             },
             updateSheetSelector: () => {
-                const sel = document.getElementById('sheet-selector');
-                sel.innerHTML = '';
+                const sel = document.getElementById('sheet-selector'); sel.innerHTML = '';
                 GLOBAL_SHEETS_DATA.forEach((s, i) => {
-                    const opt = document.createElement('option');
-                    opt.value = i;
-                    opt.text = `Aba ${i+1} (${s.length} cats)`;
-                    if(i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true;
-                    sel.appendChild(opt);
+                    const opt = document.createElement('option'); opt.value = i; opt.text = `Aba ${i+1} (${s.length} cats)`;
+                    if(i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true; sel.appendChild(opt);
                 });
             },
-            switchSheet: (idx) => {
-                dataMgr.syncFromTable();
-                CURRENT_SHEET_IDX = parseInt(idx);
-                dataMgr.init();
-            },
-            toggleView: () => { },
-            addSheet: () => {
-                dataMgr.syncFromTable();
-                GLOBAL_SHEETS_DATA.push([{n: "NOVA CAT", w: ["A", "B"]}]);
-                CURRENT_SHEET_IDX = GLOBAL_SHEETS_DATA.length - 1;
-                dataMgr.init();
-                storage.save();
-            },
+            switchSheet: (idx) => { dataMgr.syncFromTable(); CURRENT_SHEET_IDX = parseInt(idx); dataMgr.init(); },
+            addSheet: () => { dataMgr.syncFromTable(); GLOBAL_SHEETS_DATA.push([{n: "NOVA CAT", w: ["A", "B"]}]); CURRENT_SHEET_IDX = GLOBAL_SHEETS_DATA.length - 1; dataMgr.init(); storage.save(); },
             removeSheet: () => {
-                if (GLOBAL_SHEETS_DATA.length <= 1) {
-                    ui.alert("Você não pode apagar a única aba restante.");
-                    return;
-                }
-                ui.confirm("Tem certeza que deseja apagar esta aba inteira?", () => {
-                    GLOBAL_SHEETS_DATA.splice(CURRENT_SHEET_IDX, 1);
-                    CURRENT_SHEET_IDX = 0;
-                    dataMgr.init();
-                    storage.save();
-                });
+                if (GLOBAL_SHEETS_DATA.length <= 1) { ui.alert("Você não pode apagar a única aba restante."); return; }
+                ui.confirm("Tem certeza que deseja apagar esta aba inteira?", () => { GLOBAL_SHEETS_DATA.splice(CURRENT_SHEET_IDX, 1); CURRENT_SHEET_IDX = 0; dataMgr.init(); storage.save(); });
             },
             markDirty: () => {},
-            syncFromJSON: () => { },
             syncFromTable: () => {
                 const rows = document.querySelectorAll('.table-row');
                 if (rows.length === 0 && !document.getElementById('screen-options').classList.contains('active')) return;
                 const newCats = [];
                 rows.forEach(r => {
-                    const n = r.querySelector('.table-input-cat').value; 
-                    const wStr = r.querySelector('.table-input-words').value;
-                    if(n && wStr) { 
-                        const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); 
-                        if(w.length) newCats.push({n, w}); 
-                    }
+                    const n = r.querySelector('.table-input-cat').value; const wStr = r.querySelector('.table-input-words').value;
+                    if(n && wStr) { const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); if(w.length) newCats.push({n, w}); }
                 });
-                if (document.getElementById('view-table').classList.contains('active')) {
-                     GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats;
-                }
+                if (document.getElementById('view-table').classList.contains('active')) { GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats; }
             },
             renderTable: () => {
-                const container = document.getElementById('table-rows'); 
-                if(!container) return;
-                container.innerHTML = '';
+                const container = document.getElementById('table-rows'); if(!container) return; container.innerHTML = '';
                 const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] || [];
                 currentData.forEach((cat, idx) => {
-                    const row = document.createElement('div'); 
-                    row.className = 'table-row';
+                    const row = document.createElement('div'); row.className = 'table-row';
                     row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
                     container.appendChild(row);
                 });
             },
             addTableRow: () => {
-                const container = document.getElementById('table-rows'); 
-                const row = document.createElement('div'); 
-                row.className = 'table-row';
+                const container = document.getElementById('table-rows'); const row = document.createElement('div'); row.className = 'table-row';
                 row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
                 container.appendChild(row);
             },
-            save: () => {
-                dataMgr.syncFromTable();
-                SOURCE_TYPE='default'; 
-                storage.save(); 
-                ui.alert("Salvo com sucesso!");
-            },
-            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ 
-                GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; 
-                CURRENT_SHEET_IDX=0; SOURCE_TYPE='default'; 
-                CURRENT_THEME='default'; themeMgr.set('default'); 
-                dataMgr.init(); storage.save(); 
-            }); },
-            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
-            loadDefault: () => {
-                document.getElementById('sheet-input').value = "https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk";
-                dataMgr.loadSheet();
-            },
+            save: () => { dataMgr.syncFromTable(); SOURCE_TYPE='default'; storage.save(); ui.alert("Salvo com sucesso!"); },
+            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; CURRENT_SHEET_IDX=0; SOURCE_TYPE='default'; CURRENT_THEME='default'; themeMgr.set('default'); dataMgr.init(); storage.save(); }); },
+            loadDefault: () => { document.getElementById('sheet-input').value = "https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk"; dataMgr.loadSheet(); },
             loadSheet: async () => {
-                const url = document.getElementById('sheet-input').value;
-                if(!url) return;
+                const url = document.getElementById('sheet-input').value; if(!url) return;
                 try {
                     let exportUrl = url;
-                    if (url.includes('docs.google.com/spreadsheets')) {
-                         const id = url.match(/\/d\/(.*?)\//)[1];
-                         exportUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
-                    }
-                    const response = await fetch(exportUrl);
-                    if (!response.ok) throw new Error("Network");
-                    const blob = await response.blob();
-                    const reader = new FileReader();
+                    if (url.includes('docs.google.com/spreadsheets')) { const id = url.match(/\/d\/(.*?)\//)[1]; exportUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`; }
+                    const response = await fetch(exportUrl); if (!response.ok) throw new Error("Network");
+                    const blob = await response.blob(); const reader = new FileReader();
                     reader.onload = (e) => {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
-                        const parsedSheets = [];
+                        const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const parsedSheets = [];
                         workbook.SheetNames.forEach(sheetName => {
-                            const sheet = workbook.Sheets[sheetName];
-                            const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
-                            const cats = [];
+                            const sheet = workbook.Sheets[sheetName]; const json = XLSX.utils.sheet_to_json(sheet, {header: 1}); const cats = [];
                             if (json.length > 0) {
                                 const headers = json[0];
                                 for (let c = 0; c < headers.length; c++) {
-                                    const name = headers[c]; if (!name) continue;
-                                    const words = [];
+                                    const name = headers[c]; if (!name) continue; const words = [];
                                     for (let r = 1; r < json.length; r++) { if (json[r] && json[r][c]) words.push(String(json[r][c]).trim()); }
                                     if (words.length > 0) cats.push({n: name, w: words});
                                 }
                             }
                             if (cats.length > 0) parsedSheets.push(cats);
                         });
-                        if (parsedSheets.length > 0) {
-                            GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
-                            CURRENT_SHEET_IDX = 0;
-                            dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
-                        } else { ui.alert("Nenhuma categoria encontrada."); }
+                        if (parsedSheets.length > 0) { GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets'; CURRENT_SHEET_IDX = 0; dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`); } else { ui.alert("Nenhuma categoria encontrada."); }
                     };
                     reader.readAsArrayBuffer(blob);
-                } catch(e) { 
-                    console.error(e);
-                    ui.alert("Erro ao ler planilha."); 
-                }
+                } catch(e) { console.error(e); ui.alert("Erro ao ler planilha."); }
             },
             exportExcel: () => {
                 try {
-                    const t1Name = st.t[0].n; const t2Name = st.t[1].n;
-                    const isSolo = st.cfg.solo; const rows = [];
+                    const t1Name = st.t[0].n; const t2Name = st.t[1].n; const isSolo = st.cfg.solo; const rows = [];
                     let accA = 0; let accB = 0; const maxRounds = st.cfg.r;
                     for (let r = 1; r <= maxRounds; r++) {
-                        const logA = st.logs.find(l => l.r === r && l.t === 0);
-                        const sA = logA ? logA.s : 0; accA += sA;
-                        const row = {};
-                        row["Rodada"] = r; row[t1Name] = sA; row["Total " + t1Name] = accA;
-                        if(!isSolo) {
-                            const logB = st.logs.find(l => l.r === r && l.t === 1);
-                            const sB = logB ? logB.s : 0; accB += sB;
-                            row[t2Name] = sB; row["Total " + t2Name] = accB;
-                        }
+                        const logA = st.logs.find(l => l.r === r && l.t === 0); const sA = logA ? logA.s : 0; accA += sA;
+                        const row = {}; row["Rodada"] = r; row[t1Name] = sA; row["Total " + t1Name] = accA;
+                        if(!isSolo) { const logB = st.logs.find(l => l.r === r && l.t === 1); const sB = logB ? logB.s : 0; accB += sB; row[t2Name] = sB; row["Total " + t2Name] = accB; }
                         rows.push(row);
                     }
-                    const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Placar");
-                    XLSX.writeFile(wb, "palavra_na_testa_placar.xlsx");
+                    const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Placar"); XLSX.writeFile(wb, "palavra_na_testa_placar.xlsx");
                 } catch(e) { ui.alert("Erro ao gerar planilha: " + e.message); }
             }
-        };
-
-        /* GAME LOGIC */
-        const wheel = {
-            el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null, roundColors: [],
-            stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
-            init: () => {
-                const mode = document.getElementById('opt-mode').value;
-                const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) CURRENT_ROUND_CATS = DEFAULT_CATS;
-                if (mode === 'wheel') wheel.mode = 'wheel'; else if (mode === 'jackpot') wheel.mode = 'jackpot'; else { wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel'; }
-                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
-                document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
-                
-                wheel.roundColors = generateGradientPalette(CURRENT_ROUND_CATS.length);
-                wheel.el = document.getElementById('wheel-spinner');
-                wheel.jackpot = document.getElementById('jackpot-strip');
-                wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = 'translateY(0px)'; wheel.offsetY = 0;
-                wheel.el.style.transition = 'none'; wheel.el.style.transform = 'rotate(0deg)'; wheel.ang = 0;
-                if (wheel.mode === 'wheel') wheel.setupWheel(); else wheel.setupJackpot();
-                const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
-                wheel.attachDrag(container);
-            },
-            setupWheel: () => {
-                let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
-                CURRENT_ROUND_CATS.forEach((c, i) => {
-                    const color = wheel.roundColors[i % wheel.roundColors.length];
-                    const start = i * sliceDeg; const end = (i + 1) * sliceDeg;
-                    g += `${color} ${start}deg ${end}deg,`;
-                    const mid = start + (sliceDeg / 2); const split = smartSplit(c.n);
-                    let fontSize = 4; const refLen = split.lines === 1 ? c.n.length : split.maxLen; if(refLen > 8) fontSize = 4 * (8 / refLen);
-                    h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
-                });
-                wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
-            },
-            setupJackpot: () => {
-                let h = ""; const list = []; for(let k=0; k<30; k++) { CURRENT_ROUND_CATS.forEach(c => list.push(c)); }
-                const n = CURRENT_ROUND_CATS.length;
-                list.forEach((c, i) => { const realIndex = i % n; const color = wheel.roundColors[realIndex % wheel.roundColors.length]; h += `<div class="jackpot-item" style="background:${color}">${c.n.replace('*','')}</div>`; });
-                wheel.jackpot.innerHTML = h;
-            },
-            attachDrag: (target) => {
-                let startY = 0, lastY = 0, startTime = 0, startAng = 0, lastAng = 0, angularVelocity = 0, linearVelocity = 0, lastMoveTime = 0;
-                const getAngle = (e, el) => { const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2; const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI); };
-                const onStart = (e) => { if(wheel.spin) return; window.focus(); if (wheel.mode === 'wheel') { startAng = getAngle(e, target); lastAng = startAng; } else { startY = e.touches ? e.touches[0].clientY : e.clientY; lastY = startY; } lastMoveTime = Date.now(); startTime = lastMoveTime; angularVelocity = 0; linearVelocity = 0; document.addEventListener('touchmove', onMove, {passive: false}); document.addEventListener('touchend', onEnd); document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd); };
-                const onMove = (e) => { e.preventDefault(); const now = Date.now(); const dt = now - lastMoveTime; if (wheel.mode === 'wheel') { const curAng = getAngle(e, target); let delta = curAng - lastAng; if (delta > 180) delta -= 360; if (delta < -180) delta += 360; wheel.ang += delta; wheel.el.style.transform = `rotate(${wheel.ang}deg)`; if(dt > 0) { const instantVel = delta / dt; angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5); } lastAng = curAng; } else { const curY = e.touches ? e.touches[0].clientY : e.clientY; const delta = curY - lastY; wheel.offsetY += delta; const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if(itemEl) { const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length; if(wheel.offsetY > 0) wheel.offsetY -= stripH; if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH; } wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`; if(dt > 0) { const instantVel = delta / dt; linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5); } lastY = curY; } lastMoveTime = now; };
-                const onEnd = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd); const totalDuration = Date.now() - startTime; if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; } if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; } if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); } else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); } };
-                target.onmousedown = onStart; target.ontouchstart = onStart;
-            },
-            go: (velocity) => { if(wheel.spin) return; wheel.spin = true; aud.l('spin', true); let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length); const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1); if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)]; const duration = 3; if (wheel.mode === 'wheel') { const sliceDeg = 360 / CURRENT_ROUND_CATS.length; const currentAngle = wheel.ang; const spins = 5 * 360; const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2); const dir = Math.sign(velocity) || 1; const totalRot = spins * dir; const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.el.style.transform = `rotate(${finalAngle}deg)`; wheel.ang = finalAngle; wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000); } else { const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if (!itemEl) return; const itemH = itemEl.getBoundingClientRect().height; const n = CURRENT_ROUND_CATS.length; const dir = Math.sign(velocity); const startSet = 15; const startY = -(startSet * n * itemH); wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = `translateY(${startY}px)`; wheel.jackpot.offsetHeight; const targetSetOffset = (dir > 0) ? -3 : 3; const targetSet = startSet + targetSetOffset; const containerH = document.getElementById('jackpot-container').offsetHeight; const centerOffset = containerH / 2; const winnerItemIndex = (targetSet * n) + winnerIdx; const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2); wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`; setTimeout(() => wheel.finish(winnerIdx), duration * 1000); } },
-            finish: (idx) => { aud.l('spin', false); aud.p('win'); const cat = CURRENT_ROUND_CATS[idx]; st.cat = cat; const color = (wheel.roundColors && wheel.roundColors.length > 0) ? wheel.roundColors[idx % wheel.roundColors.length] : COLORS[0]; ui.showResult(cat.n.replace('*', ''), color, () => game.pre()); wheel.spin = false; }
-        };
-
-        function showForceMsg() { const msg = document.getElementById('msg-force'); msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 1000); }
-
-        const game = {
-            tmr: null, preTmr: null, editList: [], curTime: 0, maxTime: 0,
-            stop: () => { if(game.tmr) clearInterval(game.tmr); },
-            stopAll: () => { if(game.tmr) clearInterval(game.tmr); if(game.preTmr) clearInterval(game.preTmr); st.on = false; },
-            pre: () => { app.to('game'); st.on = false; const isSurv = st.roundMode === 'survival'; game.maxTime = isSurv ? st.cfg.survTime : st.cfg.t; game.curTime = game.maxTime; document.getElementById('timer-num').innerText = game.curTime; document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`; const d=document.getElementById('word-disp'); let c=3; d.innerText=c; if(st.cfg.tts) tts.speak("Três, dois, um, Valendo!"); game.preTmr = setInterval(()=>{ c--; if(c>0) d.innerText=c; else { clearInterval(game.preTmr); d.innerText="VAI!"; setTimeout(game.run, 600); } },1000); },
-            run: () => { game.stop(); st.on=true; st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5); game.next(); const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper'); const root = getComputedStyle(document.documentElement); const sec = root.getPropertyValue('--secondary').trim(); game.tmr = setInterval(()=>{ game.curTime--; tn.innerText = game.curTime; let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360; if (pct < 0) pct = 0; tw.style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`; if(st.cfg.tts && game.curTime === 10) tts.speak("Dez segundos"); if(game.curTime <= 0) { game.stop(); game.end(); } },1000); },
-            next: () => { if(st.q.length === 0) { if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } else { game.stop(); game.end(); return; } } st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw; if(st.cfg.ttsWord) setTimeout(() => tts.speak(st.cw), 800); },
-            act: (win) => { if(!st.on) return; if(win){ aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); if(st.cfg.tts) tts.speak("Acertou!"); if(st.roundMode === 'survival') { game.curTime += st.cfg.survBonus; document.getElementById('timer-num').innerText = game.curTime; const animEl = document.getElementById('bonus-anim'); animEl.innerText = `+${st.cfg.survBonus}s`; animEl.classList.remove('anim'); void animEl.offsetWidth; animEl.classList.add('anim'); let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360; if (pct < 0) pct = 0; const root = getComputedStyle(document.documentElement); const sec = root.getPropertyValue('--secondary').trim(); document.querySelector('.timer-wrapper').style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`; } } else { aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); if(st.cfg.tts) tts.speak("Pulou!"); } game.next(); },
-            flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
-            end: () => { try { st.on=false; game.stop(); st.pts = st.h.filter(x => x.ok).length; st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn)); st.logs.push({ r: st.rd, t: st.trn, s: st.pts }); st.t[st.trn].s += st.pts; app.to('res'); game.renderRes(); } catch(e) { console.error("Game End Error:", e); app.to('home'); } },
-            renderRes: () => { const scoreEl = document.getElementById('res-score'); if(scoreEl) scoreEl.innerText = st.pts + " PONTOS"; const l = document.getElementById('res-list'); if(l) { l.innerHTML = ""; if(st.h && st.h.length > 0) { st.h.forEach(x => { const d = document.createElement('div'); d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)"; d.style.display="flex"; d.style.justifyContent="space-between"; d.style.alignItems="center"; const color = x.ok ? '#22c55e' : '#ef4444'; const icon = x.ok ? '✓' : '✗'; d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`; l.appendChild(d); }); } else { l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>"; } } },
-            openEdit: () => { game.editList = st.h && st.h.length ? JSON.parse(JSON.stringify(st.h)) : []; if(game.editList.length === 0) { ui.alert("Nada para editar."); return; } const html = '<div class="edit-list-container">' + game.editList.map((item, i) => ` <div class="edit-item" onclick="game.toggleEditItem(${i}, this)"> <span class="edit-word">${item.w}</span> <span class="edit-status" style="color:${item.ok ? 'var(--success)' : 'var(--danger)'}"> ${item.ok ? 'ACERTOU' : 'PULOU'} </span> </div> `).join('') + '</div>'; ui.modal("EDITAR RESULTADO", html, [ {txt: "SALVAR", fn: game.saveEdit, style: "background:var(--success); flex:1;"}, {txt: "CANCELAR", style: "background:var(--danger); flex:1;"} ]); },
-            toggleEditItem: (i, el) => { game.editList[i].ok = !game.editList[i].ok; const span = el.querySelector('.edit-status'); span.innerText = game.editList[i].ok ? 'ACERTOU' : 'PULOU'; span.style.color = game.editList[i].ok ? 'var(--success)' : 'var(--danger)'; },
-            saveEdit: () => { st.t[st.trn].s -= st.pts; const newPts = game.editList.filter(x => x.ok).length; st.pts = newPts; st.t[st.trn].s += st.pts; st.h = game.editList; st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn)); st.logs.push({ r: st.rd, t: st.trn, s: st.pts }); game.renderRes(); document.getElementById('modal-overlay').style.display = 'none'; }
         };
 
         const app = {
@@ -860,13 +681,10 @@
                 document.getElementById('screen-'+id).classList.add('active');
                 if(id === 'options') dataMgr.init();
                 const homeBtn = document.getElementById('home-btn');
-                if(id === 'home') { homeBtn.style.display = 'none'; wakeLockMgr.release(); game.stopAll(); document.getElementById('timer-num').innerText = st.cfg.t; st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0; st.logs = []; } 
-                else { homeBtn.style.display = 'block'; }
+                if(id === 'home') { homeBtn.style.display = 'none'; wakeLockMgr.release(); game.stopAll(); document.getElementById('timer-num').innerText = st.cfg.t; st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0; st.logs = []; } else { homeBtn.style.display = 'block'; }
                 if(id === 'teams') {
                    document.getElementById('t1-conf').value = document.getElementById('t1').value; document.getElementById('t2-conf').value = document.getElementById('t2').value;
-                   const root = getComputedStyle(document.documentElement); document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary'); document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary'); document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary'); document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
-                   const t2Group = document.getElementById('group-t2-conf'); if (st.cfg.solo) t2Group.style.display = 'none'; else t2Group.style.display = 'block';
-                   if(st.cfg.solo) { document.getElementById('lbl-t2').style.color = 'transparent'; document.getElementById('t2-conf').style.borderLeftColor = 'transparent'; }
+                   const root = getComputedStyle(document.documentElement); document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary'); if(!st.cfg.solo) document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary'); document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary'); if(!st.cfg.solo) document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
                 }
                 if(id === 'intro') { app.setMode(st.roundMode); }
             },
@@ -877,7 +695,6 @@
             start: () => {
                 aud.p('click'); wakeLockMgr.request();
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') { DeviceMotionEvent.requestPermission().then(response => {}).catch(console.error); }
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; if (!isIOS) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{}); else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen(); }
                 st.t[0].n = document.getElementById('t1').value || "Time A"; st.t[1].n = document.getElementById('t2').value || "Time B"; st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60; st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3; st.cfg.survTime = parseInt(document.getElementById('opt-surv-time').value) || 30; st.cfg.survBonus = parseInt(document.getElementById('opt-surv-bonus').value) || 5; st.cfg.solo = (document.getElementById('opt-players').value == '1');
                 storage.save(); app.to('teams');
             },
@@ -913,20 +730,10 @@
 
         window.onload = () => {
             try { storage.load(); themeMgr.init(); } catch (e) { console.error("Critical Load Error", e); }
-            
-            // FIX: Call sensor.init only in onload to avoid dependency issues
             sensor.init();
-
-            // DICA IOS
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
-            if (isIOS && !isStandalone) {
-                const div = document.createElement('div');
-                div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); padding:10px 20px; border-radius:20px; font-size:0.8rem; z-index:9999; text-align:center; width:90%; pointer-events:none; animation: fadeOut 5s forwards 5s; color: white; font-family: sans-serif;";
-                div.innerHTML = "Dica: Para tela cheia, toque em <b>Compartilhar</b> <span style='font-size:1.2em'>⎋</span> e <b>Adicionar à Tela de Início</b>.";
-                const style = document.createElement('style'); style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
-                document.head.appendChild(style); document.body.appendChild(div);
-            }
+            window.addEventListener('keydown', (e) => { if (!st.on) return; if(['ArrowUp', 'ArrowDown'].includes(e.key)) { e.preventDefault(); if (e.key === 'ArrowDown') { game.act(true); } else if (e.key === 'ArrowUp') { game.act(false); } } });
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
+            if (isIOS && !isStandalone) { const div = document.createElement('div'); div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); padding:10px 20px; border-radius:20px; font-size:0.8rem; z-index:9999; text-align:center; width:90%; pointer-events:none; animation: fadeOut 5s forwards 5s; color: white; font-family: sans-serif;"; div.innerHTML = "Dica: Para tela cheia, toque em <b>Compartilhar</b> <span style='font-size:1.2em'>⎋</span> e <b>Adicionar à Tela de Início</b>."; const style = document.createElement('style'); style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }"; document.head.appendChild(style); document.body.appendChild(div); }
         };
     </script>
 </body>
