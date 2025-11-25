@@ -104,6 +104,19 @@
         }
         h2 { font-family: 'Montserrat'; font-size: 1.3rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; width: 100%; }
 
+        .app-subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(0.7rem, 1.8vh, 0.9rem);
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: -1.5vh;
+            margin-bottom: 4vh;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+        }
+        
         /* === UI COMPONENTS === */
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
@@ -393,6 +406,10 @@
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
         <h1>PALAVRA NA TESTA</h1>
+        
+        <!-- Novo Subtítulo usando Classe CSS -->
+        <p class="app-subtitle">Desenvolvido por Marcos Castro</p>
+
         <button class="btn" onclick="app.start()">INICIAR JOGO</button>
         <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
     </div>
