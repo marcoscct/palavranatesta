@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (47).html -->
+<!-- START OF FILE ai_studio_code (48).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -22,6 +22,7 @@
     <style>
         /* === CSS RESET & VARS === */
         :root {
+            /* DEFAULT THEME */
             --bg-color: #1e1b4b;
             --bg-gradient: radial-gradient(circle at center, #2e1065 0%, #020617 100%);
             --primary: #6366f1;
@@ -180,7 +181,6 @@
         }
         @keyframes shake { 0% { transform: translate(-49%, -50%) } 25% { transform: translate(-51%, -50%) } 50% { transform: translate(-52%, -50%) } 75% { transform: translate(-48%, -50%) } 100% { transform: translate(-50%, -50%) } }
 
-        /* === WHEEL & JACKPOT === */
         #screen-wheel { flex-direction: row; gap: 5vw; }
         .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
         #wheel-container { display:none; width: 85vh; height: 85vh; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
@@ -255,7 +255,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v34.0</div>
+            <div class="version-tag">v34.1</div>
         </div>
     </div>
     
@@ -274,7 +274,7 @@
                 <h2>Visual & Times</h2>
                 <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div>
                 
-                <!-- ACCESSIBILITY OPTIONS (Restored) -->
+                <!-- ACCESSIBILITY OPTIONS -->
                 <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
                     <h2 style="border:none; font-size:1rem; margin-bottom:10px">Acessibilidade</h2>
                     <div class="input-group" style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom: 10px;" onclick="document.getElementById('opt-tts').click()">
@@ -439,7 +439,7 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
-        /* === GLOBAL CONSTANTS & UTILS === */
+        /* === HELPERS & CONSTANTS (MUST BE DEFINED FIRST) === */
         const STOPS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#06B6D4", "#3B82F6", "#8B5CF6", "#EC4899"];
         
         function hexToRgb(hex) {
@@ -454,13 +454,21 @@
             return `rgb(${r}, ${g}, ${b})`;
         }
 
+        function smartSplit(text) {
+            const clean = text.replace(/\*$/, '');
+            if (clean.length <= 12) return { text: clean, lines: 1 };
+            const words = clean.split(' ');
+            if (words.length === 1) return { text: clean, lines: 1 };
+            let best=0, min=Infinity, cur=0, tot=clean.length;
+            for(let i=0; i<words.length-1; i++) { cur+=words[i].length; const d=Math.abs(cur-(tot-cur)); if(d<min){min=d; best=i;} }
+            return { text: `${words.slice(0, best+1).join(' ')}<br>${words.slice(best+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, best+1).join(' ').length, words.slice(best+1).join(' ').length) };
+        }
+
         const generateGradientPalette = (count) => {
              if (count <= 1) return [STOPS[0]];
              const palette = [];
-             
              const rgbStops = STOPS.map(hexToRgb);
              const numStops = rgbStops.length;
-
              for(let i=0; i<count; i++) {
                  let t = i / (count - 1);
                  let exactLoc = t * (numStops - 1);
@@ -472,6 +480,48 @@
              return palette;
         };
 
+        /* === UI MANAGER (DEFINED EARLY) === */
+        const ui = {
+            modal: (title, html, actions) => {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-msg').innerHTML = html;
+                const actionBox = document.getElementById('modal-actions');
+                actionBox.innerHTML = '';
+                actions.forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.className = a.cls || 'btn btn-small';
+                    if(a.style) btn.style = a.style; 
+                    btn.innerText = a.txt;
+                    btn.onclick = () => {
+                        if(a.close !== false) document.getElementById('modal-overlay').style.display = 'none';
+                        if(a.fn) a.fn();
+                    };
+                    actionBox.appendChild(btn);
+                });
+                document.getElementById('modal-overlay').style.display = 'flex';
+            },
+            alert: (msg) => { ui.modal("Atenção", msg, [{txt:"OK"}]); },
+            confirm: (msg, cb) => { ui.modal("Confirmação", msg, [{txt:"Sim", fn:cb}, {txt:"Não", cls:'btn btn-small btn-outline'}]); },
+            showResult: (catName, catColor, cb) => {
+                const html = `<div id="result-cat-display" style="color:${catColor}; font-size:2.5rem; font-weight:900; text-transform:uppercase; line-height:1.1; margin-bottom:20px">${catName}</div>`;
+                ui.modal("CATEGORIA", html, [{txt:"COMEÇAR", fn:cb}]);
+                if(st.cfg.tts) tts.speak(`Categoria sorteada: ${catName}. Toque em começar.`);
+            }
+        };
+
+        /* === GLOBAL STATE & MANAGERS === */
+        const THEMES = [
+            { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
+            { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
+            { id: 'blue-orange', name: 'Blue/Orange', bg: '#0f172a', grad: 'radial-gradient(circle, #1e293b 0%, #020617 100%)', p: '#3b82f6', s: '#f97316', a: '#fbbf24' },
+            { id: 'cyber', name: 'Cyber Punk', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#e65100', s: '#f6a609', a: '#fbbf24' },
+            { id: 'forest', name: 'Forest', bg: '#052e16', grad: 'linear-gradient(to bottom, #14532d, #022c22)', p: '#22c55e', s: '#84cc16', a: '#fef08a' },
+            { id: 'dracula', name: 'Vampire', bg: '#2e0202', grad: 'radial-gradient(circle, #7f1d1d 0%, #000 100%)', p: '#d68f9a', s: '#ff7777', a: '#fca5a5' },
+            { id: 'ocean', name: 'Ocean', bg: '#083344', grad: 'linear-gradient(to bottom, #0e7490, #164e63)', p: '#06b6d4', s: '#22d3ee', a: '#cffafe' },
+            { id: 'royal', name: 'Royal', bg: '#2e1065', grad: 'radial-gradient(circle, #581c87 0%, #0f172a 100%)', p: '#a855f7', s: '#f472b6', a: '#fde047' },
+            { id: 'high-contrast', name: 'High Contrast', bg: '#000', grad: 'radial-gradient(circle, #1a1a1a 0%, #000 100%)', p: '#0055ff', s: '#ff0000', a: '#ffff00' }
+        ];
+
         const DEFAULT_CATS = [
             {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
             {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},
@@ -480,7 +530,8 @@
             {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
             {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
         ];
-        
+
+        let CURRENT_THEME = 'default';
         let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
         let CURRENT_SHEET_IDX = 0;
         let SOURCE_TYPE = 'default';
@@ -494,8 +545,11 @@
             roundMode: 'normal'
         };
 
-        /* === MANAGERS === */
-        const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
+        const aud = {
+            p: (i) => { document.getElementById('snd-' + i).play().catch(() => {}); },
+            l: (i, o) => { const a = document.getElementById('snd-' + i); if (o) { a.play().catch(() => {}); } else { a.pause(); } }
+        };
+
         const wakeLockMgr = {
             sentinel: null,
             request: async () => { try { if ('wakeLock' in navigator) wakeLockMgr.sentinel = await navigator.wakeLock.request('screen'); } catch (err) { console.log(err); } },
@@ -545,6 +599,7 @@
                     if(data.tts !== undefined) st.cfg.tts = data.tts;
                     if(data.ttsWord !== undefined) st.cfg.ttsWord = data.ttsWord;
 
+                    // Safe DOM assignments
                     const sVal = (id, val) => { const el=document.getElementById(id); if(el) el.value = val; };
                     const sChk = (id, val) => { const el=document.getElementById(id); if(el) el.checked = val; };
 
@@ -559,7 +614,6 @@
                     sVal('opt-players', st.cfg.solo ? "1" : "2");
                     sChk('opt-tts', data.tts);
                     sChk('opt-tts-word', data.ttsWord);
-
                 } catch(e) { console.error("Load Error:", e); }
             }
         };
@@ -700,7 +754,10 @@
                         } else { ui.alert("Nenhuma categoria encontrada."); }
                     };
                     reader.readAsArrayBuffer(blob);
-                } catch(e) { console.error(e); ui.alert("Erro ao ler planilha."); }
+                } catch(e) { 
+                    console.error(e);
+                    ui.alert("Erro ao ler planilha."); 
+                }
             },
             exportExcel: () => {
                 try {
@@ -726,6 +783,7 @@
             }
         };
 
+        /* GAME LOGIC */
         const wheel = {
             el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null, roundColors: [],
             stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
@@ -736,6 +794,7 @@
                 if (mode === 'wheel') wheel.mode = 'wheel'; else if (mode === 'jackpot') wheel.mode = 'jackpot'; else { wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel'; }
                 document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                
                 wheel.roundColors = generateGradientPalette(CURRENT_ROUND_CATS.length);
                 wheel.el = document.getElementById('wheel-spinner');
                 wheel.jackpot = document.getElementById('jackpot-strip');
@@ -775,6 +834,8 @@
             finish: (idx) => { aud.l('spin', false); aud.p('win'); const cat = CURRENT_ROUND_CATS[idx]; st.cat = cat; const color = (wheel.roundColors && wheel.roundColors.length > 0) ? wheel.roundColors[idx % wheel.roundColors.length] : COLORS[0]; ui.showResult(cat.n.replace('*', ''), color, () => game.pre()); wheel.spin = false; }
         };
 
+        function showForceMsg() { const msg = document.getElementById('msg-force'); msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 1000); }
+
         const game = {
             tmr: null, preTmr: null, editList: [], curTime: 0, maxTime: 0,
             stop: () => { if(game.tmr) clearInterval(game.tmr); },
@@ -799,217 +860,72 @@
                 document.getElementById('screen-'+id).classList.add('active');
                 if(id === 'options') dataMgr.init();
                 const homeBtn = document.getElementById('home-btn');
-                
-                if(id === 'home') {
-                    homeBtn.style.display = 'none';
-                    wakeLockMgr.release(); // Release Screen Lock
-                    game.stopAll();
-                    document.getElementById('timer-num').innerText = st.cfg.t;
-                    st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0;
-                    st.logs = [];
-                } else {
-                    homeBtn.style.display = 'block';
-                }
-                
+                if(id === 'home') { homeBtn.style.display = 'none'; wakeLockMgr.release(); game.stopAll(); document.getElementById('timer-num').innerText = st.cfg.t; st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0; st.logs = []; } 
+                else { homeBtn.style.display = 'block'; }
                 if(id === 'teams') {
-                   document.getElementById('t1-conf').value = document.getElementById('t1').value;
-                   document.getElementById('t2-conf').value = document.getElementById('t2').value;
-                   
-                   // Solo logic for Teams Screen
-                   const t2Group = document.getElementById('group-t2-conf');
-                   if (st.cfg.solo && t2Group) t2Group.style.display = 'none';
-                   else if(t2Group) t2Group.style.display = 'block';
-
-                   const root = getComputedStyle(document.documentElement);
-                   document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary');
-                   if(!st.cfg.solo) document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary');
-                   document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary');
-                   if(!st.cfg.solo) document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
+                   document.getElementById('t1-conf').value = document.getElementById('t1').value; document.getElementById('t2-conf').value = document.getElementById('t2').value;
+                   const root = getComputedStyle(document.documentElement); document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary'); document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary'); document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary'); document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
+                   const t2Group = document.getElementById('group-t2-conf'); if (st.cfg.solo) t2Group.style.display = 'none'; else t2Group.style.display = 'block';
+                   if(st.cfg.solo) { document.getElementById('lbl-t2').style.color = 'transparent'; document.getElementById('t2-conf').style.borderLeftColor = 'transparent'; }
                 }
-                
-                if(id === 'intro') {
-                    app.setMode(st.roundMode); 
-                }
+                if(id === 'intro') { app.setMode(st.roundMode); }
             },
-            toggleSolo: () => {
-                const val = document.getElementById('opt-players').value;
-                st.cfg.solo = (val == '1');
-                
-                const t2Input = document.getElementById('group-t2');
-                if(st.cfg.solo) t2Input.style.display = 'none';
-                else t2Input.style.display = 'block';
-            },
-            setMode: (m) => {
-                st.roundMode = m;
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                if(m === 'normal') document.getElementById('btn-mode-normal').classList.add('active');
-                else document.getElementById('btn-mode-surv').classList.add('active');
-            },
+            toggleSolo: () => { const val = document.getElementById('opt-players').value; st.cfg.solo = (val == '1'); const t2Input = document.getElementById('group-t2'); if(st.cfg.solo) t2Input.style.display = 'none'; else t2Input.style.display = 'block'; },
+            setMode: (m) => { st.roundMode = m; document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); if(m === 'normal') document.getElementById('btn-mode-normal').classList.add('active'); else document.getElementById('btn-mode-surv').classList.add('active'); },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
-            toggleThresholdVisibility: () => {
-                const mode = document.getElementById('opt-mode').value;
-                const el = document.getElementById('group-threshold');
-                if(mode === 'auto') el.style.display = 'block'; else el.style.display = 'none';
-            },
+            toggleThresholdVisibility: () => { const mode = document.getElementById('opt-mode').value; const el = document.getElementById('group-threshold'); if(mode === 'auto') el.style.display = 'block'; else el.style.display = 'none'; },
             start: () => {
-                aud.p('click');
-                wakeLockMgr.request(); // Request Screen Lock
-                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().then(response => {}).catch(console.error);
-                }
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (!isIOS) {
-                    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-                    else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
-                }
-                st.t[0].n = document.getElementById('t1').value || "Time A";
-                st.t[1].n = document.getElementById('t2').value || "Time B";
-                st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60;
-                st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3;
-                st.cfg.survTime = parseInt(document.getElementById('opt-surv-time').value) || 30;
-                st.cfg.survBonus = parseInt(document.getElementById('opt-surv-bonus').value) || 5;
-                st.cfg.solo = (document.getElementById('opt-players').value == '1');
-                
-                storage.save();
-                app.to('teams');
+                aud.p('click'); wakeLockMgr.request();
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') { DeviceMotionEvent.requestPermission().then(response => {}).catch(console.error); }
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; if (!isIOS) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{}); else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen(); }
+                st.t[0].n = document.getElementById('t1').value || "Time A"; st.t[1].n = document.getElementById('t2').value || "Time B"; st.cfg.t = parseInt(document.getElementById('opt-time').value) || 60; st.cfg.r = parseInt(document.getElementById('opt-rounds').value) || 3; st.cfg.survTime = parseInt(document.getElementById('opt-surv-time').value) || 30; st.cfg.survBonus = parseInt(document.getElementById('opt-surv-bonus').value) || 5; st.cfg.solo = (document.getElementById('opt-players').value == '1');
+                storage.save(); app.to('teams');
             },
-            confirmTeams: (onlySave) => { 
-                st.t[0].n = document.getElementById('t1-conf').value || "Time A";
-                if(!st.cfg.solo) st.t[1].n = document.getElementById('t2-conf').value || "Time B";
-                
-                document.getElementById('t1').value = st.t[0].n;
-                if(!st.cfg.solo) document.getElementById('t2').value = st.t[1].n;
-                
-                storage.save();
-                if(!onlySave) app.prep(); 
-            },
+            confirmTeams: (onlySave) => { st.t[0].n = document.getElementById('t1-conf').value || "Time A"; if(!st.cfg.solo) st.t[1].n = document.getElementById('t2-conf').value || "Time B"; document.getElementById('t1').value = st.t[0].n; if(!st.cfg.solo) document.getElementById('t2').value = st.t[1].n; storage.save(); if(!onlySave) app.prep(); },
             prep: () => {
-                if (st.rd > st.cfg.r) { app.end(); return; }
-                if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) {
-                    GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
-                }
-                
-                // Logic for rounds in Solo vs Versus
-                let turnIdx = 0;
-                let effectiveSheets = GLOBAL_SHEETS_DATA.length;
-                
-                if (st.cfg.solo) {
-                    // In solo, turn index is simply round index - 1
-                    turnIdx = st.rd - 1;
-                } else {
-                    // In versus, it calculates based on 2 turns per round
-                    turnIdx = (st.rd - 1) * 2 + st.trn;
-                    if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
-                }
-                
-                const sheetIdx = turnIdx % effectiveSheets;
-                CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
-                
-                if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
-                     CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
-                }
-
-                const t = st.t[st.trn];
-                const root = getComputedStyle(document.documentElement);
-                
-                // Solo Mode always uses Primary Color
-                const color = (st.cfg.solo) ? root.getPropertyValue('--primary') : 
-                              (st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary'));
-
-                document.getElementById('lbl-rd').innerText = st.rd;
-                document.getElementById('lbl-tm').innerText = t.n;
-                document.getElementById('lbl-tm').style.color = color;
-                app.to('intro');
+                if (st.rd > st.cfg.r) { app.end(); return; } if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) { GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; }
+                let turnIdx = 0; let effectiveSheets = GLOBAL_SHEETS_DATA.length;
+                if (st.cfg.solo) { turnIdx = st.rd - 1; } else { turnIdx = (st.rd - 1) * 2 + st.trn; if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1; }
+                const sheetIdx = turnIdx % effectiveSheets; CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx]; if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                const t = st.t[st.trn]; const root = getComputedStyle(document.documentElement);
+                const color = (st.cfg.solo) ? root.getPropertyValue('--primary') : (st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary'));
+                document.getElementById('lbl-rd').innerText = st.rd; document.getElementById('lbl-tm').innerText = t.n; document.getElementById('lbl-tm').style.color = color; app.to('intro');
             },
             toWheel: () => { aud.p('click'); wheel.init(); app.to('wheel'); },
-            next: () => { 
-                aud.p('click'); 
-                
-                if (st.cfg.solo) {
-                    st.rd++; // Solo just increments round
-                } else {
-                    st.trn++; 
-                    if(st.trn > 1){ st.trn=0; st.rd++; } 
-                }
-                app.prep(); 
-            },
+            next: () => { aud.p('click'); if (st.cfg.solo) { st.rd++; } else { st.trn++; if(st.trn > 1){ st.trn=0; st.rd++; } } app.prep(); },
             end: () => {
-                const t1=st.t[0], t2=st.t[1];
-                const root = getComputedStyle(document.documentElement);
-                const c1 = root.getPropertyValue('--primary');
-                const c2 = root.getPropertyValue('--secondary');
-                
-                document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s;
-                document.getElementById('fn-1').style.color = c1;
-                
+                const t1=st.t[0], t2=st.t[1]; const root = getComputedStyle(document.documentElement); const c1 = root.getPropertyValue('--primary'); const c2 = root.getPropertyValue('--secondary');
+                document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s; document.getElementById('fn-1').style.color = c1;
                 if(st.cfg.solo) {
-                    // Hide T2 box and center T1
-                    document.getElementById('score-box-2').style.display = 'none';
-                    document.getElementById('final-title').innerText = "FIM DE JOGO";
-                    
-                    let msg = "";
-                    if(t1.s > 20) msg = "INCRÍVEL!";
-                    else if(t1.s > 10) msg = "MANDOU BEM!";
-                    else msg = "BOA TENTATIVA!";
-                    
-                    const w=document.getElementById('winner');
-                    w.innerText = msg;
-                    w.style.color = c1;
-                    if(st.cfg.tts) tts.speak(`Fim de jogo. Sua pontuação final foi ${t1.s} pontos. ${msg}`);
+                    document.getElementById('score-box-2').style.display = 'none'; document.getElementById('final-title').innerText = "FIM DE JOGO";
+                    let msg = ""; if(t1.s > 20) msg = "INCRÍVEL!"; else if(t1.s > 10) msg = "MANDOU BEM!"; else msg = "BOA TENTATIVA!";
+                    const w=document.getElementById('winner'); w.innerText = msg; w.style.color = c1; if(st.cfg.tts) tts.speak(`Fim de jogo. Sua pontuação final foi ${t1.s} pontos. ${msg}`);
                 } else {
-                    // Normal Versus Logic
-                    document.getElementById('score-box-2').style.display = 'block';
-                    document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s;
-                    document.getElementById('fn-2').style.color = c2;
-                    
+                    document.getElementById('score-box-2').style.display = 'block'; document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s; document.getElementById('fn-2').style.color = c2;
                     const w=document.getElementById('winner');
-                    if(t1.s>t2.s) {
-                        w.innerText=t1.n+" VENCEU!"; w.style.color=c1;
-                        if(st.cfg.tts) tts.speak(`Fim de jogo. O vencedor foi ${t1.n} com ${t1.s} pontos.`);
-                    }
-                    else if(t2.s>t1.s) {
-                        w.innerText=t2.n+" VENCEU!"; w.style.color=c2;
-                        if(st.cfg.tts) tts.speak(`Fim de jogo. O vencedor foi ${t2.n} com ${t2.s} pontos.`);
-                    }
-                    else {
-                        w.innerText="EMPATE"; w.style.color="white";
-                        if(st.cfg.tts) tts.speak(`Fim de jogo. Empate com ${t1.s} pontos.`);
-                    }
+                    if(t1.s>t2.s) { w.innerText=t1.n+" VENCEU!"; w.style.color=c1; if(st.cfg.tts) tts.speak(`Fim de jogo. O vencedor foi ${t1.n} com ${t1.s} pontos.`); }
+                    else if(t2.s>t1.s) { w.innerText=t2.n+" VENCEU!"; w.style.color=c2; if(st.cfg.tts) tts.speak(`Fim de jogo. O vencedor foi ${t2.n} com ${t2.s} pontos.`); }
+                    else { w.innerText="EMPATE"; w.style.color="white"; if(st.cfg.tts) tts.speak(`Fim de jogo. Empate com ${t1.s} pontos.`); }
                 }
-                
                 aud.p('win'); app.to('final');
             }
         };
 
-        /* KEYBOARD & LOAD */
-        window.addEventListener('keydown', (e) => {
-            if (!st.on) return; 
-            if(['ArrowUp', 'ArrowDown'].includes(e.key)) {
-                e.preventDefault(); 
-                if (e.key === 'ArrowDown') { game.act(true); } else if (e.key === 'ArrowUp') { game.act(false); }
-            }
-        });
-
         window.onload = () => {
-            // TRY CATCH ON LOAD TO PREVENT CRASH
-            try {
-                storage.load();
-            } catch (e) { console.error("Critical Load Error", e); }
-
-            themeMgr.init(); 
+            try { storage.load(); themeMgr.init(); } catch (e) { console.error("Critical Load Error", e); }
+            
+            // FIX: Call sensor.init only in onload to avoid dependency issues
             sensor.init();
 
+            // DICA IOS
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
-            
             if (isIOS && !isStandalone) {
                 const div = document.createElement('div');
                 div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); padding:10px 20px; border-radius:20px; font-size:0.8rem; z-index:9999; text-align:center; width:90%; pointer-events:none; animation: fadeOut 5s forwards 5s; color: white; font-family: sans-serif;";
                 div.innerHTML = "Dica: Para tela cheia, toque em <b>Compartilhar</b> <span style='font-size:1.2em'>⎋</span> e <b>Adicionar à Tela de Início</b>.";
-                const style = document.createElement('style');
-                style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
-                document.head.appendChild(style);
-                document.body.appendChild(div);
+                const style = document.createElement('style'); style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
+                document.head.appendChild(style); document.body.appendChild(div);
             }
         };
     </script>
