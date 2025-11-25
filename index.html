@@ -1,4 +1,4 @@
-<!-- START OF FILE ai_studio_code (41).html -->
+<!-- START OF FILE ai_studio_code (42).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -386,7 +386,7 @@
         <div class="lock-content">
             <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">v32.1</div>
+            <div class="version-tag">v33.0</div>
         </div>
     </div>
     
@@ -644,7 +644,7 @@
             }
         };
 
-        // === FIXED COLOR RAMP LOGIC (VERSION 32.1) ===
+        // === FIXED COLOR RAMP LOGIC ===
         const STOPS = ["#EF4444", "#F97316", "#EAB308", "#22C55E", "#06B6D4", "#3B82F6", "#8B5CF6", "#EC4899"];
         
         function hexToRgb(hex) {
@@ -663,28 +663,20 @@
              if (count <= 1) return [STOPS[0]];
              const palette = [];
              
-             // Convert stops to RGB objects
              const rgbStops = STOPS.map(hexToRgb);
              const numStops = rgbStops.length;
 
              for(let i=0; i<count; i++) {
-                 // Calculate global position (0.0 to 1.0)
                  let t = i / (count - 1);
-                 
-                 // Map to segment
                  let exactLoc = t * (numStops - 1);
                  let idx = Math.floor(exactLoc);
                  let segmentT = exactLoc - idx;
-                 
                  if(idx >= numStops - 1) { idx = numStops - 2; segmentT = 1; }
-                 
                  palette.push(interpolateColor(rgbStops[idx], rgbStops[idx+1], segmentT));
              }
              return palette;
         };
         
-        const COLORS = STOPS; // Fallback compatibility
-
         const DEFAULT_CATS = [
             {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
             {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},
@@ -964,13 +956,8 @@
 
                     for (let r = 1; r <= maxRounds; r++) {
                         const logA = st.logs.find(l => l.r === r && l.t === 0);
-                        const logB = st.logs.find(l => l.r === r && l.t === 1);
-                        
                         const sA = logA ? logA.s : 0;
-                        const sB = logB ? logB.s : 0;
-
                         accA += sA;
-                        accB += sB;
 
                         const row = {};
                         row["Rodada"] = r;
@@ -978,6 +965,9 @@
                         row["Total " + t1Name] = accA;
 
                         if(!isSolo) {
+                            const logB = st.logs.find(l => l.r === r && l.t === 1);
+                            const sB = logB ? logB.s : 0;
+                            accB += sB;
                             row[t2Name] = sB;
                             row["Total " + t2Name] = accB;
                         }
@@ -1217,6 +1207,7 @@
         window.onload = () => {
             storage.load();
             themeMgr.init(); // Initialize themes
+            // FIX: Call sensor.init only in onload to avoid dependency issues
             sensor.init();
 
             // DICA IOS
