@@ -559,6 +559,8 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
+        const APP_VERSION = "v30.3"; 
+        
         const THEMES = [
             { id: 'default', name: 'Original', bg: '#1e1b4b', grad: 'radial-gradient(circle at center, #2e1065 0%, #020617 100%)', p: '#6366f1', s: '#ec4899', a: '#fbbf24' },
             { id: 'dark-amber', name: 'Dark/Amber', bg: '#111', grad: 'radial-gradient(circle at center, #333 0%, #000 100%)', p: '#e65100', s: '#f6a609', a: '#ffffff' },
@@ -1354,6 +1356,9 @@
         };
 
         window.onload = () => {
+            const verTag = document.querySelector('.version-tag');
+            if(verTag) verTag.innerText = APP_VERSION;
+            
             storage.load();
             themeMgr.init(); // Initialize themes
             sensor.init();
