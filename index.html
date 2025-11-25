@@ -818,7 +818,7 @@
                     const n = r.querySelector('.table-input-cat').value; 
                     const wStr = r.querySelector('.table-input-words').value;
                     if(n && wStr) { 
-                        const w = wStr.split(',').map(s=>s.trim()).filter(s=>s); 
+                        const w = wStr.split(';').map(s=>s.trim()).filter(s=>s);
                         if(w.length) newCats.push({n, w}); 
                     }
                 });
@@ -837,7 +837,7 @@
                 currentData.forEach((cat, idx) => {
                     const row = document.createElement('div'); 
                     row.className = 'table-row';
-                    row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join(', ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                    row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join('; ')}" placeholder="Palavras"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
                     container.appendChild(row);
                 });
             },
@@ -845,7 +845,7 @@
                 const container = document.getElementById('table-rows'); 
                 const row = document.createElement('div'); 
                 row.className = 'table-row';
-                row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A, B, C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A; B; C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
                 container.appendChild(row);
             },
             save: () => {
