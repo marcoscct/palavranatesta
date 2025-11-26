@@ -1,5 +1,5 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.1 -->
-<!-- START OF FILE index (4).html -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.2 -->
+<!-- START OF FILE index (5).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -360,56 +360,24 @@
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
         /* JACKPOT */
-        /* CSS ATUALIZADO PARA CORRIGIR ALINHAMENTO E TEXTO */
+        #jackpot-container { 
+            display:none; width: 85vh; height: 85vh; position: relative; flex-shrink: 0;
+            background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
+            overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        }
+        #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
         .jackpot-item {
-            height: 15vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            font-family: 'Montserrat'; 
-            font-weight: 900; 
-            /* Removemos o font-size fixo daqui, será controlado via JS */
-            text-transform: uppercase; 
-            color: white; 
-            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            height: 15vh; display: flex; align-items: center; justify-content: center;
+            font-family: 'Montserrat'; font-weight: 900; 
+            text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center; 
-            /* Margem lateral para não bater na seta (80% da largura efetiva) */
-            padding: 0 50px; 
-            overflow: hidden; 
-            white-space: nowrap;
-            /* Garante que a linha base do texto fique centralizada */
+            text-align: center; padding: 0 50px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
             line-height: 1; 
         }
-
-        .jackpot-highlight { 
-            position: absolute; top: 50%; left: 0; width: 100%; height: 15vh; 
-            transform: translateY(-50%); 
-            background: rgba(255,255,255,0.1); 
-            border-top: 2px solid white; border-bottom: 2px solid white; 
-            pointer-events: none; 
-            /* Garante que o highlight fique na frente do texto se sobrepor, mas atrás da seta */
-            z-index: 15; 
-        }
-
-        .jackpot-arrow { 
-            position: absolute; 
-            top: 50%; 
-            left: -1px; /* Ajuste fino para colar na borda */
-            transform: translateY(-50%); 
-            width: 0; height: 0;
-            border-top: 20px solid transparent; 
-            border-bottom: 20px solid transparent; 
-            border-left: 30px solid white; 
-            z-index: 20; 
-            filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); 
-        }
-
-        .jackpot-arrow-right { 
-            left: auto; 
-            right: -1px; 
-            transform: translateY(-50%) rotate(180deg); 
-        }
+        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 15vh; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; z-index: 15; }
+        .jackpot-arrow { position: absolute; top: 50%; left: -1px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
+        .jackpot-arrow-right { left: auto; right: -1px; transform: translateY(-50%) rotate(180deg); }
 
         @media (max-width: 900px) {
             #screen-wheel { flex-direction: column; gap: 20px; }
@@ -646,7 +614,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.1"; 
+        const APP_VERSION = "v31.2"; 
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1331,29 +1299,16 @@
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
             },
             setupJackpot: () => {
-                let h = ""; 
-                const list = [];
-                // Multiplica a lista para criar o efeito de loop infinito
+                let h = ""; const list = [];
                 for(let k=0; k<30; k++) { CURRENT_ROUND_CATS.forEach(c => list.push(c)); }
-                
                 const n = CURRENT_ROUND_CATS.length;
-                
                 list.forEach((c, i) => {
                      const realIndex = i % n; 
                      const color = getDynamicColor(realIndex, n);
                      const text = c.n.replace('*','');
-                     
-                     // === LÓGICA DE TAMANHO DE FONTE DINÂMICO ===
-                     // Base: 5vh. Referência: 12 caracteres cabem bem.
-                     // Se tiver mais que 12 caracteres, reduz proporcionalmente.
-                     // Mínimo de 2.2vh para não ficar ilegível.
                      let fontSize = 5;
-                     if(text.length > 12) {
-                         fontSize = 5 * (12 / text.length);
-                     }
+                     if(text.length > 12) { fontSize = 5 * (12 / text.length); }
                      if(fontSize < 2.2) fontSize = 2.2;
-                     
-                     // Aplica o font-size inline
                      h += `<div class="jackpot-item" style="background:${color}; font-size:${fontSize}vh">${text}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
