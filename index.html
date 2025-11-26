@@ -1323,8 +1323,8 @@
                             const startSet = 15; 
                             
                             // Cálculo: Centro da Tela - Metade do Item - Altura dos 15 conjuntos anteriores
-                            // O "+ 25" no final empurra a lista para baixo
-wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 25;
+                            // O "+ 15" no final empurra a lista para baixo
+wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 15;
                             
                             wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                         }
