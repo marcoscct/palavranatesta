@@ -1,5 +1,5 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.2 -->
-<!-- START OF FILE index (5).html -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.3 -->
+<!-- START OF FILE index (6).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -344,9 +344,10 @@
         }
         @keyframes shake { 0% { transform: translate(-49%, -50%) } 25% { transform: translate(-51%, -50%) } 50% { transform: translate(-52%, -50%) } 75% { transform: translate(-48%, -50%) } 100% { transform: translate(-50%, -50%) } }
 
-        /* === WHEEL ELEMENTS === */
+        /* === WHEEL ELEMENTS (ATUALIZADO) === */
         #screen-wheel { flex-direction: row; gap: 5vw; }
         .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
+        
         #wheel-container { display:none; width: 85vh; height: 85vh; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
         #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
         .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
@@ -359,34 +360,52 @@
         #pointer { position: absolute; top: -3vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
 
-        /* JACKPOT */
+        /* JACKPOT ATUALIZADO (Largura maior, sem bordas) */
         #jackpot-container { 
-            display:none; width: 85vh; height: 85vh; position: relative; flex-shrink: 0;
+            display:none; 
+            width: 92vw; height: 92vw; /* Mais largo no mobile */
+            position: relative; flex-shrink: 0;
             background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
             overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
             mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
         }
+        
         #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
+        
         .jackpot-item {
-            height: 15vh; display: flex; align-items: center; justify-content: center;
+            height: 15vh; 
+            display: flex; align-items: center; justify-content: center;
             font-family: 'Montserrat'; font-weight: 900; 
             text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center; padding: 0 50px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-            line-height: 1; 
+            text-align: center; 
+            padding: 0 15px; /* Menos padding para caber mais texto */
+            overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
-        .jackpot-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 15vh; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-top: 2px solid white; border-bottom: 2px solid white; pointer-events: none; z-index: 15; }
+        
+        /* Sem bordas brancas, apenas um brilho sutil */
+        .jackpot-highlight { 
+            position: absolute; top: 50%; left: 0; width: 100%; height: 15vh; 
+            transform: translateY(-50%); 
+            background: rgba(255,255,255,0.05); /* Fundo muito sutil */
+            pointer-events: none; z-index: 15; 
+        }
+        
         .jackpot-arrow { position: absolute; top: 50%; left: -1px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
         .jackpot-arrow-right { left: auto; right: -1px; transform: translateY(-50%) rotate(180deg); }
 
         @media (max-width: 900px) {
             #screen-wheel { flex-direction: column; gap: 20px; }
             .wheel-info { align-items: center; text-align: center; width: 90%; }
-            #wheel-container, #jackpot-container { width: 85vw; height: 85vw; }
+            /* Mantém proporção larga no mobile */
+            #wheel-container { width: 85vw; height: 85vw; }
+            #jackpot-container { width: 92vw; height: 92vw; } 
             h1 { font-size: 2.5rem; }
         }
         @media (orientation: landscape) {
-            #wheel-container, #jackpot-container { width: 85vh; height: 85vh; }
+            #wheel-container { width: 85vh; height: 85vh; }
+            /* Ajuste para desktop/landscape */
+            #jackpot-container { width: 92vh; height: 92vh; }
             .slice-text { padding-left: 17vh; font-size: 3.5vh; }
         }
 
@@ -614,7 +633,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.2"; 
+        const APP_VERSION = "v31.3"; 
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1269,19 +1288,40 @@
                 if (mode === 'wheel') wheel.mode = 'wheel';
                 else if (mode === 'jackpot') wheel.mode = 'jackpot';
                 else { wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel'; }
-                document.getElementById('wheel-container').style.display = wheel.mode === 'wheel' ? 'block' : 'none';
-                document.getElementById('jackpot-container').style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                
+                const wc = document.getElementById('wheel-container');
+                const jc = document.getElementById('jackpot-container');
+                
+                wc.style.display = wheel.mode === 'wheel' ? 'block' : 'none';
+                jc.style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
+                
                 wheel.el = document.getElementById('wheel-spinner');
                 wheel.jackpot = document.getElementById('jackpot-strip');
                 wheel.jackpot.style.transition = 'none';
-                wheel.jackpot.style.transform = 'translateY(0px)';
-                wheel.offsetY = 0;
+                
+                // Reset básico
                 wheel.el.style.transition = 'none';
                 wheel.el.style.transform = 'rotate(0deg)';
                 wheel.ang = 0;
-                if (wheel.mode === 'wheel') wheel.setupWheel(); else wheel.setupJackpot();
-                const container = document.getElementById(wheel.mode === 'wheel' ? 'wheel-container' : 'jackpot-container');
-                wheel.attachDrag(container);
+
+                if (wheel.mode === 'wheel') {
+                    wheel.setupWheel();
+                    wheel.attachDrag(wc);
+                } else {
+                    wheel.setupJackpot();
+                    wheel.attachDrag(jc);
+                    
+                    // === CORREÇÃO DE ALINHAMENTO INICIAL ===
+                    setTimeout(() => {
+                        const containerH = jc.offsetHeight;
+                        const itemH = wheel.jackpot.firstElementChild ? wheel.jackpot.firstElementChild.offsetHeight : 0;
+                        if (containerH && itemH) {
+                            // Centraliza: Metade do container - Metade do item
+                            wheel.offsetY = (containerH / 2) - (itemH / 2);
+                            wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
+                        }
+                    }, 0);
+                }
             },
             setupWheel: () => {
                 let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
@@ -1306,9 +1346,19 @@
                      const realIndex = i % n; 
                      const color = getDynamicColor(realIndex, n);
                      const text = c.n.replace('*','');
-                     let fontSize = 5;
-                     if(text.length > 12) { fontSize = 5 * (12 / text.length); }
-                     if(fontSize < 2.2) fontSize = 2.2;
+                     
+                     // === CORREÇÃO DE FONTE (AJUSTE BRANDO) ===
+                     let fontSize = 5; // Tamanho padrão (grande)
+                     
+                     // Só diminui se passar de 15 letras
+                     if(text.length > 15) { 
+                         // Reduz 0.15vh para cada letra excedente
+                         fontSize = 5 - ((text.length - 15) * 0.15);
+                     }
+                     
+                     // Trava num tamanho mínimo legível (2.5vh)
+                     if(fontSize < 2.5) fontSize = 2.5;
+                     
                      h += `<div class="jackpot-item" style="background:${color}; font-size:${fontSize}vh">${text}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
