@@ -42,16 +42,20 @@
 
         /* FIX FUNDO TOTAL S25 ULTRA + TEMAS + IPHONE FIX (100dvh) */
         html, body {
-            width: 100%; 
-            height: 100%; /* Fallback */
-            height: 100dvh; /* Moderna para iOS */
+            width: 100vw; /* Força a largura total da viewport física */
+            height: 100vh; /* Fallback */
+            height: 100dvh; /* Moderna para iOS/Android */
             margin: 0; padding: 0;
             overflow: hidden;
             font-family: 'Poppins', sans-serif; color: var(--text);
+            
             background-color: var(--bg-color);
             background-image: var(--bg-gradient);
             background-size: cover;
-            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            /* REMOVIDO 'background-attachment: fixed' para o gradiente invadir a barra de tarefas */
+            
             position: fixed; inset: 0;
             transition: background 0.5s ease;
         }
