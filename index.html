@@ -1311,13 +1311,20 @@
                     wheel.setupJackpot();
                     wheel.attachDrag(jc);
                     
-                    // === CORREÇÃO DE ALINHAMENTO INICIAL ===
+                    // === CORREÇÃO DE ALINHAMENTO COM LOOP INFINITO ===
                     setTimeout(() => {
                         const containerH = jc.offsetHeight;
-                        const itemH = wheel.jackpot.firstElementChild ? wheel.jackpot.firstElementChild.offsetHeight : 0;
+                        const itemEl = wheel.jackpot.firstElementChild;
+                        const itemH = itemEl ? itemEl.offsetHeight : 0;
+                        
                         if (containerH && itemH) {
-                            // Centraliza: Metade do container - Metade do item
-                            wheel.offsetY = (containerH / 2) - (itemH / 2);
+                            const n = CURRENT_ROUND_CATS.length;
+                            // Começa no conjunto 15 (meio da lista gigante) para ter itens acima e abaixo
+                            const startSet = 15; 
+                            
+                            // Cálculo: Centro da Tela - Metade do Item - Altura dos 15 conjuntos anteriores
+                            wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH);
+                            
                             wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                         }
                     }, 0);
