@@ -1,5 +1,5 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.0 -->
-<!-- START OF FILE index (3).html -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.1 -->
+<!-- START OF FILE index (4).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -277,22 +277,33 @@
             background: white; color: var(--bg-color); box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
-        /* === ACESSIBILIDADE === */
+        /* === ACESSIBILIDADE DISCRETA === */
         .tts-controls {
-            display: flex; gap: 10px; margin-top: 15px; width: 90%; max-width: 350px; justify-content: center;
+            position: absolute;
+            bottom: calc(2vh + env(safe-area-inset-bottom));
+            left: calc(4vw + env(safe-area-inset-left));
+            display: flex;
+            gap: 15px;
+            z-index: 20;
         }
         .tts-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px; padding: 10px; flex: 1; color: rgba(255,255,255,0.5);
-            font-size: 0.8rem; font-family: 'Montserrat'; font-weight: 700;
-            display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;
+            background: transparent; 
+            border: none;
+            padding: 8px; 
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            color: rgba(255,255,255,0.3); /* Bem discreto */
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
             transition: all 0.2s;
         }
+        .tts-btn:active { transform: scale(0.9); }
         .tts-btn.active {
-            background: var(--primary); color: white; border-color: var(--primary);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            color: var(--text);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
         }
-        .tts-icon { font-size: 1.5rem; }
+        .tts-icon { font-size: 1.6rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
 
         /* === FIX GAME TEXT ALIGNMENT === */
         #word-disp {
@@ -527,20 +538,18 @@
             <button class="mode-btn" id="btn-mode-surv" onclick="app.setMode('survival')">SOBREVIVENTE</button>
         </div>
 
-        <!-- CONTROLES DE ACESSIBILIDADE (TTS) -->
-        <div class="tts-controls">
-            <button class="tts-btn" id="btn-tts-narrator" onclick="app.toggleTTS('narrator')">
-                <span class="tts-icon">🗣️</span>
-                <span>NARRADOR</span>
-            </button>
-            <button class="tts-btn" id="btn-tts-word" onclick="app.toggleTTS('word')">
-                <span class="tts-icon">👀</span>
-                <span>LER PALAVRA</span>
-            </button>
-        </div>
-
         <p style="font-size: 2.5vh; opacity: 0.8; margin-top: 2vh;">Celular na testa</p>
         <button class="btn" style="width: auto; margin-top: 2vh;" onclick="app.toWheel()">SORTEAR TEMA</button>
+
+        <!-- CONTROLES DE ACESSIBILIDADE DISCRETOS -->
+        <div class="tts-controls">
+            <button class="tts-btn" id="btn-tts-narrator" onclick="app.toggleTTS('narrator')" title="Narrador">
+                <span class="tts-icon">🗣️</span>
+            </button>
+            <button class="tts-btn" id="btn-tts-word" onclick="app.toggleTTS('word')" title="Ler Palavra">
+                <span class="tts-icon">👀</span>
+            </button>
+        </div>
     </div>
 
     <div id="screen-wheel" class="screen">
@@ -604,7 +613,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.0"; 
+        const APP_VERSION = "v31.1"; 
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1431,12 +1440,16 @@
             },
             next: () => {
                 if(st.q.length === 0) { if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
-                st.cw = st.q.pop(); document.getElementById('word-disp').innerText = st.cw;
+                st.cw = st.q.pop(); 
+                document.getElementById('word-disp').innerText = st.cw;
 
-                // TTS: LER PALAVRA COM DELAY
+                // CORREÇÃO DO BUG "LER PALAVRA"
+                const currentWordSnapshot = st.cw;
+                
                 if(st.cfg.ttsWord) {
                     setTimeout(() => {
-                        if(st.on && document.getElementById('word-disp').innerText === st.cw) {
+                        // Comparamos a variável de snapshot com a variável de estado
+                        if(st.on && st.cw === currentWordSnapshot) {
                             tts.speak(st.cw);
                         }
                     }, 800);
@@ -1472,7 +1485,7 @@
                     st.on=false; game.stop(); st.pts = st.h.filter(x => x.ok).length;
                     st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn)); st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
                     
-                    // TTS: FIM RODADA
+                    // TTS: FIM RODADA COM PLURAL CORRIGIDO
                     if(st.cfg.tts) {
                         setTimeout(() => {
                             const pontosLabel = st.pts === 1 ? "ponto" : "pontos";
@@ -1484,7 +1497,13 @@
                 } catch(e) { console.error("Game End Error:", e); app.to('home'); }
             },
             renderRes: () => {
-                const scoreEl = document.getElementById('res-score'); if(scoreEl) scoreEl.innerText = st.pts + " PONTOS";
+                // CORREÇÃO VISUAL DE PLURAL
+                const scoreEl = document.getElementById('res-score'); 
+                if(scoreEl) {
+                    const suffix = st.pts === 1 ? " PONTO" : " PONTOS";
+                    scoreEl.innerText = st.pts + suffix;
+                }
+                
                 const l = document.getElementById('res-list'); if(l) { l.innerHTML = ""; if(st.h && st.h.length > 0) { st.h.forEach(x => { const d = document.createElement('div'); d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)"; d.style.display="flex"; d.style.justifyContent="space-between"; d.style.alignItems="center"; const color = x.ok ? '#22c55e' : '#ef4444'; const icon = x.ok ? '✓' : '✗'; d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`; l.appendChild(d); }); } else { l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>"; } }
             },
             openEdit: () => {
