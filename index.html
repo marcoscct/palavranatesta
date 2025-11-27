@@ -1,12 +1,14 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.4 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.5 -->
 <!-- START OF FILE index (6).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <!-- Viewport otimizado para Mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
     <!-- iOS Web App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,11 +18,13 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="color-scheme" content="dark only">
     <title>Palavra na Testa</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Poppins:wght@400;600;800&display=swap"
+        rel="stylesheet">
+
     <style>
         /* === VARS & RESET === */
         :root {
@@ -32,57 +36,94 @@
             --secondary: #ec4899;
             --accent: #fbbf24;
             --text: #ffffff;
-            --panel-bg: rgba(0,0,0,0.3);
-            
+            --panel-bg: rgba(0, 0, 0, 0.3);
+
             --success: #22c55e;
             --danger: #ef4444;
             --border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            outline: none;
+        }
 
         /* FIX FUNDO TOTAL S25 ULTRA + TEMAS + IPHONE FIX (100dvh) */
-        html, body {
-            width: 100vw; /* Força a largura total da viewport física */
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Moderna para iOS/Android */
-            margin: 0; padding: 0;
+        html,
+        body {
+            width: 100vw;
+            /* Força a largura total da viewport física */
+            height: 100vh;
+            /* Fallback */
+            height: 100dvh;
+            /* Moderna para iOS/Android */
+            margin: 0;
+            padding: 0;
             overflow: hidden;
-            font-family: 'Poppins', sans-serif; color: var(--text);
-            
+            font-family: 'Poppins', sans-serif;
+            color: var(--text);
+
             background-color: var(--bg-color);
             background-image: var(--bg-gradient);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             /* REMOVIDO 'background-attachment: fixed' para o gradiente invadir a barra de tarefas */
-            
-            position: fixed; inset: 0;
+
+            position: fixed;
+            inset: 0;
             transition: background 0.5s ease;
         }
 
         /* === UTILS === */
         .screen {
-            position: absolute; inset: 0;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
             padding-left: calc(4vw + env(safe-area-inset-left));
             padding-right: calc(4vw + env(safe-area-inset-right));
-            z-index: 1; opacity: 0; transition: opacity 0.3s ease;
-            width: 100%; height: 100%;
-            overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
-        .screen.active { display: flex; opacity: 1; z-index: 10; }
-        
+
+        .screen.active {
+            display: flex;
+            opacity: 1;
+            z-index: 10;
+        }
+
         /* NO SCROLL SCREENS (FIXED TEAMS SCREEN) */
-        #screen-game, #screen-intro, #screen-final, #screen-teams { 
-            overflow: hidden; 
-            touch-action: none; 
+        #screen-game,
+        #screen-intro,
+        #screen-final,
+        #screen-teams {
+            overflow: hidden;
+            touch-action: none;
         }
-        
-        #screen-game { display: block; } 
-        #screen-wheel { overflow: hidden !important; touch-action: none; }
+
+        #screen-game {
+            display: block;
+        }
+
+        #screen-wheel {
+            overflow: hidden !important;
+            touch-action: none;
+        }
 
         /* Adjust scrollable logic to exclude static screens */
         @media (max-height: 850px) {
@@ -91,24 +132,57 @@
                 padding-top: calc(40px + env(safe-area-inset-top));
                 padding-bottom: calc(80px + env(safe-area-inset-bottom));
             }
-            h1 { font-size: clamp(2rem, 8vw, 3rem) !important; margin-top: 10px; margin-bottom: 20px !important; flex-shrink: 0; }
-            .btn { flex-shrink: 0; margin-top: auto; margin-bottom: 10px; }
+
+            h1 {
+                font-size: clamp(2rem, 8vw, 3rem) !important;
+                margin-top: 10px;
+                margin-bottom: 20px !important;
+                flex-shrink: 0;
+            }
+
+            .btn {
+                flex-shrink: 0;
+                margin-top: auto;
+                margin-bottom: 10px;
+            }
         }
 
-        .scrollable { justify-content: flex-start; }
-        .hidden { display: none !important; }
+        .scrollable {
+            justify-content: flex-start;
+        }
+
+        .hidden {
+            display: none !important;
+        }
 
         /* === TYPOGRAPHY === */
         h1 {
-            font-family: 'Montserrat', sans-serif; font-weight: 900; 
-            font-size: clamp(2rem, 6vw, 4rem); text-transform: uppercase; 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: clamp(2rem, 6vw, 4rem);
+            text-transform: uppercase;
             background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-align: center; letter-spacing: -1px; margin-bottom: 2vh;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
-            line-height: 1.1; width: 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            letter-spacing: -1px;
+            margin-bottom: 2vh;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
+            line-height: 1.1;
+            width: 100%;
         }
-        h2 { font-family: 'Montserrat'; font-size: 1.3rem; margin-bottom: 15px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; width: 100%; }
+
+        h2 {
+            font-family: 'Montserrat';
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 5px;
+            width: 100%;
+        }
 
         .app-subtitle {
             font-family: 'Montserrat', sans-serif;
@@ -126,127 +200,391 @@
         /* === UI COMPONENTS === */
         .btn {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: white; border: none; border-radius: 50px;
-            padding: 1.5vh 4vw; font-size: clamp(1.2rem, 2.5vh, 1.5rem); font-weight: 900;
-            text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            transition: transform 0.1s, filter 0.3s; width: 100%; max-width: 400px; margin: 1vh 0;
-            font-family: 'Montserrat'; min-height: 55px;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 1.5vh 4vw;
+            font-size: clamp(1.2rem, 2.5vh, 1.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s, filter 0.3s;
+            width: 100%;
+            max-width: 400px;
+            margin: 1vh 0;
+            font-family: 'Montserrat';
+            min-height: 55px;
         }
-        .btn:active { transform: scale(0.97); }
-        .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); box-shadow: none; font-size: 1.2rem; }
-        .btn-small { padding: 10px 20px; font-size: 0.9rem; max-width: 200px; margin: 5px; height: 40px; display: inline-flex; align-items: center; justify-content: center;}
-        .btn-danger { background: var(--danger); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
-        
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: none;
+            font-size: 1.2rem;
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            max-width: 200px;
+            margin: 5px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+        }
+
         /* BUTTON SQUARE FIX */
-        .btn-square { width: 55px; height: 55px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border-radius: 15px; flex-shrink: 0; margin: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; border: none; color: white; transition: transform 0.1s; }
-        .btn-square:active { transform: scale(0.95); }
-
-        .input-group { margin-bottom: 1.5vh; width: 100%; max-width: 600px; position: relative; flex-shrink: 0; }
-        .input-row { display: flex; gap: 10px; width: 100%; max-width: 600px; align-items: flex-end; margin-bottom: 15px; }
-        
-        label { display: block; font-size: clamp(0.7rem, 1.8vh, 0.9rem); color: rgba(255,255,255,0.6); font-weight: 700; margin-bottom: 0.5vh; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        input, textarea, select {
-            width: 100%; padding: 1.5vh; background: rgba(255,255,255,0.1); 
-            border: var(--border); color: white; border-radius: 12px; 
-            font-size: clamp(1rem, 2.5vh, 1.2rem); font-family: 'Poppins'; font-weight: 600;
+        .btn-square {
+            width: 55px;
+            height: 55px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border-radius: 15px;
+            flex-shrink: 0;
+            margin: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            border: none;
+            color: white;
+            transition: transform 0.1s;
         }
-        
-        /* === THEME SELECTOR === */
-        .theme-grid { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
-        .theme-option { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); transition: transform 0.2s, border-color 0.2s; }
-        .theme-option.active { border-color: white; transform: scale(1.15); box-shadow: 0 0 15px rgba(255,255,255,0.3); }
 
-        .options-container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; padding-bottom: 50px; }
-        .section-box { background: var(--panel-bg); padding: 20px; border-radius: 15px; border: var(--border); }
+        .btn-square:active {
+            transform: scale(0.95);
+        }
+
+        .input-group {
+            margin-bottom: 1.5vh;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+            align-items: flex-end;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: clamp(0.7rem, 1.8vh, 0.9rem);
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 700;
+            margin-bottom: 0.5vh;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 1.5vh;
+            background: rgba(255, 255, 255, 0.1);
+            border: var(--border);
+            color: white;
+            border-radius: 12px;
+            font-size: clamp(1rem, 2.5vh, 1.2rem);
+            font-family: 'Poppins';
+            font-weight: 600;
+        }
+
+        /* === THEME SELECTOR === */
+        .theme-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .theme-option {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .theme-option.active {
+            border-color: white;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .options-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 50px;
+        }
+
+        .section-box {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 15px;
+            border: var(--border);
+        }
 
         /* === TABLE EDITOR === */
-        #editor-container { width: 100%; }
-        .editor-view { display: none; width: 100%; }
-        .editor-view.active { display: block; }
-        .table-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .table-input-cat { flex: 0 0 140px; font-weight: bold; color: var(--accent); }
-        .table-input-words { flex: 1; font-size: 0.9rem; }
-        .btn-del { background: var(--danger); width: 40px; height: 40px; padding: 0; font-size: 1.2rem; border-radius: 10px; box-shadow: none; margin: 0; display: flex; align-items: center; justify-content: center; border: none; color: white; }
-        
+        #editor-container {
+            width: 100%;
+        }
+
+        .editor-view {
+            display: none;
+            width: 100%;
+        }
+
+        .editor-view.active {
+            display: block;
+        }
+
+        .table-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .table-input-cat {
+            flex: 0 0 140px;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .table-input-words {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .btn-del {
+            background: var(--danger);
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            box-shadow: none;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            color: white;
+        }
+
         /* === MODAL (FIXED SCROLL & HEIGHT) === */
         #modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999;
-            display: none; align-items: center; justify-content: center;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
             backdrop-filter: blur(5px);
         }
+
         .modal-box {
-            background: var(--bg-color); border: 1px solid rgba(255,255,255,0.2);
-            padding: 25px 20px; 
-            border-radius: 20px; text-align: center;
-            width: 95%; max-width: 500px;
-            max-height: 80vh; 
-            display: flex; 
+            background: var(--bg-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 25px 20px;
+            border-radius: 20px;
+            text-align: center;
+            width: 95%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            animation: popIn 0.3s ease-out; margin-bottom: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            animation: popIn 0.3s ease-out;
+            margin-bottom: 20px;
         }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .modal-title { font-family: 'Montserrat'; font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; flex-shrink: 0; }
-        
-        .modal-msg { 
-            margin-bottom: 15px; 
-            font-size: 1.2rem; line-height: 1.5; color: white; 
-            flex: 1; 
-            overflow-y: auto; 
-            min-height: 0; 
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
-        
-        .modal-actions { 
-            display: flex; gap: 15px; justify-content: center; width: 100%; padding-top: 10px; 
-            flex-shrink: 0; 
+
+        .modal-title {
+            font-family: 'Montserrat';
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+            flex-shrink: 0;
         }
-        
+
+        .modal-msg {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: white;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            width: 100%;
+            padding-top: 10px;
+            flex-shrink: 0;
+        }
+
         #result-cat-display {
-            font-size: 3rem; font-weight: 900; color: white; 
-            margin: 10px 0 30px 0; text-transform: uppercase;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            font-size: 3rem;
+            font-weight: 900;
+            color: white;
+            margin: 10px 0 30px 0;
+            text-transform: uppercase;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         /* === EDIT RESULTS MODAL STYLES === */
-        .edit-list-container { 
+        .edit-list-container {
             width: 100%;
-            border-top: 1px solid rgba(255,255,255,0.1); 
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .edit-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer; user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            user-select: none;
         }
-        .edit-item:active { background: rgba(255,255,255,0.05); }
-        .edit-word { font-size: 1rem; text-align: left; flex: 1; font-weight: 600; color: var(--text); padding-right: 10px; }
-        .edit-status { font-weight: 900; font-size: 1rem; text-transform: uppercase; width: 100px; text-align: right; }
+
+        .edit-item:active {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .edit-word {
+            font-size: 1rem;
+            text-align: left;
+            flex: 1;
+            font-weight: 600;
+            color: var(--text);
+            padding-right: 10px;
+        }
+
+        .edit-status {
+            font-weight: 900;
+            font-size: 1rem;
+            text-transform: uppercase;
+            width: 100px;
+            text-align: right;
+        }
 
         /* === FINAL WINNER TEXT === */
         #winner {
-            color: var(--accent); font-size: 6vh; text-align: center; width: 100%;
-            margin-top: 2vh; text-transform: uppercase;
+            color: var(--accent);
+            font-size: 6vh;
+            text-align: center;
+            width: 100%;
+            margin-top: 2vh;
+            text-transform: uppercase;
         }
 
         /* === ROUND PILL & GAME HUD === */
         .round-pill {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 30px; border-radius: 50px; margin-bottom: 2vh;
-            display: inline-flex; align-items: center; gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 30px;
+            border-radius: 50px;
+            margin-bottom: 2vh;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
-        .round-pill h2 { border:none; padding:0; margin: 0; font-size: 2.5vh; color: rgba(255,255,255,0.7); letter-spacing: 2px; width: auto; }
-        .round-pill span { font-size: 4vh; font-weight: 900; color: white; line-height: 1; }
+
+        .round-pill h2 {
+            border: none;
+            padding: 0;
+            margin: 0;
+            font-size: 2.5vh;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 2px;
+            width: auto;
+        }
+
+        .round-pill span {
+            font-size: 4vh;
+            font-weight: 900;
+            color: white;
+            line-height: 1;
+        }
 
         .timer-wrapper {
-            position: absolute; top: 5vh; right: 5vw; width: 10vh; height: 10vh; 
-            border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: conic-gradient(var(--secondary) 0deg, #333 0deg); z-index: 20;
+            position: absolute;
+            top: 5vh;
+            right: 5vw;
+            width: 10vh;
+            height: 10vh;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: conic-gradient(var(--secondary) 0deg, #333 0deg);
+            z-index: 20;
         }
-        .timer-wrapper::after { content: ''; position: absolute; inset: 10%; background: var(--bg-color); border-radius: 50%; z-index: 1; }
-        .timer-text { position: relative; z-index: 2; font-family: 'Montserrat'; font-size: 4vh; font-weight: 900; line-height: 1; }
-        
+
+        .timer-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 10%;
+            background: var(--bg-color);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timer-text {
+            position: relative;
+            z-index: 2;
+            font-family: 'Montserrat';
+            font-size: 4vh;
+            font-weight: 900;
+            line-height: 1;
+        }
+
         /* BONUS ANIMATION */
         .bonus-text {
             position: absolute;
@@ -261,25 +599,56 @@
             z-index: 3;
             white-space: nowrap;
         }
-        .bonus-text.anim { animation: floatUp 1s ease-out forwards; }
-        @keyframes floatUp { 
-            0% { opacity: 0; transform: translate(-50%, 0); } 
-            20% { opacity: 1; transform: translate(-50%, 10px); } 
-            100% { opacity: 0; transform: translate(-50%, 30px); } 
+
+        .bonus-text.anim {
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 0);
+            }
+
+            20% {
+                opacity: 1;
+                transform: translate(-50%, 10px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, 30px);
+            }
         }
 
         /* === MODE SELECTOR === */
         .mode-selector {
-            display: flex; background: rgba(255,255,255,0.1); 
-            border-radius: 50px; padding: 5px; margin-bottom: 20px; width: 90%; max-width: 350px;
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 5px;
+            margin-bottom: 20px;
+            width: 90%;
+            max-width: 350px;
         }
+
         .mode-btn {
-            flex: 1; background: transparent; border: none; color: rgba(255,255,255,0.5);
-            padding: 10px; border-radius: 40px; font-weight: 700; cursor: pointer;
-            font-family: 'Montserrat'; transition: all 0.2s;
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Montserrat';
+            transition: all 0.2s;
         }
+
         .mode-btn.active {
-            background: white; color: var(--bg-color); box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background: white;
+            color: var(--bg-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         /* === ACESSIBILIDADE DISCRETA === */
@@ -287,150 +656,440 @@
             position: absolute;
             bottom: calc(2vh + env(safe-area-inset-bottom));
             left: calc(4vw + env(safe-area-inset-left));
-            display: flex;
-            gap: 15px;
             z-index: 20;
         }
-        .tts-btn {
-            background: transparent; 
+
+        .btn-access {
+            background: transparent;
             border: none;
-            padding: 8px; 
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            color: rgba(255,255,255,0.3); /* Bem discreto */
-            display: flex; align-items: center; justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'Montserrat';
+            font-weight: 700;
+            font-size: 0.8rem;
+            /* Fonte bem pequena */
+            text-transform: uppercase;
+            letter-spacing: 1px;
             cursor: pointer;
-            transition: all 0.2s;
+            padding: 10px;
+            transition: color 0.2s;
         }
-        .tts-btn:active { transform: scale(0.9); }
-        .tts-btn.active {
-            color: var(--text);
-            background: rgba(255,255,255,0.15);
-            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+
+        .btn-access:active {
+            color: white;
         }
-        .tts-icon { font-size: 1.6rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
 
         /* === FIX GAME TEXT ALIGNMENT === */
         #word-disp {
-            font-family: 'Montserrat'; font-weight: 900; 
+            font-family: 'Montserrat';
+            font-weight: 900;
             /* Tamanho ajustado para legibilidade */
-            font-size: clamp(2.8rem, 13.5vmin, 7rem); 
-            text-align: center; line-height: 1.1; text-transform: uppercase;
-            width: 90%; 
+            font-size: clamp(2.8rem, 13.5vmin, 7rem);
+            text-align: center;
+            line-height: 1.1;
+            text-transform: uppercase;
+            width: 90%;
             /* Absolute Center - Ignora Safe Area */
             position: absolute;
-            top: 50%; left: 50%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 5; word-wrap: break-word;
+            z-index: 5;
+            word-wrap: break-word;
         }
 
         .hud-bar {
-            position: absolute; bottom: calc(5vh + env(safe-area-inset-bottom)); 
-            width: 90%; display: flex; justify-content: space-between;
-            font-family: 'Montserrat'; font-weight: 800; font-size: 3.5vh; z-index: 10;
-            left: 50%; transform: translateX(-50%);
+            position: absolute;
+            bottom: calc(5vh + env(safe-area-inset-bottom));
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Montserrat';
+            font-weight: 800;
+            font-size: 3.5vh;
+            z-index: 10;
+            left: 50%;
+            transform: translateX(-50%);
         }
-        .hud-left { color: var(--success); } .hud-right { color: var(--danger); }
-        .flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 15vmin; font-weight: 900; opacity: 0; pointer-events: none; z-index: 50; font-family: 'Montserrat'; }
+
+        .hud-left {
+            color: var(--success);
+        }
+
+        .hud-right {
+            color: var(--danger);
+        }
+
+        .flash {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15vmin;
+            font-weight: 900;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+            font-family: 'Montserrat';
+        }
 
         /* === EXTRA === */
         #msg-force {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-family: 'Montserrat'; font-weight: 900; font-size: 4vh; color: var(--accent);
-            text-shadow: 0 0 20px black; opacity: 0; pointer-events: none; z-index: 100;
-            transition: opacity 0.3s; text-align: center; width: 90%; max-width: 400px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Montserrat';
+            font-weight: 900;
+            font-size: 4vh;
+            color: var(--accent);
+            text-shadow: 0 0 20px black;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            transition: opacity 0.3s;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
         }
-        #msg-force.show { opacity: 1; animation: shake 0.5s; }
+
+        #msg-force.show {
+            opacity: 1;
+            animation: shake 0.5s;
+        }
+
         #msg-time {
-            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-            font-family:'Montserrat';font-weight:900;font-size:3vh; color: var(--accent);
-            text-shadow:0 0 20px black;opacity:0; pointer-events:none;z-index:100;transition:opacity 0.3s;
-            text-align:center;width:90%;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Montserrat';
+            font-weight: 900;
+            font-size: 3vh;
+            color: var(--accent);
+            text-shadow: 0 0 20px black;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            transition: opacity 0.3s;
+            text-align: center;
+            width: 90%;
         }
-        @keyframes shake { 0% { transform: translate(-49%, -50%) } 25% { transform: translate(-51%, -50%) } 50% { transform: translate(-52%, -50%) } 75% { transform: translate(-48%, -50%) } 100% { transform: translate(-50%, -50%) } }
+
+        @keyframes shake {
+            0% {
+                transform: translate(-49%, -50%)
+            }
+
+            25% {
+                transform: translate(-51%, -50%)
+            }
+
+            50% {
+                transform: translate(-52%, -50%)
+            }
+
+            75% {
+                transform: translate(-48%, -50%)
+            }
+
+            100% {
+                transform: translate(-50%, -50%)
+            }
+        }
 
         /* === WHEEL ELEMENTS (ATUALIZADO) === */
-        #screen-wheel { flex-direction: row; gap: 5vw; }
-        .wheel-info { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 300px; text-align: left; }
-        
-        #wheel-container { display:none; width: 85vh; height: 85vh; position: relative; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); flex-shrink: 0; }
-        #wheel-spinner { width: 100%; height: 100%; border-radius: 50%; position: relative; border: 6px solid white; overflow: hidden; }
-        .slice-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; pointer-events: none; z-index: 10; }
-        .slice-text { 
-            position: absolute; top: 0; left: 0; transform: translateY(-50%); 
-            padding-left: 9vh; width: 42vh;
-            font-family: 'Montserrat'; font-weight: 900; color: white; text-transform: uppercase; white-space: nowrap; text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; line-height: 0.95; font-size: 3.5vh;
+        #screen-wheel {
+            flex-direction: row;
+            gap: 5vw;
         }
-        #pointer { position: absolute; top: -3vh; left: 50%; transform: translateX(-50%); border-left: 4vh solid transparent; border-right: 4vh solid transparent; border-top: 8vh solid white; z-index: 20; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .wheel-center-cap { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 20%; height: 20%; background: white; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 15; }
+
+        .wheel-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            min-width: 300px;
+            text-align: left;
+        }
+
+        #wheel-container {
+            display: none;
+            width: 85vh;
+            height: 85vh;
+            position: relative;
+            filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.5));
+            flex-shrink: 0;
+        }
+
+        #wheel-spinner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            border: 6px solid white;
+            overflow: hidden;
+        }
+
+        .slice-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .slice-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translateY(-50%);
+            padding-left: 9vh;
+            width: 42vh;
+            font-family: 'Montserrat';
+            font-weight: 900;
+            color: white;
+            text-transform: uppercase;
+            white-space: nowrap;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            line-height: 0.95;
+            font-size: 3.5vh;
+        }
+
+        #pointer {
+            position: absolute;
+            top: -3vh;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 4vh solid transparent;
+            border-right: 4vh solid transparent;
+            border-top: 8vh solid white;
+            z-index: 20;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .wheel-center-cap {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20%;
+            height: 20%;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 15;
+        }
 
         /* JACKPOT ATUALIZADO (Largura maior, sem bordas) */
-        #jackpot-container { 
-            display:none; 
-            width: 92vw; height: 92vw; /* Mais largo no mobile */
-            position: relative; flex-shrink: 0;
-            background: rgba(0,0,0,0.3); border-radius: 20px; border: 4px solid white;
-            overflow: hidden; box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
-            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        #jackpot-container {
+            display: none;
+            width: 92vw;
+            height: 92vw;
+            /* Mais largo no mobile */
+            position: relative;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 4px solid white;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8);
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
         }
-        
-        #jackpot-strip { width: 100%; position: absolute; top: 0; left: 0; transform: translateY(0px); will-change: transform; }
-        
+
+        #jackpot-strip {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translateY(0px);
+            will-change: transform;
+        }
+
         .jackpot-item {
-            height: 15vh; 
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Montserrat'; font-weight: 900; 
-            text-transform: uppercase; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center; 
-            padding: 0 15px; /* Menos padding para caber mais texto */
-            overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+            height: 15vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat';
+            font-weight: 900;
+            text-transform: uppercase;
+            color: white;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            padding: 0 15px;
+            /* Menos padding para caber mais texto */
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
-        
+
         /* Sem bordas brancas, apenas um brilho sutil */
-        .jackpot-highlight { 
-            position: absolute; top: 50%; left: 0; width: 100%; height: 15vh; 
-            transform: translateY(-50%); 
-            background: rgba(255,255,255,0.05); /* Fundo muito sutil */
-            pointer-events: none; z-index: 15; 
+        .jackpot-highlight {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 15vh;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.05);
+            /* Fundo muito sutil */
+            pointer-events: none;
+            z-index: 15;
         }
-        
-        .jackpot-arrow { position: absolute; top: 50%; left: -1px; transform: translateY(-50%); border-top: 20px solid transparent; border-bottom: 20px solid transparent; border-left: 30px solid white; z-index: 20; filter: drop-shadow(2px 0 5px rgba(0,0,0,0.5)); }
-        .jackpot-arrow-right { left: auto; right: -1px; transform: translateY(-50%) rotate(180deg); }
+
+        .jackpot-arrow {
+            position: absolute;
+            top: 50%;
+            left: -1px;
+            transform: translateY(-50%);
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-left: 30px solid white;
+            z-index: 20;
+            filter: drop-shadow(2px 0 5px rgba(0, 0, 0, 0.5));
+        }
+
+        .jackpot-arrow-right {
+            left: auto;
+            right: -1px;
+            transform: translateY(-50%) rotate(180deg);
+        }
 
         @media (max-width: 900px) {
-            #screen-wheel { flex-direction: column; gap: 20px; }
-            .wheel-info { align-items: center; text-align: center; width: 90%; }
+            #screen-wheel {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .wheel-info {
+                align-items: center;
+                text-align: center;
+                width: 90%;
+            }
+
             /* Mantém proporção larga no mobile */
-            #wheel-container { width: 85vw; height: 85vw; }
-            #jackpot-container { width: 92vw; height: 92vw; } 
-            h1 { font-size: 2.5rem; }
+            #wheel-container {
+                width: 85vw;
+                height: 85vw;
+            }
+
+            #jackpot-container {
+                width: 92vw;
+                height: 92vw;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
         }
+
         @media (orientation: landscape) {
-            #wheel-container { width: 85vh; height: 85vh; }
+            #wheel-container {
+                width: 85vh;
+                height: 85vh;
+            }
+
             /* Ajuste para desktop/landscape */
-            #jackpot-container { width: 92vh; height: 92vh; }
-            .slice-text { padding-left: 17vh; font-size: 3.5vh; }
+            #jackpot-container {
+                width: 92vh;
+                height: 92vh;
+            }
+
+            .slice-text {
+                padding-left: 17vh;
+                font-size: 3.5vh;
+            }
         }
 
         /* LOCK SCREEN FIX */
-        #lock { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #020617; z-index: 99999; 
-            display: none; flex-direction: column; align-items: center; justify-content: center; color: white; 
-            margin: 0 !important; padding: 0 !important;
+        #lock {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #020617;
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin: 0 !important;
+            padding: 0 !important;
         }
-        .lock-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .rotate-phone-icon { width: 80px; height: 80px; fill: white; animation: rotateAnim 2s infinite ease-in-out; }
-        @keyframes rotateAnim { 0% { transform: rotate(0deg); } 30% { transform: rotate(-90deg); } 70% { transform: rotate(-90deg); } 100% { transform: rotate(0deg); } }
-        .version-tag { margin-top: 20px; opacity: 0.3; font-family: monospace; font-size: 14px; letter-spacing: 2px; }
-        @media screen and (orientation: portrait) { 
-            #lock { display: flex !important; } .screen:not(.allow-portrait) { display: none !important; } 
-            .allow-portrait { display: flex !important; } .allow-portrait ~ #lock { display: none !important; }
+
+        .lock-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .rotate-phone-icon {
+            width: 80px;
+            height: 80px;
+            fill: white;
+            animation: rotateAnim 2s infinite ease-in-out;
+        }
+
+        @keyframes rotateAnim {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            30% {
+                transform: rotate(-90deg);
+            }
+
+            70% {
+                transform: rotate(-90deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        .-tag {
+            margin-top: 20px;
+            opacity: 0.3;
+            font-family: monospace;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        @media screen and (orientation: portrait) {
+            #lock {
+                display: flex !important;
+            }
+
+            .screen:not(.allow-portrait) {
+                display: none !important;
+            }
+
+            .allow-portrait {
+                display: flex !important;
+            }
+
+            .allow-portrait~#lock {
+                display: none !important;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- MODAL -->
@@ -444,19 +1103,24 @@
 
     <!-- AUDIO -->
     <audio id="snd-click" src="https://assets.mixkit.co/sfx/preview/mixkit-ui-click-2432.mp3"></audio>
-    <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3" loop></audio>
+    <audio id="snd-spin" src="https://assets.mixkit.co/sfx/preview/mixkit-foley-tire-rolling-looped-1681.mp3"
+        loop></audio>
     <audio id="snd-win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
     <audio id="snd-ok" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
-    <audio id="snd-pass" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+    <audio id="snd-pass"
+        src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
 
     <div id="lock">
         <div class="lock-content">
-            <svg class="rotate-phone-icon" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+            <svg class="rotate-phone-icon" viewBox="0 0 24 24">
+                <path
+                    d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" />
+            </svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">-</div>
+            <div class="-tag">-</div>
         </div>
     </div>
-    
+
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
         <h1>PALAVRA NA TESTA</h1>
@@ -471,8 +1135,10 @@
         <div class="options-container">
             <div class="section-box">
                 <h2>Visual & Times</h2>
-                <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label><div class="theme-grid" id="theme-selector"></div></div>
-                
+                <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label>
+                    <div class="theme-grid" id="theme-selector"></div>
+                </div>
+
                 <!-- RESTORED DROPDOWN -->
                 <div class="input-group">
                     <label>Estrutura</label>
@@ -483,63 +1149,88 @@
                 </div>
 
                 <div class="teams-container" style="margin-top:15px">
-                    <div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text" id="t1" value="Time A" style="border-left: 6px solid var(--primary)" onchange="storage.save()"></div>
-                    <div class="input-group" id="group-t2"><label style="color: var(--secondary);">Time B</label><input type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)" onchange="storage.save()"></div>
+                    <div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text"
+                            id="t1" value="Time A" style="border-left: 6px solid var(--primary)"
+                            onchange="storage.save()"></div>
+                    <div class="input-group" id="group-t2"><label style="color: var(--secondary);">Time B</label><input
+                            type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)"
+                            onchange="storage.save()"></div>
                 </div>
             </div>
-            
+
             <div class="section-box">
                 <h2>Regras do Jogo</h2>
                 <div class="input-row">
-                    <div class="input-group" style="flex:1; width: 0;"><label>Tempo (em segundos)</label><input type="number" id="opt-time" value="60" onchange="storage.save()"></div>
-                    <div class="input-group" style="flex:1; width: 0;"><label>Rodadas</label><input type="number" id="opt-rounds" value="3" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Tempo (em segundos)</label><input
+                            type="number" id="opt-time" value="60" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Rodadas</label><input type="number"
+                            id="opt-rounds" value="3" onchange="storage.save()"></div>
                 </div>
-                
-                <div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode" onchange="app.toggleThresholdVisibility(); storage.save()"><option value="auto">Automático (Misto)</option><option value="wheel">Sempre Roleta</option><option value="jackpot">Sempre Jackpot</option></select></div>
-                <div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()"></div>
-                
+
+                <div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode"
+                        onchange="app.toggleThresholdVisibility(); storage.save()">
+                        <option value="auto">Automático (Misto)</option>
+                        <option value="wheel">Sempre Roleta</option>
+                        <option value="jackpot">Sempre Jackpot</option>
+                    </select></div>
+                <div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para
+                        Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()">
+                </div>
+
                 <!-- SURVIVAL OPTIONS -->
                 <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
                 <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Modo Sobrevivente</h2>
                 <div class="input-row">
-                    <div class="input-group" style="flex:1; width: 0;"><label>Início (em segundos)</label><input type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div>
-                    <div class="input-group" style="flex:1; width: 0;"><label>Bônus (em segundos)</label><input type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Início (em segundos)</label><input
+                            type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Bônus (em segundos)</label><input
+                            type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div>
                 </div>
             </div>
-            
+
             <div class="section-box">
                 <h2>Conteúdo</h2>
-                <div class="input-group"><label>Carregar do Google Sheets</label><div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button class="btn btn-small" style="background: var(--success); width: auto;" onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline" style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button></div>
-                
+                <div class="input-group"><label>Carregar do Google Sheets</label>
+                    <div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button
+                            class="btn btn-small" style="background: var(--success); width: auto;"
+                            onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline"
+                        style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button>
+                </div>
+
                 <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
-                
+
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
                     <h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2>
                 </div>
-                
+
                 <div class="input-group" style="margin-bottom: 10px;">
                     <label>Selecionar Aba</label>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <select id="sheet-selector" style="flex: 1; margin:0;" onchange="dataMgr.switchSheet(this.value)"></select>
-                        <button class="btn btn-square" style="background:var(--success)" onclick="dataMgr.addSheet()" title="Nova Aba">+</button>
-                        <button class="btn btn-square" style="background:var(--danger)" onclick="dataMgr.removeSheet()" title="Excluir Aba">-</button>
+                        <select id="sheet-selector" style="flex: 1; margin:0;"
+                            onchange="dataMgr.switchSheet(this.value)"></select>
+                        <button class="btn btn-square" style="background:var(--success)" onclick="dataMgr.addSheet()"
+                            title="Nova Aba">+</button>
+                        <button class="btn btn-square" style="background:var(--danger)" onclick="dataMgr.removeSheet()"
+                            title="Excluir Aba">-</button>
                     </div>
                 </div>
-                
+
                 <div id="editor-container">
                     <div id="view-table" class="editor-view active">
                         <div id="table-rows"></div>
-                        <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px" onclick="dataMgr.addTableRow()">+ Categoria</button>
+                        <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px"
+                            onclick="dataMgr.addTableRow()">+ Categoria</button>
                     </div>
                 </div>
-                
+
                 <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:20px">
                     <button class="btn btn-small" onclick="dataMgr.save()">💾 Salvar</button>
                     <button class="btn btn-small btn-outline" onclick="dataMgr.reset()">Resetar Tudo</button>
                 </div>
             </div>
-            
-            <button class="btn" style="margin: 20px auto 0 auto; display: block;" onclick="app.to('home')">VOLTAR</button>
+
+            <button class="btn" style="margin: 20px auto 0 auto; display: block;"
+                onclick="app.to('home')">VOLTAR</button>
         </div>
     </div>
 
@@ -547,16 +1238,21 @@
     <div id="screen-teams" class="screen allow-portrait">
         <h1>EQUIPES</h1>
         <div class="teams-container">
-            <div class="input-group"><label style="color: var(--primary);" id="lbl-t1">Time A</label><input type="text" id="t1-conf" placeholder="Nome do Time A" onchange="app.confirmTeams(true)"></div>
-            <div class="input-group" id="group-t2-conf"><label style="color: var(--secondary);" id="lbl-t2">Time B</label><input type="text" id="t2-conf" placeholder="Nome do Time B" onchange="app.confirmTeams(true)"></div>
+            <div class="input-group"><label style="color: var(--primary);" id="lbl-t1">Time A</label><input type="text"
+                    id="t1-conf" placeholder="Nome do Time A" onchange="app.confirmTeams(true)"></div>
+            <div class="input-group" id="group-t2-conf"><label style="color: var(--secondary);" id="lbl-t2">Time
+                    B</label><input type="text" id="t2-conf" placeholder="Nome do Time B"
+                    onchange="app.confirmTeams(true)"></div>
         </div>
         <button class="btn" onclick="app.prep()">JOGAR AGORA</button>
     </div>
 
     <div id="screen-intro" class="screen">
-        <div class="round-pill"><h2>RODADA</h2><span id="lbl-rd">1</span></div>
+        <div class="round-pill">
+            <h2>RODADA</h2><span id="lbl-rd">1</span>
+        </div>
         <h1 id="lbl-tm" style="font-size: 8vh; margin: 2vh 0;">TIME</h1>
-        
+
         <!-- MODE SELECTOR -->
         <div class="mode-selector">
             <button class="mode-btn active" id="btn-mode-normal" onclick="app.setMode('normal')">NORMAL</button>
@@ -567,20 +1263,28 @@
         <button class="btn" style="width: auto; margin-top: 2vh;" onclick="app.toWheel()">SORTEAR TEMA</button>
 
         <!-- CONTROLES DE ACESSIBILIDADE DISCRETOS -->
+        <!-- CONTROLES DE ACESSIBILIDADE DISCRETOS -->
         <div class="tts-controls">
-            <button class="tts-btn" id="btn-tts-narrator" onclick="app.toggleTTS('narrator')" title="Narrador">
-                <span class="tts-icon">🗣️</span>
-            </button>
-            <button class="tts-btn" id="btn-tts-word" onclick="app.toggleTTS('word')" title="Ler Palavra">
-                <span class="tts-icon">👀</span>
+            <button class="btn-access" onclick="app.openAccessModal()">
+                MODO DE ACESSIBILIDADE
             </button>
         </div>
     </div>
 
     <div id="screen-wheel" class="screen">
-        <div id="wheel-container"><div id="pointer"></div><div id="wheel-spinner"></div><div class="wheel-center-cap"></div></div>
-        <div id="jackpot-container"><div class="jackpot-highlight"></div><div class="jackpot-arrow"></div><div class="jackpot-arrow jackpot-arrow-right"></div><div id="jackpot-strip"></div></div>
-        <div id="msg-force">GIRE MAIS FORTE!</div><div id="msg-time">GIRE POR MAIS TEMPO!</div>
+        <div id="wheel-container">
+            <div id="pointer"></div>
+            <div id="wheel-spinner"></div>
+            <div class="wheel-center-cap"></div>
+        </div>
+        <div id="jackpot-container">
+            <div class="jackpot-highlight"></div>
+            <div class="jackpot-arrow"></div>
+            <div class="jackpot-arrow jackpot-arrow-right"></div>
+            <div id="jackpot-strip"></div>
+        </div>
+        <div id="msg-force">GIRE MAIS FORTE!</div>
+        <div id="msg-time">GIRE POR MAIS TEMPO!</div>
     </div>
 
     <div id="screen-game" class="screen">
@@ -589,56 +1293,75 @@
             <div class="bonus-text" id="bonus-anim">+5s</div>
         </div>
         <div id="word-disp">PALAVRA</div>
-        <div class="hud-bar"><div class="hud-left">▼ ACERTOU</div><div class="hud-right">▲ PULAR</div></div>
+        <div class="hud-bar">
+            <div class="hud-left">▼ ACERTOU</div>
+            <div class="hud-right">▲ PULAR</div>
+        </div>
         <div id="fb-ok" class="flash" style="background: var(--success);">ACERTOU!</div>
         <div id="fb-no" class="flash" style="background: var(--danger);">PULOU!</div>
     </div>
 
     <!-- TELA RESULTADO -->
-    <div id="screen-res" class="screen" style="padding-bottom: calc(5vh + env(safe-area-inset-bottom) + 40px); justify-content: center;">
+    <div id="screen-res" class="screen"
+        style="padding-bottom: calc(5vh + env(safe-area-inset-bottom) + 40px); justify-content: center;">
         <h1 style="font-size: clamp(2rem, 5vh, 4rem); margin: 0; line-height: 1;">FIM DA RODADA</h1>
-        <div id="res-score" style="font-size: clamp(3rem, 6vh, 6rem); font-weight: 900; margin: 1vh 0 2vh 0; color: white; line-height: 1;">0 PONTOS</div>
-        
-        <div id="res-list" style="width:100%; max-width:600px; flex: 1; max-height: 30vh; min-height: 100px; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:10px; margin-bottom: 2vh;"></div>
-        
+        <div id="res-score"
+            style="font-size: clamp(3rem, 6vh, 6rem); font-weight: 900; margin: 1vh 0 2vh 0; color: white; line-height: 1;">
+            0 PONTOS</div>
+
+        <div id="res-list"
+            style="width:100%; max-width:600px; flex: 1; max-height: 30vh; min-height: 100px; overflow-y:auto; background:rgba(255,255,255,0.1); border-radius:15px; padding:10px; margin-bottom: 2vh;">
+        </div>
+
         <div style="display: flex; gap: 10px; width: 100%; max-width: 400px; justify-content: center; flex-shrink: 0;">
             <button class="btn" style="flex: 2; margin:0;" onclick="app.next()">PRÓXIMO</button>
-            <button class="btn btn-outline" style="flex: 1; font-size: 1rem; padding: 0; margin:0;" onclick="game.openEdit()">EDITAR</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 1rem; padding: 0; margin:0;"
+                onclick="game.openEdit()">EDITAR</button>
         </div>
     </div>
 
     <div id="screen-final" class="screen">
         <h1 style="font-size: 8vh;" id="final-title">FIM DE JOGO</h1>
-        
+
         <!-- SCORE CONTAINER -->
-        <div id="final-scores-container" style="display:flex; gap:4vw; margin: 4vh 0; flex-wrap: wrap; justify-content: center;">
-            <div style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
-                <div id="fn-1" style="color:var(--primary); font-weight:bold; font-size: 3vh">Time A</div><div id="fs-1" style="font-size:8vh; font-weight:900">0</div>
+        <div id="final-scores-container"
+            style="display:flex; gap:4vw; margin: 4vh 0; flex-wrap: wrap; justify-content: center;">
+            <div
+                style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
+                <div id="fn-1" style="color:var(--primary); font-weight:bold; font-size: 3vh">Time A</div>
+                <div id="fs-1" style="font-size:8vh; font-weight:900">0</div>
             </div>
-            <div id="score-box-2" style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
-                <div id="fn-2" style="color:var(--secondary); font-weight:bold; font-size: 3vh">Time B</div><div id="fs-2" style="font-size:8vh; font-weight:900">0</div>
+            <div id="score-box-2"
+                style="text-align:center; background:rgba(255,255,255,0.1); padding:3vh; border-radius:20px; min-width:20vw">
+                <div id="fn-2" style="color:var(--secondary); font-weight:bold; font-size: 3vh">Time B</div>
+                <div id="fs-2" style="font-size:8vh; font-weight:900">0</div>
             </div>
         </div>
-        
+
         <h2 id="winner" style="color:var(--accent); font-size: 4vh;">VENCEDOR</h2>
-        
+
         <!-- BOTÕES NA MESMA LINHA: MENU + BAIXAR -->
         <div style="display: flex; gap: 10px; width: 90%; max-width: 600px; justify-content: center; margin-top: 3vh;">
-             <button class="btn" style="flex: 1; margin: 0;" onclick="app.to('home')">MENU PRINCIPAL</button>
-             <button class="btn btn-outline" style="flex: 1; margin: 0; font-size: 0.9rem; padding: 0;" onclick="dataMgr.exportExcel()">BAIXAR RESULTADOS</button>
+            <button class="btn" style="flex: 1; margin: 0;" onclick="app.to('home')">MENU PRINCIPAL</button>
+            <button class="btn btn-outline" style="flex: 1; margin: 0; font-size: 0.9rem; padding: 0;"
+                onclick="dataMgr.exportExcel()">BAIXAR RESULTADOS</button>
         </div>
     </div>
-    
+
     <!-- BUTTON HOME FIXED Z-INDEX -->
-    <div id="home-btn" style="position:fixed; top:20px; left:20px; z-index:9999; cursor:pointer; opacity:0.5; display: none;" onclick="app.tryHome()">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <div id="home-btn"
+        style="position:fixed; top:20px; left:20px; z-index:9999; cursor:pointer; opacity:0.5; display: none;"
+        onclick="app.tryHome()">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+        </svg>
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.3"; 
+        const APP_ = "v31.3";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -669,8 +1392,8 @@
             speak: (text) => {
                 window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(text);
-                u.lang = 'pt-BR'; 
-                u.rate = 1.1;     
+                u.lang = 'pt-BR';
+                u.rate = 1.1;
                 window.speechSynthesis.speak(u);
             }
         };
@@ -686,7 +1409,7 @@
             { id: 'royal', name: 'Royal', bg: '#0f172a', grad: 'radial-gradient(circle at center, #581c87 0%, #0f172a 100%)', p: '#a855f7', s: '#f472b6', a: '#fde047' },
             { id: 'high-contrast', name: 'High Contrast', bg: '#000000', grad: 'radial-gradient(circle at center, #1a1a1a 0%, #000 100%)', p: '#0055ff', s: '#ff0000', a: '#ffff00' }
         ];
-        
+
         let CURRENT_THEME = 'default';
 
         // WAKE LOCK MANAGER
@@ -714,7 +1437,7 @@
                 THEMES.forEach(t => {
                     const div = document.createElement('div');
                     div.className = 'theme-option';
-                    if(t.id === CURRENT_THEME) div.classList.add('active');
+                    if (t.id === CURRENT_THEME) div.classList.add('active');
                     div.style.background = t.grad !== 'none' ? t.grad : t.bg;
                     div.onclick = () => themeMgr.set(t.id);
                     container.appendChild(div);
@@ -723,7 +1446,7 @@
             },
             set: (id) => {
                 CURRENT_THEME = id;
-                themeMgr.init(); 
+                themeMgr.init();
                 themeMgr.apply(id);
                 storage.save();
             },
@@ -740,29 +1463,29 @@
 
         const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
         const DEFAULT_CATS = [
-            {n:"ANIMAIS", w:["Gato","Cachorro","Elefante","Girafa","Leão","Tubarão","Panda","Zebra","Macaco"]},
-            {n:"FILMES", w:["Titanic","Avatar","Matrix","Shrek","Barbie","Batman","Frozen","Vingadores","Coringa"]},
-            {n:"OBJETOS", w:["Mesa","Cadeira","Celular","Espelho","Sofá","Copo","Relógio","Sapato","Computador"]},
-            {n:"AÇÕES", w:["Correr","Dançar","Nadar","Dormir","Comer","Beijar","Gritar","Chorar","Pular"]},
-            {n:"FAMOSOS", w:["Neymar","Anitta","Messi","Beyoncé","Xuxa","Pelé","Madonna","Silvio Santos"]},
-            {n:"LUGARES", w:["Praia","Escola","Shopping","Cinema","Hospital","Igreja","Parque","Banco"]}
+            { n: "ANIMAIS", w: ["Gato", "Cachorro", "Elefante", "Girafa", "Leão", "Tubarão", "Panda", "Zebra", "Macaco"] },
+            { n: "FILMES", w: ["Titanic", "Avatar", "Matrix", "Shrek", "Barbie", "Batman", "Frozen", "Vingadores", "Coringa"] },
+            { n: "OBJETOS", w: ["Mesa", "Cadeira", "Celular", "Espelho", "Sofá", "Copo", "Relógio", "Sapato", "Computador"] },
+            { n: "AÇÕES", w: ["Correr", "Dançar", "Nadar", "Dormir", "Comer", "Beijar", "Gritar", "Chorar", "Pular"] },
+            { n: "FAMOSOS", w: ["Neymar", "Anitta", "Messi", "Beyoncé", "Xuxa", "Pelé", "Madonna", "Silvio Santos"] },
+            { n: "LUGARES", w: ["Praia", "Escola", "Shopping", "Cinema", "Hospital", "Igreja", "Parque", "Banco"] }
         ];
-        
-        let GLOBAL_SHEETS_DATA = [ JSON.parse(JSON.stringify(DEFAULT_CATS)) ];
+
+        let GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
         let CURRENT_SHEET_IDX = 0;
         let SOURCE_TYPE = 'default';
         let CURRENT_ROUND_CATS = [];
 
-        const aud = { p:(i)=>{document.getElementById('snd-'+i).play().catch(()=>{})}, l:(i,o)=>{const a=document.getElementById('snd-'+i); o?a.play().catch(()=>{}):a.pause()} };
-        
-        const st = { 
-            t:[{n:"Time A",s:0},{n:"Time B",s:0}], 
-            cfg:{
-                t:60, r:3, survTime: 30, survBonus: 5, solo: false,
+        const aud = { p: (i) => { document.getElementById('snd-' + i).play().catch(() => { }) }, l: (i, o) => { const a = document.getElementById('snd-' + i); o ? a.play().catch(() => { }) : a.pause() } };
+
+        const st = {
+            t: [{ n: "Time A", s: 0 }, { n: "Time B", s: 0 }],
+            cfg: {
+                t: 60, r: 3, survTime: 30, survBonus: 5, solo: false,
                 tts: false,    // Narrador Geral
                 ttsWord: false // Ler Palavra
-            }, 
-            rd:1, trn:0, cat:null, q:[], skp:[], h:[], pts:0, on:false, logs: [],
+            },
+            rd: 1, trn: 0, cat: null, q: [], skp: [], h: [], pts: 0, on: false, logs: [],
             roundMode: 'normal'
         };
 
@@ -775,21 +1498,21 @@
                 actions.forEach(a => {
                     const btn = document.createElement('button');
                     btn.className = a.cls || 'btn btn-small';
-                    if(a.style) btn.style = a.style; 
+                    if (a.style) btn.style = a.style;
                     btn.innerText = a.txt;
                     btn.onclick = () => {
-                        if(a.close !== false) document.getElementById('modal-overlay').style.display = 'none';
-                        if(a.fn) a.fn();
+                        if (a.close !== false) document.getElementById('modal-overlay').style.display = 'none';
+                        if (a.fn) a.fn();
                     };
                     actionBox.appendChild(btn);
                 });
                 document.getElementById('modal-overlay').style.display = 'flex';
             },
-            alert: (msg) => { ui.modal("Atenção", msg, [{txt:"OK"}]); },
-            confirm: (msg, cb) => { ui.modal("Confirmação", msg, [{txt:"Sim", fn:cb}, {txt:"Não", cls:'btn btn-small btn-outline'}]); },
+            alert: (msg) => { ui.modal("Atenção", msg, [{ txt: "OK" }]); },
+            confirm: (msg, cb) => { ui.modal("Confirmação", msg, [{ txt: "Sim", fn: cb }, { txt: "Não", cls: 'btn btn-small btn-outline' }]); },
             showResult: (catName, catColor, cb) => {
                 const html = `<div id="result-cat-display" style="color:${catColor}; font-size:2.5rem; font-weight:900; text-transform:uppercase; line-height:1.1; margin-bottom:20px">${catName}</div>`;
-                ui.modal("CATEGORIA", html, [{txt:"COMEÇAR", fn:cb}]);
+                ui.modal("CATEGORIA", html, [{ txt: "COMEÇAR", fn: cb }]);
             }
         };
 
@@ -798,9 +1521,9 @@
             if (clean.length <= 12) return { text: clean, lines: 1 };
             const words = clean.split(' ');
             if (words.length === 1) return { text: clean, lines: 1 };
-            let best=0, min=Infinity, cur=0, tot=clean.length;
-            for(let i=0; i<words.length-1; i++) { cur+=words[i].length; const d=Math.abs(cur-(tot-cur)); if(d<min){min=d; best=i;} }
-            return { text: `${words.slice(0, best+1).join(' ')}<br>${words.slice(best+1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, best+1).join(' ').length, words.slice(best+1).join(' ').length) };
+            let best = 0, min = Infinity, cur = 0, tot = clean.length;
+            for (let i = 0; i < words.length - 1; i++) { cur += words[i].length; const d = Math.abs(cur - (tot - cur)); if (d < min) { min = d; best = i; } }
+            return { text: `${words.slice(0, best + 1).join(' ')}<br>${words.slice(best + 1).join(' ')}`, lines: 2, maxLen: Math.max(words.slice(0, best + 1).join(' ').length, words.slice(best + 1).join(' ').length) };
         }
 
         const storage = {
@@ -822,42 +1545,42 @@
             load: () => {
                 try {
                     const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
-                    if(data) {
-                        if(data.cats && Array.isArray(data.cats)) {
-                            if(data.cats.length > 0 && Array.isArray(data.cats[0])) {
+                    if (data) {
+                        if (data.cats && Array.isArray(data.cats)) {
+                            if (data.cats.length > 0 && Array.isArray(data.cats[0])) {
                                 GLOBAL_SHEETS_DATA = data.cats;
                             } else {
                                 GLOBAL_SHEETS_DATA = [data.cats];
                             }
                         }
-                        
-                        if(data.source) SOURCE_TYPE = data.source;
-                        if(data.t1) document.getElementById('t1').value = data.t1;
-                        if(data.t2) document.getElementById('t2').value = data.t2;
-                        if(data.time) document.getElementById('opt-time').value = data.time;
-                        if(data.rounds) document.getElementById('opt-rounds').value = data.rounds;
-                        if(data.mode) document.getElementById('opt-mode').value = data.mode;
-                        if(data.threshold) document.getElementById('opt-threshold').value = data.threshold;
-                        if(data.theme) CURRENT_THEME = data.theme;
-                        if(data.survTime) document.getElementById('opt-surv-time').value = data.survTime;
-                        if(data.survBonus) document.getElementById('opt-surv-bonus').value = data.survBonus;
-                        if(data.solo) {
+
+                        if (data.source) SOURCE_TYPE = data.source;
+                        if (data.t1) document.getElementById('t1').value = data.t1;
+                        if (data.t2) document.getElementById('t2').value = data.t2;
+                        if (data.time) document.getElementById('opt-time').value = data.time;
+                        if (data.rounds) document.getElementById('opt-rounds').value = data.rounds;
+                        if (data.mode) document.getElementById('opt-mode').value = data.mode;
+                        if (data.threshold) document.getElementById('opt-threshold').value = data.threshold;
+                        if (data.theme) CURRENT_THEME = data.theme;
+                        if (data.survTime) document.getElementById('opt-surv-time').value = data.survTime;
+                        if (data.survBonus) document.getElementById('opt-surv-bonus').value = data.survBonus;
+                        if (data.solo) {
                             document.getElementById('opt-players').value = data.solo;
                             st.cfg.solo = data.solo == '1';
                         }
-                        if(data.tts !== undefined) st.cfg.tts = data.tts;
-                        if(data.ttsWord !== undefined) st.cfg.ttsWord = data.ttsWord;
-                        
+                        if (data.tts !== undefined) st.cfg.tts = data.tts;
+                        if (data.ttsWord !== undefined) st.cfg.ttsWord = data.ttsWord;
+
                         app.toggleThresholdVisibility();
                         app.toggleSolo();
                     }
-                } catch(e) { localStorage.removeItem('pnt_data_v22'); }
+                } catch (e) { localStorage.removeItem('pnt_data_v22'); }
             }
         };
 
         const dataMgr = {
             isTableMode: true,
-            init: () => { 
+            init: () => {
                 if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0;
                 dataMgr.updateSheetSelector();
                 dataMgr.renderTable();
@@ -868,8 +1591,8 @@
                 GLOBAL_SHEETS_DATA.forEach((s, i) => {
                     const opt = document.createElement('option');
                     opt.value = i;
-                    opt.text = `Aba ${i+1} (${s.length} cats)`;
-                    if(i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true;
+                    opt.text = `Aba ${i + 1} (${s.length} cats)`;
+                    if (i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true;
                     sel.appendChild(opt);
                 });
             },
@@ -881,7 +1604,7 @@
             toggleView: () => { },
             addSheet: () => {
                 dataMgr.syncFromTable();
-                GLOBAL_SHEETS_DATA.push([{n: "NOVA CAT", w: ["A", "B"]}]);
+                GLOBAL_SHEETS_DATA.push([{ n: "NOVA CAT", w: ["A", "B"] }]);
                 CURRENT_SHEET_IDX = GLOBAL_SHEETS_DATA.length - 1;
                 dataMgr.init();
                 storage.save();
@@ -898,36 +1621,36 @@
                     storage.save();
                 });
             },
-            markDirty: () => {},
+            markDirty: () => { },
             syncFromJSON: () => { },
             syncFromTable: () => {
                 const rows = document.querySelectorAll('.table-row');
                 if (rows.length === 0 && !document.getElementById('screen-options').classList.contains('active')) return;
-                
+
                 const newCats = [];
                 rows.forEach(r => {
-                    const n = r.querySelector('.table-input-cat').value; 
+                    const n = r.querySelector('.table-input-cat').value;
                     const wStr = r.querySelector('.table-input-words').value;
-                    if(n && wStr) { 
+                    if (n && wStr) {
                         // MUDANÇA: split por ;
-                        const w = wStr.split(';').map(s=>s.trim()).filter(s=>s); 
-                        if(w.length) newCats.push({n, w}); 
+                        const w = wStr.split(';').map(s => s.trim()).filter(s => s);
+                        if (w.length) newCats.push({ n, w });
                     }
                 });
-                
+
                 if (document.getElementById('view-table').classList.contains('active')) {
-                     GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats;
+                    GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats;
                 }
             },
             renderTable: () => {
-                const container = document.getElementById('table-rows'); 
-                if(!container) return;
+                const container = document.getElementById('table-rows');
+                if (!container) return;
                 container.innerHTML = '';
-                
+
                 const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] || [];
-                
+
                 currentData.forEach((cat, idx) => {
-                    const row = document.createElement('div'); 
+                    const row = document.createElement('div');
                     row.className = 'table-row';
                     // MUDANÇA: join com ;
                     row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join('; ')}" placeholder="Palavras (use ; para separar)"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
@@ -935,8 +1658,8 @@
                 });
             },
             addTableRow: () => {
-                const container = document.getElementById('table-rows'); 
-                const row = document.createElement('div'); 
+                const container = document.getElementById('table-rows');
+                const row = document.createElement('div');
                 row.className = 'table-row';
                 // MUDANÇA: placeholder com ;
                 row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A; B; C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
@@ -944,29 +1667,31 @@
             },
             save: () => {
                 dataMgr.syncFromTable();
-                SOURCE_TYPE='default'; 
-                storage.save(); 
+                SOURCE_TYPE = 'default';
+                storage.save();
                 ui.alert("Salvo com sucesso!");
             },
-            reset: () => { ui.confirm("Resetar tudo para o padrão?", ()=>{ 
-                GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))]; 
-                CURRENT_SHEET_IDX=0; SOURCE_TYPE='default'; 
-                CURRENT_THEME='default'; themeMgr.set('default'); 
-                dataMgr.init(); storage.save(); 
-            }); },
-            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(()=>ui.alert("Prompt copiado!")); },
+            reset: () => {
+                ui.confirm("Resetar tudo para o padrão?", () => {
+                    GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
+                    CURRENT_SHEET_IDX = 0; SOURCE_TYPE = 'default';
+                    CURRENT_THEME = 'default'; themeMgr.set('default');
+                    dataMgr.init(); storage.save();
+                });
+            },
+            copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(() => ui.alert("Prompt copiado!")); },
             loadDefault: () => {
                 document.getElementById('sheet-input').value = "https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk";
                 dataMgr.loadSheet();
             },
             loadSheet: async () => {
                 const url = document.getElementById('sheet-input').value;
-                if(!url) return;
+                if (!url) return;
                 try {
                     let exportUrl = url;
                     if (url.includes('docs.google.com/spreadsheets')) {
-                         const id = url.match(/\/d\/(.*?)\//)[1];
-                         exportUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
+                        const id = url.match(/\/d\/(.*?)\//)[1];
+                        exportUrl = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`;
                     }
                     const response = await fetch(exportUrl);
                     if (!response.ok) throw new Error("Network");
@@ -974,11 +1699,11 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
+                        const workbook = XLSX.read(data, { type: 'array' });
                         const parsedSheets = [];
                         workbook.SheetNames.forEach(sheetName => {
                             const sheet = workbook.Sheets[sheetName];
-                            const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                            const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
                             const cats = [];
                             if (json.length > 0) {
                                 const headers = json[0];
@@ -986,7 +1711,7 @@
                                     const name = headers[c]; if (!name) continue;
                                     const words = [];
                                     for (let r = 1; r < json.length; r++) { if (json[r] && json[r][c]) words.push(String(json[r][c]).trim()); }
-                                    if (words.length > 0) cats.push({n: name, w: words});
+                                    if (words.length > 0) cats.push({ n: name, w: words });
                                 }
                             }
                             if (cats.length > 0) parsedSheets.push(cats);
@@ -998,9 +1723,9 @@
                         } else { ui.alert("Nenhuma categoria encontrada."); }
                     };
                     reader.readAsArrayBuffer(blob);
-                } catch(e) { 
+                } catch (e) {
                     console.error(e);
-                    ui.alert("Erro ao ler planilha."); 
+                    ui.alert("Erro ao ler planilha.");
                 }
             },
             exportExcel: () => {
@@ -1023,7 +1748,7 @@
                         row[t1Name] = sA;
                         row["Total " + t1Name] = accA;
 
-                        if(!isSolo) {
+                        if (!isSolo) {
                             const logB = st.logs.find(l => l.r === r && l.t === 1);
                             const sB = logB ? logB.s : 0;
                             accB += sB;
@@ -1032,12 +1757,12 @@
                         }
                         rows.push(row);
                     }
-                    
+
                     const ws = XLSX.utils.json_to_sheet(rows);
                     const wb = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(wb, ws, "Placar");
                     XLSX.writeFile(wb, "palavra_na_testa_placar.xlsx");
-                } catch(e) {
+                } catch (e) {
                     ui.alert("Erro ao gerar planilha: " + e.message);
                 }
             }
@@ -1046,21 +1771,21 @@
         /* SENSOR & NAV LOGIC */
         const sensor = {
             z: 0, wait: false,
-            resetState: true, 
+            resetState: true,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
             handle: (e) => {
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
                 sensor.z = acc.z || 0;
                 if (st.on && !sensor.wait) {
                     if (sensor.resetState) {
-                        if (sensor.z < -8.0) { 
-                            game.act(true); 
-                            sensor.pause(); 
+                        if (sensor.z < -8.0) {
+                            game.act(true);
+                            sensor.pause();
                             sensor.resetState = false;
-                        } else if (sensor.z > 8.0) { 
-                            game.act(false); 
-                            sensor.pause(); 
-                            sensor.resetState = false; 
+                        } else if (sensor.z > 8.0) {
+                            game.act(false);
+                            sensor.pause();
+                            sensor.resetState = false;
                         }
                     } else {
                         if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
@@ -1071,16 +1796,29 @@
         };
         sensor.init();
 
+        /* KEYBOARD SUPPORT */
+        const keyboard = {
+            init: () => {
+                document.addEventListener('keydown', (e) => {
+                    if (!st.on) return;
+                    // UI: ▼ ACERTOU | ▲ PULAR
+                    if (e.code === 'ArrowDown') game.act(true);
+                    else if (e.code === 'ArrowUp') game.act(false);
+                });
+            }
+        };
+        keyboard.init();
+
         const app = {
             to: (id) => {
-                if(document.querySelector('#screen-game.active')) game.stop();
+                if (document.querySelector('#screen-game.active')) game.stop();
                 wheel.stop();
-                document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-                document.getElementById('screen-'+id).classList.add('active');
-                if(id === 'options') dataMgr.init();
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('screen-' + id).classList.add('active');
+                if (id === 'options') dataMgr.init();
                 const homeBtn = document.getElementById('home-btn');
-                
-                if(id === 'home') {
+
+                if (id === 'home') {
                     homeBtn.style.display = 'none';
                     wakeLockMgr.release();
                     game.stopAll();
@@ -1090,71 +1828,93 @@
                 } else {
                     homeBtn.style.display = 'block';
                 }
-                
-                if(id === 'teams') {
-                   document.getElementById('t1-conf').value = document.getElementById('t1').value;
-                   document.getElementById('t2-conf').value = document.getElementById('t2').value;
-                   
-                   // Solo logic for Teams Screen
-                   const t2Group = document.getElementById('group-t2-conf');
-                   if (st.cfg.solo && t2Group) t2Group.style.display = 'none';
-                   else if(t2Group) t2Group.style.display = 'block';
 
-                   const root = getComputedStyle(document.documentElement);
-                   document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary');
-                   if(!st.cfg.solo) document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary');
-                   document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary');
-                   if(!st.cfg.solo) document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
+                if (id === 'teams') {
+                    document.getElementById('t1-conf').value = document.getElementById('t1').value;
+                    document.getElementById('t2-conf').value = document.getElementById('t2').value;
+
+                    // Solo logic for Teams Screen
+                    const t2Group = document.getElementById('group-t2-conf');
+                    if (st.cfg.solo && t2Group) t2Group.style.display = 'none';
+                    else if (t2Group) t2Group.style.display = 'block';
+
+                    const root = getComputedStyle(document.documentElement);
+                    document.getElementById('lbl-t1').style.color = root.getPropertyValue('--primary');
+                    if (!st.cfg.solo) document.getElementById('lbl-t2').style.color = root.getPropertyValue('--secondary');
+                    document.getElementById('t1-conf').style.borderLeftColor = root.getPropertyValue('--primary');
+                    if (!st.cfg.solo) document.getElementById('t2-conf').style.borderLeftColor = root.getPropertyValue('--secondary');
                 }
-                
-                if(id === 'intro') {
+
+                if (id === 'intro') {
                     app.setMode(st.roundMode);
-                    // Atualiza visual dos botões TTS
-                    document.getElementById('btn-tts-narrator').classList.toggle('active', st.cfg.tts);
-                    document.getElementById('btn-tts-word').classList.toggle('active', st.cfg.ttsWord);
                 }
             },
             toggleSolo: () => {
                 const val = document.getElementById('opt-players').value;
                 st.cfg.solo = (val == '1');
-                
+
                 const t2Input = document.getElementById('group-t2');
-                if(st.cfg.solo) t2Input.style.display = 'none';
+                if (st.cfg.solo) t2Input.style.display = 'none';
                 else t2Input.style.display = 'block';
             },
             setMode: (m) => {
                 st.roundMode = m;
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                if(m === 'normal') document.getElementById('btn-mode-normal').classList.add('active');
+                if (m === 'normal') document.getElementById('btn-mode-normal').classList.add('active');
                 else document.getElementById('btn-mode-surv').classList.add('active');
             },
-            toggleTTS: (type) => {
-                if(type === 'narrator') {
-                    st.cfg.tts = !st.cfg.tts;
-                    document.getElementById('btn-tts-narrator').classList.toggle('active', st.cfg.tts);
-                    if(st.cfg.tts) tts.speak("Narrador ativado");
-                } else {
-                    st.cfg.ttsWord = !st.cfg.ttsWord;
-                    document.getElementById('btn-tts-word').classList.toggle('active', st.cfg.ttsWord);
-                    if(st.cfg.ttsWord) tts.speak("Leitura de palavra ativada");
-                }
-                storage.save(); // Salva a preferência
+            openAccessModal: () => {
+                const html = `
+                    <div style="display: flex; flex-direction: column; gap: 20px; align-items: flex-start; width: 100%; padding: 10px;">
+                        <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-size: 1.1rem; width: 100%; text-align: left; color: white;">
+                            <input type="checkbox" id="chk-tts-narrator" ${st.cfg.tts ? 'checked' : ''} style="width: 25px; height: 25px; accent-color: var(--success);">
+                            <div>
+                                <div style="font-weight:bold;">Narrador</div>
+                                <div style="font-size:0.8em; opacity:0.7;">Voz do jogo e contagem</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-size: 1.1rem; width: 100%; text-align: left; color: white;">
+                            <input type="checkbox" id="chk-tts-word" ${st.cfg.ttsWord ? 'checked' : ''} style="width: 25px; height: 25px; accent-color: var(--success);">
+                            <div>
+                                <div style="font-weight:bold;">Ler Palavra</div>
+                                <div style="font-size:0.8em; opacity:0.7;">Fala a palavra da tela</div>
+                            </div>
+                        </label>
+                    </div>
+                `;
+
+                ui.modal("ACESSIBILIDADE", html, [
+                    {
+                        txt: "SALVAR",
+                        style: "background: var(--success); flex: 1;",
+                        fn: () => {
+                            st.cfg.tts = document.getElementById('chk-tts-narrator').checked;
+                            st.cfg.ttsWord = document.getElementById('chk-tts-word').checked;
+                            storage.save();
+                            if (st.cfg.tts) tts.speak("Configurações salvas");
+                        }
+                    },
+                    {
+                        txt: "CANCELAR",
+                        style: "background: var(--danger); flex: 1;"
+                    }
+                ]);
             },
             tryHome: () => { ui.confirm("Voltar ao menu?", () => { app.to('home'); }); },
             toggleThresholdVisibility: () => {
                 const mode = document.getElementById('opt-mode').value;
                 const el = document.getElementById('group-threshold');
-                if(mode === 'auto') el.style.display = 'block'; else el.style.display = 'none';
+                if (mode === 'auto') el.style.display = 'block'; else el.style.display = 'none';
             },
             start: () => {
                 aud.p('click');
                 wakeLockMgr.request();
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    DeviceMotionEvent.requestPermission().then(response => {}).catch(console.error);
+                    DeviceMotionEvent.requestPermission().then(response => { }).catch(console.error);
                 }
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                 if (!isIOS) {
-                    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+                    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { });
                     else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
                 }
                 st.t[0].n = document.getElementById('t1').value || "Time A";
@@ -1164,30 +1924,30 @@
                 st.cfg.survTime = parseInt(document.getElementById('opt-surv-time').value) || 30;
                 st.cfg.survBonus = parseInt(document.getElementById('opt-surv-bonus').value) || 5;
                 st.cfg.solo = (document.getElementById('opt-players').value == '1');
-                
+
                 storage.save();
                 app.to('teams');
             },
-            confirmTeams: (onlySave) => { 
+            confirmTeams: (onlySave) => {
                 st.t[0].n = document.getElementById('t1-conf').value || "Time A";
-                if(!st.cfg.solo) st.t[1].n = document.getElementById('t2-conf').value || "Time B";
-                
+                if (!st.cfg.solo) st.t[1].n = document.getElementById('t2-conf').value || "Time B";
+
                 document.getElementById('t1').value = st.t[0].n;
-                if(!st.cfg.solo) document.getElementById('t2').value = st.t[1].n;
-                
+                if (!st.cfg.solo) document.getElementById('t2').value = st.t[1].n;
+
                 storage.save();
-                if(!onlySave) app.prep(); 
+                if (!onlySave) app.prep();
             },
             prep: () => {
                 if (st.rd > st.cfg.r) { app.end(); return; }
                 if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) {
                     GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
                 }
-                
+
                 // Logic for rounds in Solo vs Versus
                 let turnIdx = 0;
                 let effectiveSheets = GLOBAL_SHEETS_DATA.length;
-                
+
                 if (st.cfg.solo) {
                     // In solo, turn index is simply round index - 1
                     turnIdx = st.rd - 1;
@@ -1196,20 +1956,20 @@
                     turnIdx = (st.rd - 1) * 2 + st.trn;
                     if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
                 }
-                
+
                 const sheetIdx = turnIdx % effectiveSheets;
                 CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
-                
+
                 if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
-                     CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                    CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
                 }
 
                 const t = st.t[st.trn];
                 const root = getComputedStyle(document.documentElement);
-                
+
                 // Solo Mode always uses Primary Color
-                const color = (st.cfg.solo) ? root.getPropertyValue('--primary') : 
-                              (st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary'));
+                const color = (st.cfg.solo) ? root.getPropertyValue('--primary') :
+                    (st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary'));
 
                 document.getElementById('lbl-rd').innerText = st.rd;
                 document.getElementById('lbl-tm').innerText = t.n;
@@ -1217,67 +1977,67 @@
                 app.to('intro');
             },
             toWheel: () => { aud.p('click'); wheel.init(); app.to('wheel'); },
-            next: () => { 
-                aud.p('click'); 
-                
+            next: () => {
+                aud.p('click');
+
                 if (st.cfg.solo) {
                     st.rd++; // Solo just increments round
                 } else {
-                    st.trn++; 
-                    if(st.trn > 1){ st.trn=0; st.rd++; } 
+                    st.trn++;
+                    if (st.trn > 1) { st.trn = 0; st.rd++; }
                 }
-                app.prep(); 
+                app.prep();
             },
             end: () => {
-                const t1=st.t[0], t2=st.t[1];
+                const t1 = st.t[0], t2 = st.t[1];
                 const root = getComputedStyle(document.documentElement);
                 const c1 = root.getPropertyValue('--primary');
                 const c2 = root.getPropertyValue('--secondary');
-                
-                document.getElementById('fn-1').innerText=t1.n; document.getElementById('fs-1').innerText=t1.s;
+
+                document.getElementById('fn-1').innerText = t1.n; document.getElementById('fs-1').innerText = t1.s;
                 document.getElementById('fn-1').style.color = c1;
-                
+
                 // TTS: FIM DE JOGO
-                if(st.cfg.tts) {
+                if (st.cfg.tts) {
                     let msg = "";
-                    if(st.cfg.solo) {
+                    if (st.cfg.solo) {
                         msg = `Fim de jogo. Pontuação final: ${t1.s} pontos.`;
                     } else {
                         let winText = "";
-                        if(t1.s > t2.s) winText = `${t1.n} venceu`;
-                        else if(t2.s > t1.s) winText = `${t2.n} venceu`;
+                        if (t1.s > t2.s) winText = `${t1.n} venceu`;
+                        else if (t2.s > t1.s) winText = `${t2.n} venceu`;
                         else winText = "Houve um empate";
-                        
+
                         msg = `Fim de jogo. ${winText}. Placar: ${t1.n}, ${t1.s}. ${t2.n}, ${t2.s}.`;
                     }
                     setTimeout(() => tts.speak(msg), 1500);
                 }
 
-                if(st.cfg.solo) {
+                if (st.cfg.solo) {
                     // Hide T2 box and center T1
                     document.getElementById('score-box-2').style.display = 'none';
                     document.getElementById('final-title').innerText = "FIM DE JOGO";
-                    
+
                     let msg = "";
-                    if(t1.s > 20) msg = "INCRÍVEL!";
-                    else if(t1.s > 10) msg = "MANDOU BEM!";
+                    if (t1.s > 20) msg = "INCRÍVEL!";
+                    else if (t1.s > 10) msg = "MANDOU BEM!";
                     else msg = "BOA TENTATIVA!";
-                    
-                    const w=document.getElementById('winner');
+
+                    const w = document.getElementById('winner');
                     w.innerText = msg;
                     w.style.color = c1;
                 } else {
                     // Normal Versus Logic
                     document.getElementById('score-box-2').style.display = 'block';
-                    document.getElementById('fn-2').innerText=t2.n; document.getElementById('fs-2').innerText=t2.s;
+                    document.getElementById('fn-2').innerText = t2.n; document.getElementById('fs-2').innerText = t2.s;
                     document.getElementById('fn-2').style.color = c2;
-                    
-                    const w=document.getElementById('winner');
-                    if(t1.s>t2.s) {w.innerText=t1.n+" VENCEU!"; w.style.color=c1;}
-                    else if(t2.s>t1.s) {w.innerText=t2.n+" VENCEU!"; w.style.color=c2;}
-                    else {w.innerText="EMPATE"; w.style.color="white";}
+
+                    const w = document.getElementById('winner');
+                    if (t1.s > t2.s) { w.innerText = t1.n + " VENCEU!"; w.style.color = c1; }
+                    else if (t2.s > t1.s) { w.innerText = t2.n + " VENCEU!"; w.style.color = c2; }
+                    else { w.innerText = "EMPATE"; w.style.color = "white"; }
                 }
-                
+
                 aud.p('win'); app.to('final');
             }
         };
@@ -1285,7 +2045,7 @@
         /* WHEEL LOGIC REMAINS SAME */
         const wheel = {
             el: null, jackpot: null, mode: 'wheel', ang: 0, offsetY: 0, spin: false, timer: null,
-            stop: () => { if(wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
+            stop: () => { if (wheel.timer) clearTimeout(wheel.timer); wheel.spin = false; },
             init: () => {
                 const mode = document.getElementById('opt-mode').value;
                 const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
@@ -1293,17 +2053,17 @@
                 if (mode === 'wheel') wheel.mode = 'wheel';
                 else if (mode === 'jackpot') wheel.mode = 'jackpot';
                 else { wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel'; }
-                
+
                 const wc = document.getElementById('wheel-container');
                 const jc = document.getElementById('jackpot-container');
-                
+
                 wc.style.display = wheel.mode === 'wheel' ? 'block' : 'none';
                 jc.style.display = wheel.mode === 'jackpot' ? 'block' : 'none';
-                
+
                 wheel.el = document.getElementById('wheel-spinner');
                 wheel.jackpot = document.getElementById('jackpot-strip');
                 wheel.jackpot.style.transition = 'none';
-                
+
                 // Reset básico
                 wheel.el.style.transition = 'none';
                 wheel.el.style.transform = 'rotate(0deg)';
@@ -1315,29 +2075,29 @@
                 } else {
                     wheel.setupJackpot();
                     wheel.attachDrag(jc);
-                    
+
                     // === CORREÇÃO DE ALINHAMENTO COM LOOP INFINITO ===
                     setTimeout(() => {
                         const containerH = jc.offsetHeight;
                         const itemEl = wheel.jackpot.firstElementChild;
                         const itemH = itemEl ? itemEl.offsetHeight : 0;
-                        
+
                         if (containerH && itemH) {
                             const n = CURRENT_ROUND_CATS.length;
                             // Começa no conjunto 15 (meio da lista gigante) para ter itens acima e abaixo
-                            const startSet = 15; 
-                            
+                            const startSet = 15;
+
                             // Cálculo: Centro da Tela - Metade do Item - Altura dos 15 conjuntos anteriores
                             // O "+ 18" no final empurra a lista para baixo
-wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
-                            
+                            wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
+
                             wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
                         }
                     }, 0);
                 }
             },
             setupWheel: () => {
-                let g="conic-gradient(", h=""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
+                let g = "conic-gradient(", h = ""; const count = CURRENT_ROUND_CATS.length; const sliceDeg = 360 / count;
                 CURRENT_ROUND_CATS.forEach((c, i) => {
                     // MUDANÇA: COR DINÂMICA
                     const color = getDynamicColor(i, count);
@@ -1346,48 +2106,48 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
                     const mid = start + (sliceDeg / 2);
                     const split = smartSplit(c.n);
                     let fontSize = 4; const refLen = split.lines === 1 ? c.n.length : split.maxLen;
-                    if(refLen > 8) fontSize = 4 * (8 / refLen);
+                    if (refLen > 8) fontSize = 4 * (8 / refLen);
                     h += `<div class="slice-wrapper" style="transform:rotate(${mid - 90}deg)"><span class="slice-text" style="font-size:${fontSize}vh">${split.text}</span></div>`;
                 });
                 wheel.el.style.background = g.slice(0, -1) + ")"; wheel.el.innerHTML = h;
             },
             setupJackpot: () => {
                 let h = ""; const list = [];
-                for(let k=0; k<30; k++) { CURRENT_ROUND_CATS.forEach(c => list.push(c)); }
+                for (let k = 0; k < 30; k++) { CURRENT_ROUND_CATS.forEach(c => list.push(c)); }
                 const n = CURRENT_ROUND_CATS.length;
                 list.forEach((c, i) => {
-                     const realIndex = i % n; 
-                     const color = getDynamicColor(realIndex, n);
-                     const text = c.n.replace('*','');
-                     
-                     // === CORREÇÃO DE FONTE (AJUSTE BRANDO) ===
-                     let fontSize = 5; // Tamanho padrão (grande)
-                     
-                     // Só diminui se passar de 15 letras
-                     if(text.length > 15) { 
-                         // Reduz 0.15vh para cada letra excedente
-                         fontSize = 5 - ((text.length - 15) * 0.15);
-                     }
-                     
-                     // Trava num tamanho mínimo legível (2.5vh)
-                     if(fontSize < 2.5) fontSize = 2.5;
-                     
-                     h += `<div class="jackpot-item" style="background:${color}; font-size:${fontSize}vh">${text}</div>`;
+                    const realIndex = i % n;
+                    const color = getDynamicColor(realIndex, n);
+                    const text = c.n.replace('*', '');
+
+                    // === CORREÇÃO DE FONTE (AJUSTE BRANDO) ===
+                    let fontSize = 5; // Tamanho padrão (grande)
+
+                    // Só diminui se passar de 15 letras
+                    if (text.length > 15) {
+                        // Reduz 0.15vh para cada letra excedente
+                        fontSize = 5 - ((text.length - 15) * 0.15);
+                    }
+
+                    // Trava num tamanho mínimo legível (2.5vh)
+                    if (fontSize < 2.5) fontSize = 2.5;
+
+                    h += `<div class="jackpot-item" style="background:${color}; font-size:${fontSize}vh">${text}</div>`;
                 });
                 wheel.jackpot.innerHTML = h;
             },
             attachDrag: (target) => {
                 let startY = 0, lastY = 0, startTime = 0, startAng = 0, lastAng = 0, angularVelocity = 0, linearVelocity = 0, lastMoveTime = 0;
                 const getAngle = (e, el) => {
-                    const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
+                    const rect = el.getBoundingClientRect(); const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2;
                     const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                     return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
                 };
                 const onStart = (e) => {
-                    if(wheel.spin) return;
+                    if (wheel.spin) return;
                     if (wheel.mode === 'wheel') { startAng = getAngle(e, target); lastAng = startAng; } else { startY = e.touches ? e.touches[0].clientY : e.clientY; lastY = startY; }
                     lastMoveTime = Date.now(); startTime = lastMoveTime; angularVelocity = 0; linearVelocity = 0;
-                    document.addEventListener('touchmove', onMove, {passive: false}); document.addEventListener('touchend', onEnd);
+                    document.addEventListener('touchmove', onMove, { passive: false }); document.addEventListener('touchend', onEnd);
                     document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onEnd);
                 };
                 const onMove = (e) => {
@@ -1396,14 +2156,14 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
                         const curAng = getAngle(e, target); let delta = curAng - lastAng;
                         if (delta > 180) delta -= 360; if (delta < -180) delta += 360;
                         wheel.ang += delta; wheel.el.style.transform = `rotate(${wheel.ang}deg)`;
-                        if(dt > 0) { const instantVel = delta / dt; angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5); }
+                        if (dt > 0) { const instantVel = delta / dt; angularVelocity = (instantVel * 0.5) + (angularVelocity * 0.5); }
                         lastAng = curAng;
                     } else {
                         const curY = e.touches ? e.touches[0].clientY : e.clientY; const delta = curY - lastY; wheel.offsetY += delta;
                         const itemEl = wheel.jackpot.querySelector('.jackpot-item');
-                        if(itemEl) { const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length; if(wheel.offsetY > 0) wheel.offsetY -= stripH; if(wheel.offsetY < -stripH * 15) wheel.offsetY += stripH; }
+                        if (itemEl) { const stripH = itemEl.offsetHeight * CURRENT_ROUND_CATS.length; if (wheel.offsetY > 0) wheel.offsetY -= stripH; if (wheel.offsetY < -stripH * 15) wheel.offsetY += stripH; }
                         wheel.jackpot.style.transform = `translateY(${wheel.offsetY}px)`;
-                        if(dt > 0) { const instantVel = delta / dt; linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5); }
+                        if (dt > 0) { const instantVel = delta / dt; linearVelocity = (instantVel * 0.5) + (linearVelocity * 0.5); }
                         lastY = curY;
                     }
                     lastMoveTime = now;
@@ -1414,43 +2174,43 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
                     const totalDuration = Date.now() - startTime;
                     if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; }
                     if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; }
-                    if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); } 
+                    if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); }
                     else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); }
                 };
                 target.onmousedown = onStart; target.ontouchstart = onStart;
             },
             go: (velocity) => {
-                if(wheel.spin) return; wheel.spin = true; aud.l('spin', true);
+                if (wheel.spin) return; wheel.spin = true; aud.l('spin', true);
                 let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
-                const cheats = CURRENT_ROUND_CATS.map((c,i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
+                const cheats = CURRENT_ROUND_CATS.map((c, i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
                 if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
-                const duration = 3; 
+                const duration = 3;
                 if (wheel.mode === 'wheel') {
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length; const currentAngle = wheel.ang; const spins = 5 * 360;
-                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg/2); const dir = Math.sign(velocity) || 1; const totalRot = spins * dir;
-                    const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360); 
+                    const targetOffset = -(winnerIdx * sliceDeg) - (sliceDeg / 2); const dir = Math.sign(velocity) || 1; const totalRot = spins * dir;
+                    const finalAngle = currentAngle + totalRot + targetOffset - (currentAngle % 360);
                     wheel.el.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.el.style.transform = `rotate(${finalAngle}deg)`; wheel.ang = finalAngle;
                     wheel.timer = setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 } else {
                     const itemEl = wheel.jackpot.querySelector('.jackpot-item'); if (!itemEl) return;
-                    const itemH = itemEl.getBoundingClientRect().height; const n = CURRENT_ROUND_CATS.length; const dir = Math.sign(velocity); 
+                    const itemH = itemEl.getBoundingClientRect().height; const n = CURRENT_ROUND_CATS.length; const dir = Math.sign(velocity);
                     const startSet = 15; const startY = -(startSet * n * itemH);
-                    wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = `translateY(${startY}px)`; wheel.jackpot.offsetHeight; 
+                    wheel.jackpot.style.transition = 'none'; wheel.jackpot.style.transform = `translateY(${startY}px)`; wheel.jackpot.offsetHeight;
                     const targetSetOffset = (dir > 0) ? -3 : 3; const targetSet = startSet + targetSetOffset;
                     const containerH = document.getElementById('jackpot-container').offsetHeight; const centerOffset = containerH / 2;
-                    const winnerItemIndex = (targetSet * n) + winnerIdx; const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH/2);
+                    const winnerItemIndex = (targetSet * n) + winnerIdx; const finalTargetY = centerOffset - (winnerItemIndex * itemH) - (itemH / 2);
                     wheel.jackpot.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`; wheel.jackpot.style.transform = `translateY(${finalTargetY}px)`;
                     setTimeout(() => wheel.finish(winnerIdx), duration * 1000);
                 }
             },
             finish: (idx) => {
                 aud.l('spin', false); aud.p('win');
-                const cat = CURRENT_ROUND_CATS[idx]; st.cat = cat; 
+                const cat = CURRENT_ROUND_CATS[idx]; st.cat = cat;
                 // MUDANÇA: COR DINÂMICA
                 const color = getDynamicColor(idx, CURRENT_ROUND_CATS.length);
-                
+
                 // TTS: CATEGORIA
-                if(st.cfg.tts) tts.speak("Categoria sorteada: " + cat.n.replace('*', ''));
+                if (st.cfg.tts) tts.speak("Categoria sorteada: " + cat.n.replace('*', ''));
 
                 ui.showResult(cat.n.replace('*', ''), color, () => game.pre()); wheel.spin = false;
             }
@@ -1460,77 +2220,77 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
 
         const game = {
             tmr: null, preTmr: null, editList: [], curTime: 0, maxTime: 0,
-            stop: () => { if(game.tmr) clearInterval(game.tmr); },
-            stopAll: () => { if(game.tmr) clearInterval(game.tmr); if(game.preTmr) clearInterval(game.preTmr); st.on = false; },
+            stop: () => { if (game.tmr) clearInterval(game.tmr); },
+            stopAll: () => { if (game.tmr) clearInterval(game.tmr); if (game.preTmr) clearInterval(game.preTmr); st.on = false; },
             pre: () => {
-                app.to('game'); st.on = false; 
+                app.to('game'); st.on = false;
                 const isSurv = st.roundMode === 'survival'; game.maxTime = isSurv ? st.cfg.survTime : st.cfg.t; game.curTime = game.maxTime;
                 document.getElementById('timer-num').innerText = game.curTime;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
-                
-                const d=document.getElementById('word-disp'); let c=3; 
-                d.innerText=c; 
-                
+
+                const d = document.getElementById('word-disp'); let c = 3;
+                d.innerText = c;
+
                 // TTS: 3
-                if(st.cfg.tts) tts.speak("Três");
+                if (st.cfg.tts) tts.speak("Três");
 
-                game.preTmr = setInterval(()=>{ 
-                    c--; 
-                    if(c>0) { 
-                        d.innerText=c; 
+                game.preTmr = setInterval(() => {
+                    c--;
+                    if (c > 0) {
+                        d.innerText = c;
                         // TTS: 2, 1
-                        if(st.cfg.tts) tts.speak(c.toString());
-                    } else { 
-                        clearInterval(game.preTmr); 
-                        d.innerText="VAI!"; 
+                        if (st.cfg.tts) tts.speak(c.toString());
+                    } else {
+                        clearInterval(game.preTmr);
+                        d.innerText = "VAI!";
                         // TTS: VALENDO
-                        if(st.cfg.tts) tts.speak("Valendo!");
+                        if (st.cfg.tts) tts.speak("Valendo!");
 
-                        setTimeout(game.run, 600); 
-                    } 
-                },1000);
+                        setTimeout(game.run, 600);
+                    }
+                }, 1000);
             },
             run: () => {
-                game.stop(); st.on=true; st.pts=0; st.h=[]; st.skp=[]; st.q = [...st.cat.w].sort(()=>Math.random()-0.5); game.next();
-                const tn=document.getElementById('timer-num'); const tw=document.querySelector('.timer-wrapper');
+                game.stop(); st.on = true; st.pts = 0; st.h = []; st.skp = []; st.q = [...st.cat.w].sort(() => Math.random() - 0.5); game.next();
+                const tn = document.getElementById('timer-num'); const tw = document.querySelector('.timer-wrapper');
                 const root = getComputedStyle(document.documentElement); const sec = root.getPropertyValue('--secondary').trim();
-                game.tmr = setInterval(()=>{
+                game.tmr = setInterval(() => {
                     game.curTime--; tn.innerText = game.curTime;
-                    
-                    // TTS: 10 SEGUNDOS
-                    if(st.cfg.tts && game.curTime === 10) tts.speak("Dez segundos");
 
-                    let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360; if (pct < 0) pct = 0; 
+                    // TTS: 10 SEGUNDOS
+                    if (st.cfg.tts && game.curTime === 10) tts.speak("Dez segundos");
+
+                    let pct = ((game.maxTime - game.curTime) / game.maxTime) * 360; if (pct < 0) pct = 0;
                     tw.style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
-                    if(game.curTime <= 0) { game.stop(); game.end(); }
-                },1000);
+                    if (game.curTime <= 0) { game.stop(); game.end(); }
+                }, 1000);
             },
             next: () => {
-                if(st.q.length === 0) { if(st.skp.length > 0) { st.q = [...st.skp].sort(()=>Math.random()-0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
-                st.cw = st.q.pop(); 
+                if (st.q.length === 0) { if (st.skp.length > 0) { st.q = [...st.skp].sort(() => Math.random() - 0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
+                st.cw = st.q.pop();
                 document.getElementById('word-disp').innerText = st.cw;
 
                 // CORREÇÃO DO BUG "LER PALAVRA"
                 const currentWordSnapshot = st.cw;
-                
-                if(st.cfg.ttsWord) {
+
+                if (st.cfg.ttsWord) {
                     setTimeout(() => {
                         // Comparamos a variável de snapshot com a variável de estado
-                        if(st.on && st.cw === currentWordSnapshot) {
+                        if (st.on && st.cw === currentWordSnapshot) {
                             tts.speak(st.cw);
                         }
                     }, 800);
                 }
             },
             act: (win) => {
-                if(!st.on) return;
-                if(win){ 
-                    aud.p('ok'); st.pts++; st.h.push({w:st.cw,ok:true}); game.flash('fb-ok'); 
-                    
-                    // TTS: ACERTOU
-                    if(st.cfg.tts) tts.speak("Acertou!");
+                if (!st.on) return;
+                if (win) {
+                    aud.p('ok'); st.pts++; st.h.push({ w: st.cw, ok: true }); game.flash('fb-ok');
 
-                    if(st.roundMode === 'survival') {
+                    // TTS: ACERTOU
+                    if (st.cfg.tts) tts.speak("Acertou!");
+
+                    if (st.roundMode === 'survival') {
                         game.curTime += st.cfg.survBonus; document.getElementById('timer-num').innerText = game.curTime;
                         const animEl = document.getElementById('bonus-anim'); animEl.innerText = `+${st.cfg.survBonus}s`;
                         animEl.classList.remove('anim'); void animEl.offsetWidth; animEl.classList.add('anim');
@@ -1538,22 +2298,22 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
                         const root = getComputedStyle(document.documentElement); const sec = root.getPropertyValue('--secondary').trim();
                         document.querySelector('.timer-wrapper').style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
                     }
-                } else { 
-                    aud.p('pass'); st.h.push({w:st.cw,ok:false}); game.flash('fb-no'); st.skp.push(st.cw); 
-                    
+                } else {
+                    aud.p('pass'); st.h.push({ w: st.cw, ok: false }); game.flash('fb-no'); st.skp.push(st.cw);
+
                     // TTS: PULOU
-                    if(st.cfg.tts) tts.speak("Pulou!");
+                    if (st.cfg.tts) tts.speak("Pulou!");
                 }
                 game.next();
             },
-            flash: (id) => { const e=document.getElementById(id); e.style.opacity=1; setTimeout(()=>e.style.opacity=0,600); },
+            flash: (id) => { const e = document.getElementById(id); e.style.opacity = 1; setTimeout(() => e.style.opacity = 0, 600); },
             end: () => {
                 try {
-                    st.on=false; game.stop(); st.pts = st.h.filter(x => x.ok).length;
+                    st.on = false; game.stop(); st.pts = st.h.filter(x => x.ok).length;
                     st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn)); st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
-                    
+
                     // TTS: FIM RODADA COM PLURAL CORRIGIDO
-                    if(st.cfg.tts) {
+                    if (st.cfg.tts) {
                         setTimeout(() => {
                             const pontosLabel = st.pts === 1 ? "ponto" : "pontos";
                             tts.speak(`Tempo esgotado! Pontuação na rodada: ${st.pts} ${pontosLabel}.`);
@@ -1561,23 +2321,23 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
                     }
 
                     st.t[st.trn].s += st.pts; app.to('res'); game.renderRes();
-                } catch(e) { console.error("Game End Error:", e); app.to('home'); }
+                } catch (e) { console.error("Game End Error:", e); app.to('home'); }
             },
             renderRes: () => {
                 // CORREÇÃO VISUAL DE PLURAL
-                const scoreEl = document.getElementById('res-score'); 
-                if(scoreEl) {
+                const scoreEl = document.getElementById('res-score');
+                if (scoreEl) {
                     const suffix = st.pts === 1 ? " PONTO" : " PONTOS";
                     scoreEl.innerText = st.pts + suffix;
                 }
-                
-                const l = document.getElementById('res-list'); if(l) { l.innerHTML = ""; if(st.h && st.h.length > 0) { st.h.forEach(x => { const d = document.createElement('div'); d.style.padding="10px"; d.style.borderBottom="1px solid rgba(255,255,255,0.1)"; d.style.display="flex"; d.style.justifyContent="space-between"; d.style.alignItems="center"; const color = x.ok ? '#22c55e' : '#ef4444'; const icon = x.ok ? '✓' : '✗'; d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`; l.appendChild(d); }); } else { l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>"; } }
+
+                const l = document.getElementById('res-list'); if (l) { l.innerHTML = ""; if (st.h && st.h.length > 0) { st.h.forEach(x => { const d = document.createElement('div'); d.style.padding = "10px"; d.style.borderBottom = "1px solid rgba(255,255,255,0.1)"; d.style.display = "flex"; d.style.justifyContent = "space-between"; d.style.alignItems = "center"; const color = x.ok ? '#22c55e' : '#ef4444'; const icon = x.ok ? '✓' : '✗'; d.innerHTML = `<span style="flex:1; text-align:left;">${x.w}</span><b style="color:${color}; font-size:1.2rem;">${icon}</b>`; l.appendChild(d); }); } else { l.innerHTML = "<div style='padding:20px;opacity:0.5;text-align:center;'>Nenhuma palavra jogada.</div>"; } }
             },
             openEdit: () => {
                 game.editList = st.h && st.h.length ? JSON.parse(JSON.stringify(st.h)) : [];
-                if(game.editList.length === 0) { ui.alert("Nada para editar."); return; }
+                if (game.editList.length === 0) { ui.alert("Nada para editar."); return; }
                 const html = '<div class="edit-list-container">' + game.editList.map((item, i) => ` <div class="edit-item" onclick="game.toggleEditItem(${i}, this)"> <span class="edit-word">${item.w}</span> <span class="edit-status" style="color:${item.ok ? 'var(--success)' : 'var(--danger)'}"> ${item.ok ? 'ACERTOU' : 'PULOU'} </span> </div> `).join('') + '</div>';
-                ui.modal("EDITAR RESULTADO", html, [ {txt: "SALVAR", fn: game.saveEdit, style: "background:var(--success); flex:1;"}, {txt: "CANCELAR", style: "background:var(--danger); flex:1;"} ]);
+                ui.modal("EDITAR RESULTADO", html, [{ txt: "SALVAR", fn: game.saveEdit, style: "background:var(--success); flex:1;" }, { txt: "CANCELAR", style: "background:var(--danger); flex:1;" }]);
             },
             toggleEditItem: (i, el) => {
                 game.editList[i].ok = !game.editList[i].ok; const span = el.querySelector('.edit-status');
@@ -1592,8 +2352,8 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
 
         window.onload = () => {
             // ATUALIZA A VERSÃO NA TELA AUTOMATICAMENTE
-            const verTag = document.querySelector('.version-tag');
-            if(verTag) verTag.innerText = APP_VERSION;
+            const verTag = document.querySelector('.-tag');
+            if (verTag) verTag.innerText = APP_VERSION;
 
             storage.load();
             themeMgr.init(); // Initialize themes
@@ -1602,13 +2362,13 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
             // DICA IOS
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.navigator.standalone || (window.matchMedia('(display-mode: standalone)').matches);
-            
+
             if (isIOS && !isStandalone) {
                 // Cria um aviso discreto
                 const div = document.createElement('div');
                 div.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); padding:10px 20px; border-radius:20px; font-size:0.8rem; z-index:9999; text-align:center; width:90%; pointer-events:none; animation: fadeOut 5s forwards 5s; color: white; font-family: sans-serif;";
                 div.innerHTML = "Dica: Para tela cheia, toque em <b>Compartilhar</b> <span style='font-size:1.2em'>⎋</span> e <b>Adicionar à Tela de Início</b>.";
-                
+
                 // CSS da animação
                 const style = document.createElement('style');
                 style.innerHTML = "@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none;} }";
@@ -1618,4 +2378,5 @@ wheel.offsetY = (containerH / 2) - (itemH / 2) - (startSet * n * itemH) + 18;
         };
     </script>
 </body>
+
 </html>
