@@ -626,13 +626,30 @@
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--primary);
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
+            background: conic-gradient(#ef4444 0deg 51.43deg,
+                    #f97316 51.43deg 102.86deg,
+                    #eab308 102.86deg 154.29deg,
+                    #22c55e 154.29deg 205.71deg,
+                    #06b6d4 205.71deg 257.14deg,
+                    #3b82f6 257.14deg 308.57deg,
+                    #ec4899 308.57deg 360deg);
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            border: 4px solid white;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        /* White Center Hole */
+        .spinner::after {
+            content: '';
+            position: absolute;
+            inset: 30%;
+            background: white;
+            border-radius: 50%;
         }
 
         @keyframes spin {
@@ -1137,7 +1154,7 @@
     <!-- LOADING SCREEN -->
     <div id="loading-screen">
         <div class="spinner"></div>
-        <h2 style="border:none; color:white; font-size:1.5rem;">CARREGANDO...</h2>
+        <h2 style="border:none; color:white; font-size:1.5rem; text-align:center;">CARREGANDO...</h2>
     </div>
 
     <!-- MODAL -->
