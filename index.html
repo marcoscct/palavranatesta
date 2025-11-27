@@ -1,4 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.5 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.4 -->
 <!-- START OF FILE index (6).html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -1062,7 +1062,7 @@
             }
         }
 
-        .-tag {
+        .version-tag {
             margin-top: 20px;
             opacity: 0.3;
             font-family: monospace;
@@ -1117,7 +1117,7 @@
                     d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" />
             </svg>
             <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="-tag">-</div>
+            <div class="version-tag">-</div>
         </div>
     </div>
 
@@ -1361,7 +1361,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_ = "v31.3";
+        const APP_VERSION = "v31.3";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1815,7 +1815,10 @@
                 wheel.stop();
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 document.getElementById('screen-' + id).classList.add('active');
-                if (id === 'options') dataMgr.init();
+                if (id === 'options') {
+                    dataMgr.init();
+                    themeMgr.init(); // FORCE THEME RENDER
+                }
                 const homeBtn = document.getElementById('home-btn');
 
                 if (id === 'home') {
@@ -2352,7 +2355,7 @@
 
         window.onload = () => {
             // ATUALIZA A VERSÃO NA TELA AUTOMATICAMENTE
-            const verTag = document.querySelector('.-tag');
+            const verTag = document.querySelector('.version-tag');
             if (verTag) verTag.innerText = APP_VERSION;
 
             storage.load();
