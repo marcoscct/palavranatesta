@@ -1,5 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.5 -->
-<!-- START OF FILE index (6).html -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.7 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -163,6 +162,7 @@
             text-transform: uppercase;
             background: linear-gradient(to right, var(--primary), var(--secondary));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
             letter-spacing: -1px;
@@ -1175,16 +1175,7 @@
     <audio id="snd-pass"
         src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
 
-    <div id="lock">
-        <div class="lock-content">
-            <svg class="rotate-phone-icon" viewBox="0 0 24 24">
-                <path
-                    d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" />
-            </svg>
-            <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
-            <div class="version-tag">-</div>
-        </div>
-    </div>
+
 
     <!-- TELA 0: HOME -->
     <div id="screen-home" class="screen active allow-portrait">
@@ -1192,6 +1183,9 @@
         <p class="app-subtitle">Desenvolvido por Marcos Castro</p>
         <button class="btn" onclick="app.start()">INICIAR JOGO</button>
         <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
+        <div class="version-tag"
+            style="position:absolute; bottom:15px; left:20px; opacity:0.5; font-family:monospace; font-size:0.9rem;">-
+        </div>
     </div>
 
     <!-- TELA 0.5: OPÇÕES -->
@@ -1300,7 +1294,7 @@
     </div>
 
     <!-- TELA 1: TIMES -->
-    <div id="screen-teams" class="screen allow-portrait">
+    <div id="screen-teams" class="screen">
         <h1>EQUIPES</h1>
         <div class="teams-container">
             <div class="input-group"><label style="color: var(--primary);" id="lbl-t1">Time A</label><input type="text"
@@ -1422,11 +1416,21 @@
         </svg>
     </div>
 
+    <div id="lock">
+        <div class="lock-content">
+            <svg class="rotate-phone-icon" viewBox="0 0 24 24">
+                <path
+                    d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" />
+            </svg>
+            <h2 style="margin-top:20px; border:none; color: white;">GIRE A TELA</h2>
+        </div>
+    </div>
+
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.5";
+        const APP_VERSION = "v31.7";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
