@@ -1,4 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.8 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.9 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -1285,13 +1285,21 @@
 
                 <div class="input-group" style="margin-bottom: 10px;">
                     <label>Selecionar Aba</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <select id="sheet-selector" style="flex: 1; margin:0;"
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <select id="sheet-selector" style="flex: 1; margin:0; min-width: 150px;"
                             onchange="dataMgr.switchSheet(this.value)"></select>
                         <button class="btn btn-square" style="background:var(--success)" onclick="dataMgr.addSheet()"
                             title="Nova Aba">+</button>
                         <button class="btn btn-square" style="background:var(--danger)" onclick="dataMgr.removeSheet()"
                             title="Excluir Aba">-</button>
+
+                        <!-- NEW CONTROLS -->
+                        <button class="btn btn-square" style="background:var(--primary)" onclick="dataMgr.renameSheet()"
+                            title="Renomear Aba">✎</button>
+                        <button class="btn btn-square" style="background:rgba(255,255,255,0.2)"
+                            onclick="dataMgr.moveSheet(-1)" title="Mover para Esquerda">◄</button>
+                        <button class="btn btn-square" style="background:rgba(255,255,255,0.2)"
+                            onclick="dataMgr.moveSheet(1)" title="Mover para Direita">►</button>
                     </div>
                 </div>
 
@@ -1451,7 +1459,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.8";
+        const APP_VERSION = "v31.9";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1561,7 +1569,8 @@
             { n: "LUGARES", w: ["Praia", "Escola", "Shopping", "Cinema", "Hospital", "Igreja", "Parque", "Banco"] }
         ];
 
-        let GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
+        // DATA STRUCTURE: [{ name: "Name", data: [cats] }]
+        let GLOBAL_SHEETS_DATA = [{ name: "Padrão", data: JSON.parse(JSON.stringify(DEFAULT_CATS)) }];
         let CURRENT_SHEET_IDX = 0;
         let SOURCE_TYPE = 'default';
         let CURRENT_ROUND_CATS = [];
@@ -1637,10 +1646,17 @@
                     const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
                     if (data) {
                         if (data.cats && Array.isArray(data.cats)) {
-                            if (data.cats.length > 0 && Array.isArray(data.cats[0])) {
-                                GLOBAL_SHEETS_DATA = data.cats;
-                            } else {
-                                GLOBAL_SHEETS_DATA = [data.cats];
+                            if (data.cats.length > 0) {
+                                // MIGRATION CHECK: If old format (array of arrays), convert to objects
+                                if (Array.isArray(data.cats[0])) {
+                                    GLOBAL_SHEETS_DATA = data.cats.map((d, i) => ({ name: `Aba ${i + 1}`, data: d }));
+                                } else if (data.cats[0].data) {
+                                    // New format
+                                    GLOBAL_SHEETS_DATA = data.cats;
+                                } else {
+                                    // Fallback for single sheet old format wrapped oddly
+                                    GLOBAL_SHEETS_DATA = [{ name: "Padrão", data: data.cats }];
+                                }
                             }
                         }
 
@@ -1681,7 +1697,7 @@
                 GLOBAL_SHEETS_DATA.forEach((s, i) => {
                     const opt = document.createElement('option');
                     opt.value = i;
-                    opt.text = `Aba ${i + 1} (${s.length} cats)`;
+                    opt.text = `${s.name} (${s.data.length} cats)`;
                     if (i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true;
                     sel.appendChild(opt);
                 });
@@ -1694,7 +1710,7 @@
             toggleView: () => { },
             addSheet: () => {
                 dataMgr.syncFromTable();
-                GLOBAL_SHEETS_DATA.push([{ n: "NOVA CAT", w: ["A", "B"] }]);
+                GLOBAL_SHEETS_DATA.push({ name: "Nova Aba", data: [{ n: "NOVA CAT", w: ["A", "B"] }] });
                 CURRENT_SHEET_IDX = GLOBAL_SHEETS_DATA.length - 1;
                 dataMgr.init();
                 storage.save();
@@ -1710,6 +1726,30 @@
                     dataMgr.init();
                     storage.save();
                 });
+            },
+            renameSheet: () => {
+                const currentName = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX].name;
+                const newName = prompt("Novo nome da aba:", currentName);
+                if (newName && newName.trim() !== "") {
+                    GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX].name = newName.trim();
+                    dataMgr.updateSheetSelector();
+                    storage.save();
+                }
+            },
+            moveSheet: (dir) => {
+                const newIdx = CURRENT_SHEET_IDX + dir;
+                if (newIdx < 0 || newIdx >= GLOBAL_SHEETS_DATA.length) return;
+
+                dataMgr.syncFromTable(); // Save current state first
+
+                // Swap
+                const temp = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX];
+                GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = GLOBAL_SHEETS_DATA[newIdx];
+                GLOBAL_SHEETS_DATA[newIdx] = temp;
+
+                CURRENT_SHEET_IDX = newIdx;
+                dataMgr.init();
+                storage.save();
             },
             markDirty: () => { },
             syncFromJSON: () => { },
@@ -1729,7 +1769,7 @@
                 });
 
                 if (document.getElementById('view-table').classList.contains('active')) {
-                    GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = newCats;
+                    GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX].data = newCats;
                 }
             },
             renderTable: () => {
@@ -1737,7 +1777,7 @@
                 if (!container) return;
                 container.innerHTML = '';
 
-                const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] || [];
+                const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] ? GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX].data : [];
 
                 currentData.forEach((cat, idx) => {
                     const row = document.createElement('div');
@@ -1763,7 +1803,7 @@
             },
             reset: () => {
                 ui.confirm("Resetar tudo para o padrão?", () => {
-                    GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
+                    GLOBAL_SHEETS_DATA = [{ name: "Padrão", data: JSON.parse(JSON.stringify(DEFAULT_CATS)) }];
                     CURRENT_SHEET_IDX = 0; SOURCE_TYPE = 'default';
                     CURRENT_THEME = 'default'; themeMgr.set('default');
                     dataMgr.init(); storage.save();
@@ -1804,7 +1844,7 @@
                                     if (words.length > 0) cats.push({ n: name, w: words });
                                 }
                             }
-                            if (cats.length > 0) parsedSheets.push(cats);
+                            if (cats.length > 0) parsedSheets.push({ name: sheetName, data: cats });
                         });
                         if (parsedSheets.length > 0) {
                             GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
@@ -2053,10 +2093,10 @@
                 }
 
                 const sheetIdx = turnIdx % effectiveSheets;
-                CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx];
+                CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx].data;
 
                 if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
-                    CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0];
+                    CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0].data;
                 }
 
                 const t = st.t[st.trn];
