@@ -1,4 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.9 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.10 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -1285,21 +1285,41 @@
 
                 <div class="input-group" style="margin-bottom: 10px;">
                     <label>Selecionar Aba</label>
-                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <select id="sheet-selector" style="flex: 1; margin:0; min-width: 150px;"
-                            onchange="dataMgr.switchSheet(this.value)"></select>
-                        <button class="btn btn-square" style="background:var(--success)" onclick="dataMgr.addSheet()"
-                            title="Nova Aba">+</button>
-                        <button class="btn btn-square" style="background:var(--danger)" onclick="dataMgr.removeSheet()"
-                            title="Excluir Aba">-</button>
+                    <select id="sheet-selector" style="width: 100%; margin-bottom: 10px;"
+                        onchange="dataMgr.switchSheet(this.value)"></select>
 
-                        <!-- NEW CONTROLS -->
-                        <button class="btn btn-square" style="background:var(--primary)" onclick="dataMgr.renameSheet()"
-                            title="Renomear Aba">✎</button>
-                        <button class="btn btn-square" style="background:rgba(255,255,255,0.2)"
-                            onclick="dataMgr.moveSheet(-1)" title="Mover para Esquerda">◄</button>
-                        <button class="btn btn-square" style="background:rgba(255,255,255,0.2)"
-                            onclick="dataMgr.moveSheet(1)" title="Mover para Direita">►</button>
+                    <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                        <button class="btn btn-square" style="background:var(--success); flex:1;"
+                            onclick="dataMgr.addSheet()" title="Nova Aba">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                            </svg>
+                        </button>
+                        <button class="btn btn-square" style="background:var(--danger); flex:1;"
+                            onclick="dataMgr.removeSheet()" title="Excluir Aba">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M19 13H5v-2h14v2z" />
+                            </svg>
+                        </button>
+                        <button class="btn btn-square" style="background:var(--secondary); flex:1;"
+                            onclick="dataMgr.renameSheet()" title="Renomear Aba">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                                <path
+                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                            </svg>
+                        </button>
+                        <button class="btn btn-square" style="background:rgba(255,255,255,0.2); flex:1;"
+                            onclick="dataMgr.moveSheet(-1)" title="Mover para Cima">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
+                            </svg>
+                        </button>
+                        <button class="btn btn-square" style="background:rgba(255,255,255,0.2); flex:1;"
+                            onclick="dataMgr.moveSheet(1)" title="Mover para Baixo">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -1459,7 +1479,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.9";
+        const APP_VERSION = "v31.10";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
