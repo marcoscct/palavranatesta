@@ -1,4 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.13 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.14 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -98,12 +98,16 @@
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            visibility: hidden;
+            /* A11Y FIX */
         }
 
         .screen.active {
             display: flex;
             opacity: 1;
             z-index: 10;
+            visibility: visible;
+            /* A11Y FIX */
         }
 
         /* NO SCROLL SCREENS (FIXED TEAMS SCREEN) */
@@ -625,6 +629,8 @@
             pointer-events: none;
             z-index: 3;
             white-space: nowrap;
+            visibility: hidden;
+            /* A11Y FIX */
         }
 
         /* === LOADING SCREEN === */
@@ -812,6 +818,8 @@
             pointer-events: none;
             z-index: 50;
             font-family: 'Montserrat';
+            visibility: hidden;
+            /* A11Y FIX */
         }
 
         /* === EXTRA === */
@@ -832,10 +840,14 @@
             text-align: center;
             width: 90%;
             max-width: 400px;
+            visibility: hidden;
+            /* A11Y FIX */
         }
 
         #msg-force.show {
             opacity: 1;
+            visibility: visible;
+            /* A11Y FIX */
             animation: shake 0.5s;
         }
 
@@ -855,6 +867,8 @@
             transition: opacity 0.3s;
             text-align: center;
             width: 90%;
+            visibility: hidden;
+            /* A11Y FIX */
         }
 
         @keyframes shake {
@@ -1489,7 +1503,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.13";
+        const APP_VERSION = "v31.14";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1524,6 +1538,32 @@
                 u.rate = st.cfg.ttsRate || 1.1;
                 if (callback) u.onend = callback;
                 window.speechSynthesis.speak(u);
+            }
+        };
+
+        // === A11Y MANAGER ===
+        const a11y = {
+            update: (activeScreenId) => {
+                // Hide all screens from A11Y
+                document.querySelectorAll('.screen').forEach(s => {
+                    if (s.id === 'screen-' + activeScreenId) {
+                        s.setAttribute('aria-hidden', 'false');
+                        s.style.visibility = 'visible';
+                    } else {
+                        s.setAttribute('aria-hidden', 'true');
+                        s.style.visibility = 'hidden';
+                    }
+                });
+            },
+            trapModal: (isOpen) => {
+                const screens = document.querySelectorAll('.screen');
+                screens.forEach(s => {
+                    s.setAttribute('aria-hidden', isOpen ? 'true' : (s.classList.contains('active') ? 'false' : 'true'));
+                    if (isOpen) s.setAttribute('inert', '');
+                    else s.removeAttribute('inert');
+                });
+                const modal = document.getElementById('modal-overlay');
+                modal.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
             }
         };
 
@@ -1632,12 +1672,16 @@
                     if (a.style) btn.style = a.style;
                     btn.innerText = a.txt;
                     btn.onclick = () => {
-                        if (a.close !== false) document.getElementById('modal-overlay').style.display = 'none';
+                        if (a.close !== false) {
+                            document.getElementById('modal-overlay').style.display = 'none';
+                            a11y.trapModal(false);
+                        }
                         if (a.fn) a.fn();
                     };
                     actionBox.appendChild(btn);
                 });
                 document.getElementById('modal-overlay').style.display = 'flex';
+                a11y.trapModal(true);
             },
             alert: (msg) => { ui.modal("Atenção", msg, [{ txt: "OK" }]); },
             confirm: (msg, cb) => { ui.modal("Confirmação", msg, [{ txt: "Sim", fn: cb }, { txt: "Não", cls: 'btn btn-small btn-outline' }]); },
@@ -1656,6 +1700,7 @@
                     if (!waitForTTS) {
                         setTimeout(() => {
                             document.getElementById('modal-overlay').style.display = 'none';
+                            a11y.trapModal(false);
                             cb();
                         }, 2000);
                     }
@@ -1998,6 +2043,7 @@
                 wheel.stop();
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 document.getElementById('screen-' + id).classList.add('active');
+                a11y.update(id); // UPDATE A11Y STATE
                 if (id === 'options') {
                     dataMgr.init();
                     themeMgr.init(); // FORCE THEME RENDER
@@ -2369,7 +2415,16 @@
                     document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd);
                     document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onEnd);
                     const totalDuration = Date.now() - startTime;
-                    if (totalDuration < 30) { const msg = document.getElementById('msg-time'); msg.style.opacity = 1; setTimeout(() => msg.style.opacity = 0, 1500); return; }
+                    if (totalDuration < 30) {
+                        const msg = document.getElementById('msg-time');
+                        msg.style.opacity = 1;
+                        msg.style.visibility = 'visible';
+                        setTimeout(() => {
+                            msg.style.opacity = 0;
+                            msg.style.visibility = 'hidden';
+                        }, 1500);
+                        return;
+                    }
                     if (Date.now() - lastMoveTime > 100) { angularVelocity = 0; linearVelocity = 0; }
                     if (wheel.mode === 'wheel') { if (Math.abs(angularVelocity) < 0.01) { showForceMsg(); return; } wheel.go(angularVelocity); }
                     else { if (Math.abs(linearVelocity) < 0.01) { showForceMsg(); return; } wheel.go(linearVelocity); }
@@ -2415,6 +2470,7 @@
                                 const ov = document.getElementById('modal-overlay');
                                 if (ov.style.display !== 'none') {
                                     ov.style.display = 'none';
+                                    a11y.trapModal(false);
                                     game.pre();
                                 }
                             }, 2000);
@@ -2429,7 +2485,11 @@
             }
         };
 
-        function showForceMsg() { const msg = document.getElementById('msg-force'); msg.classList.add('show'); setTimeout(() => msg.classList.remove('show'), 1000); }
+        function showForceMsg() {
+            const msg = document.getElementById('msg-force');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 1000);
+        }
 
         const game = {
             tmr: null, preTmr: null, editList: [], curTime: 0, maxTime: 0,
@@ -2519,7 +2579,15 @@
                 }
                 game.next();
             },
-            flash: (id) => { const e = document.getElementById(id); e.style.opacity = 1; setTimeout(() => e.style.opacity = 0, 600); },
+            flash: (id) => {
+                const e = document.getElementById(id);
+                e.style.opacity = 1;
+                e.style.visibility = 'visible';
+                setTimeout(() => {
+                    e.style.opacity = 0;
+                    e.style.visibility = 'hidden';
+                }, 600);
+            },
             end: () => {
                 try {
                     st.on = false; game.stop(); st.pts = st.h.filter(x => x.ok).length;
@@ -2559,7 +2627,9 @@
             saveEdit: () => {
                 st.t[st.trn].s -= st.pts; const newPts = game.editList.filter(x => x.ok).length; st.pts = newPts; st.t[st.trn].s += st.pts; st.h = game.editList;
                 st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn)); st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
-                game.renderRes(); document.getElementById('modal-overlay').style.display = 'none';
+                game.renderRes();
+                document.getElementById('modal-overlay').style.display = 'none';
+                a11y.trapModal(false);
             }
         };
 
