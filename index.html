@@ -1,4 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.11 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.12 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -1489,7 +1489,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.11";
+        const APP_VERSION = "v31.12";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1521,7 +1521,7 @@
                 window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(text);
                 u.lang = 'pt-BR';
-                u.rate = 1.1;
+                u.rate = st.cfg.ttsRate || 1.1;
                 if (callback) u.onend = callback;
                 window.speechSynthesis.speak(u);
             }
@@ -1613,7 +1613,8 @@
             cfg: {
                 t: 60, r: 3, survTime: 30, survBonus: 5, solo: false,
                 tts: false,    // Narrador Geral
-                ttsWord: false // Ler Palavra
+                ttsWord: false, // Ler Palavra
+                ttsRate: 1.1   // Velocidade da Fala
             },
             rd: 1, trn: 0, cat: null, q: [], skp: [], h: [], pts: 0, on: false, logs: [],
             roundMode: 'normal'
@@ -1686,7 +1687,8 @@
                     survTime: document.getElementById('opt-surv-time').value,
                     survBonus: document.getElementById('opt-surv-bonus').value,
                     solo: document.getElementById('opt-players').value,
-                    tts: st.cfg.tts, ttsWord: st.cfg.ttsWord
+                    solo: document.getElementById('opt-players').value,
+                    tts: st.cfg.tts, ttsWord: st.cfg.ttsWord, ttsRate: st.cfg.ttsRate
                 };
                 localStorage.setItem('pnt_data_v22', JSON.stringify(data));
             },
@@ -1724,7 +1726,9 @@
                             st.cfg.solo = data.solo == '1';
                         }
                         if (data.tts !== undefined) st.cfg.tts = data.tts;
+                        if (data.tts !== undefined) st.cfg.tts = data.tts;
                         if (data.ttsWord !== undefined) st.cfg.ttsWord = data.ttsWord;
+                        if (data.ttsRate !== undefined) st.cfg.ttsRate = parseFloat(data.ttsRate);
 
                         app.toggleThresholdVisibility();
                         app.toggleSolo();
@@ -2062,6 +2066,14 @@
                                 <div style="font-size:0.8em; opacity:0.7;">Fala a palavra da tela</div>
                             </div>
                         </label>
+                        
+                        <div style="width:100%;">
+                            <div style="display:flex; justify-content:space-between; color:white; margin-bottom:5px;">
+                                <span style="font-weight:bold;">Velocidade da Voz</span>
+                                <span id="lbl-tts-rate" style="opacity:0.8;">${(st.cfg.ttsRate || 1.1).toFixed(1)}x</span>
+                            </div>
+                            <input type="range" id="rng-tts-rate" min="0.5" max="2.5" step="0.1" value="${st.cfg.ttsRate || 1.1}" style="width:100%; accent-color:var(--success);" oninput="document.getElementById('lbl-tts-rate').innerText = parseFloat(this.value).toFixed(1) + 'x'">
+                        </div>
                     </div>
                 `;
 
@@ -2073,6 +2085,7 @@
                         fn: () => {
                             st.cfg.tts = document.getElementById('chk-tts-narrator').checked;
                             st.cfg.ttsWord = document.getElementById('chk-tts-word').checked;
+                            st.cfg.ttsRate = parseFloat(document.getElementById('rng-tts-rate').value);
                             storage.save();
                             if (st.cfg.tts) tts.speak("Configurações salvas");
                         }
