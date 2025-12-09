@@ -1711,7 +1711,7 @@
         };
 
         function smartSplit(text) {
-            const clean = text.replace(/\*$/, '');
+            const clean = text.replace(/\*+$/, '');
             if (clean.length <= 12) return { text: clean, lines: 1 };
             const words = clean.split(' ');
             if (words.length === 1) return { text: clean, lines: 1 };
@@ -2361,7 +2361,7 @@
                 list.forEach((c, i) => {
                     const realIndex = i % n;
                     const color = getDynamicColor(realIndex, n);
-                    const text = c.n.replace('*', '');
+                    const text = c.n.replace(/\*+$/, '');
 
                     // === CORREÇÃO DE FONTE (AJUSTE BRANDO) ===
                     let fontSize = 5; // Tamanho padrão (grande)
@@ -2433,9 +2433,41 @@
             },
             go: (velocity) => {
                 if (wheel.spin) return; wheel.spin = true; aud.l('spin', true);
-                let winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
-                const cheats = CURRENT_ROUND_CATS.map((c, i) => c.n.endsWith('*') ? i : -1).filter(i => i !== -1);
-                if (cheats.length > 0) winnerIdx = cheats[Math.floor(Math.random() * cheats.length)];
+                // === NOVA LÓGICA DE ASTERISCOS ===
+                let effectiveSheets = GLOBAL_SHEETS_DATA.length;
+                let turnIdx = 0;
+                if (st.cfg.solo) {
+                    turnIdx = st.rd - 1;
+                } else {
+                    turnIdx = (st.rd - 1) * 2 + st.trn;
+                    if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
+                }
+                // Visit count for the current sheet (1-based)
+                const visitCount = Math.floor(turnIdx / effectiveSheets) + 1;
+
+                let winnerIdx = -1;
+
+                // 1. Identify cheats (all categories with asterisks)
+                const cheats = CURRENT_ROUND_CATS.map((c, i) => {
+                    const match = c.n.match(/(\*+)$/);
+                    return match ? { index: i, count: match[1].length } : null;
+                }).filter(x => x !== null);
+
+                if (cheats.length > 0) {
+                    // 2. Filter for exact visitCount match
+                    const exactMatches = cheats.filter(x => x.count === visitCount);
+
+                    if (exactMatches.length > 0) {
+                        // Pick random from exact matches
+                        winnerIdx = exactMatches[Math.floor(Math.random() * exactMatches.length)].index;
+                    } else {
+                        // Fallback: Pick random from ALL cheats (preserving old behavior)
+                        winnerIdx = cheats[Math.floor(Math.random() * cheats.length)].index;
+                    }
+                } else {
+                    // No cheats, random normal
+                    winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
+                }
                 const duration = 3;
                 if (wheel.mode === 'wheel') {
                     const sliceDeg = 360 / CURRENT_ROUND_CATS.length; const currentAngle = wheel.ang; const spins = 5 * 360;
@@ -2479,9 +2511,9 @@
                 };
 
                 // TTS: CATEGORIA
-                if (st.cfg.tts) tts.speak("Categoria sorteada: " + cat.n.replace('*', ''), onTTSFinish);
+                if (st.cfg.tts) tts.speak("Categoria sorteada: " + cat.n.replace(/\*+$/, ''), onTTSFinish);
 
-                ui.showResult(cat.n.replace('*', ''), color, () => game.pre()); wheel.spin = false;
+                ui.showResult(cat.n.replace(/\*+$/, ''), color, () => game.pre()); wheel.spin = false;
             }
         };
 
