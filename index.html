@@ -1,4 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.18 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.19 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -132,8 +132,7 @@
         @media (max-height: 850px) {
             .screen:not(#screen-game):not(#screen-wheel):not(#screen-intro):not(#screen-final):not(#screen-teams) {
                 justify-content: flex-start;
-                padding-top: calc(80px + env(safe-area-inset-top));
-                /* Aumentado para evitar sobreposição do Home */
+                padding-top: calc(30px + env(safe-area-inset-top));
                 padding-bottom: calc(80px + env(safe-area-inset-bottom));
             }
 
@@ -1506,7 +1505,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.18";
+        const APP_VERSION = "v31.19";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1921,17 +1920,28 @@
                 const url = document.getElementById('sheet-input').value;
                 if (!url) return;
 
-                // SHOW LOADING
-                const ls = document.getElementById('loading-screen');
-                if (ls) {
-                    ls.classList.remove('fade-out');
-                    document.body.appendChild(ls); // Ensure it's on top if needed or just visible
-                    ls.style.display = 'flex';
-                    ls.style.opacity = '1';
-                }
+                // SHOW LOADING MODAL
+                const loadingHtml = `
+                    <div style="width:100%; margin-top:10px;">
+                        <div style="width:100%; height:10px; background:rgba(255,255,255,0.2); border-radius:5px; overflow:hidden;">
+                            <div id="load-progress" style="width:0%; height:100%; background:var(--success); transition: width 0.2s;"></div>
+                        </div>
+                        <div style="text-align:center; margin-top:5px; font-size:0.8rem; opacity:0.7;">Baixando dados...</div>
+                    </div>
+                `;
+                ui.modal("Carregando...", loadingHtml, []); // No actions to block close
+
+                // Simulate progress
+                let progress = 0;
+                const pBar = document.getElementById('load-progress');
+                const interval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress > 90) progress = 90;
+                    if (pBar) pBar.style.width = progress + '%';
+                }, 100);
 
                 try {
-                    // DELAY ARTIFICIAL PARA FEEDBACK VISUAL
+                    // DELAY ARTIFICIAL
                     await new Promise(r => setTimeout(r, 800));
 
                     let exportUrl = url;
@@ -1947,6 +1957,9 @@
                     const blob = await response.blob();
                     const reader = new FileReader();
                     reader.onload = (e) => {
+                        clearInterval(interval);
+                        if (pBar) pBar.style.width = '100%';
+
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
                         const parsedSheets = [];
@@ -1966,25 +1979,18 @@
                             if (cats.length > 0) parsedSheets.push({ name: sheetName, data: cats });
                         });
 
-                        // HIDE LOADING
-                        if (ls) {
-                            ls.classList.add('fade-out');
-                            setTimeout(() => ls.style.display = 'none', 500);
-                        }
-
-                        if (parsedSheets.length > 0) {
-                            GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
-                            CURRENT_SHEET_IDX = 0;
-                            dataMgr.init(); storage.save(); ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
-                        } else { ui.alert("Nenhuma categoria encontrada."); }
+                        setTimeout(() => {
+                            if (parsedSheets.length > 0) {
+                                GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
+                                CURRENT_SHEET_IDX = 0;
+                                dataMgr.init(); storage.save();
+                                ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
+                            } else { ui.alert("Nenhuma categoria encontrada."); }
+                        }, 500);
                     };
                     reader.readAsArrayBuffer(blob);
                 } catch (e) {
-                    // HIDE LOADING ON ERROR
-                    if (ls) {
-                        ls.classList.add('fade-out');
-                        setTimeout(() => ls.style.display = 'none', 500);
-                    }
+                    clearInterval(interval);
                     console.error(e);
                     ui.alert("Erro ao ler planilha.");
                 }
