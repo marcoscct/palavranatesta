@@ -1,4 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.17 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.18 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -1506,7 +1506,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.17";
+        const APP_VERSION = "v31.18";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1648,6 +1648,7 @@
         let CURRENT_SHEET_IDX = 0;
         let SOURCE_TYPE = 'default';
         let CURRENT_ROUND_CATS = [];
+        let DATA_DIRTY = false;
 
         const aud = { p: (i) => { document.getElementById('snd-' + i).play().catch(() => { }) }, l: (i, o) => { const a = document.getElementById('snd-' + i); o ? a.play().catch(() => { }) : a.pause() } };
 
@@ -1852,7 +1853,7 @@
                 dataMgr.init();
                 storage.save();
             },
-            markDirty: () => { },
+            markDirty: () => { DATA_DIRTY = true; },
             syncFromJSON: () => { },
             syncFromTable: () => {
                 const rows = document.querySelectorAll('.table-row');
@@ -1884,7 +1885,7 @@
                     const row = document.createElement('div');
                     row.className = 'table-row';
                     // MUDANÇA: join com ;
-                    row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria"><input type="text" class="table-input-words" value="${cat.w.join('; ')}" placeholder="Palavras (use ; para separar)"><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                    row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria" oninput="dataMgr.markDirty()"><input type="text" class="table-input-words" value="${cat.w.join('; ')}" placeholder="Palavras (use ; para separar)" oninput="dataMgr.markDirty()"><button class="btn btn-del" onclick="this.parentElement.remove(); dataMgr.markDirty()">×</button>`;
                     container.appendChild(row);
                 });
             },
@@ -1893,13 +1894,14 @@
                 const row = document.createElement('div');
                 row.className = 'table-row';
                 // MUDANÇA: placeholder com ;
-                row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA"><input type="text" class="table-input-words" placeholder="A; B; C..."><button class="btn btn-del" onclick="this.parentElement.remove()">×</button>`;
+                row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA" oninput="dataMgr.markDirty()"><input type="text" class="table-input-words" placeholder="A; B; C..." oninput="dataMgr.markDirty()"><button class="btn btn-del" onclick="this.parentElement.remove(); dataMgr.markDirty()">×</button>`;
                 container.appendChild(row);
             },
             save: () => {
                 dataMgr.syncFromTable();
                 SOURCE_TYPE = 'default';
                 storage.save();
+                DATA_DIRTY = false;
                 ui.alert("Salvo com sucesso!");
             },
             reset: () => {
@@ -2081,7 +2083,7 @@
                 }
                 const homeBtn = document.getElementById('home-btn');
 
-                if (id === 'home') {
+                if (id === 'home' || id === 'options') {
                     homeBtn.style.display = 'none';
                     wakeLockMgr.release();
                     game.stopAll();
@@ -2174,7 +2176,16 @@
                     }
                 ]);
             },
-            tryHome: () => { ui.confirm("Voltar ao menu inicial?", () => { app.to('home'); }); },
+            tryHome: () => {
+                if (DATA_DIRTY) {
+                    ui.confirm("Há alterações não salvas. Deseja sair e perder as mudanças?", () => {
+                        DATA_DIRTY = false;
+                        app.to('home');
+                    });
+                } else {
+                    ui.confirm("Voltar ao menu inicial?", () => { app.to('home'); });
+                }
+            },
             toggleThresholdVisibility: () => {
                 const mode = document.getElementById('opt-mode').value;
                 const el = document.getElementById('group-threshold');
