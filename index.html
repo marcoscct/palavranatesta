@@ -1,4 +1,4 @@
-<!-- PALAVRA NA TESTA - VERSÃO 31.19 -->
+<!-- PALAVRA NA TESTA - VERSÃO 31.20 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -1505,7 +1505,7 @@
 
     <script>
         // === VERSÃO DO SISTEMA ===
-        const APP_VERSION = "v31.19";
+        const APP_VERSION = "v31.20";
 
         // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
         const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1660,7 +1660,8 @@
                 ttsRate: 1.1   // Velocidade da Fala
             },
             rd: 1, trn: 0, cat: null, q: [], skp: [], h: [], pts: 0, on: false, logs: [],
-            roundMode: 'normal'
+            roundMode: 'normal',
+            usedWords: {}, playedCats: []
         };
 
         const ui = {
@@ -2039,27 +2040,62 @@
         const sensor = {
             z: 0, wait: false,
             resetState: true,
+            calibrating: false,
+            samples: [],
+            restingZ: 0,
+            triggerTimer: null,
+            pendingAction: null,
             init: () => { if (window.DeviceMotionEvent) window.addEventListener('devicemotion', sensor.handle); },
             handle: (e) => {
                 const acc = e.accelerationIncludingGravity; if (!acc) return;
-                sensor.z = acc.z || 0;
+                const currentZ = acc.z || 0;
+                sensor.z = currentZ;
+
+                if (sensor.calibrating) {
+                    sensor.samples.push(currentZ);
+                    return;
+                }
+
                 if (st.on && !sensor.wait) {
+                    const diff = currentZ - sensor.restingZ;
+
                     if (sensor.resetState) {
-                        if (sensor.z < -8.0) {
-                            game.act(true);
-                            sensor.pause();
-                            sensor.resetState = false;
-                        } else if (sensor.z > 8.0) {
-                            game.act(false);
-                            sensor.pause();
-                            sensor.resetState = false;
+                        let targetAction = null;
+                        // Down (Correct): z < restingZ - 7.0
+                        // Up (Skip): z > restingZ + 7.0
+                        if (diff < -7.0) targetAction = 'correct';
+                        else if (diff > 7.0) targetAction = 'skip';
+
+                        if (targetAction) {
+                            if (sensor.pendingAction !== targetAction) {
+                                if (sensor.triggerTimer) clearTimeout(sensor.triggerTimer);
+
+                                sensor.pendingAction = targetAction;
+                                sensor.triggerTimer = setTimeout(() => {
+                                    game.act(targetAction === 'correct');
+                                    sensor.pause();
+                                    sensor.resetState = false;
+                                    sensor.triggerTimer = null;
+                                    sensor.pendingAction = null;
+                                }, 100); // 100ms debounce
+                            }
+                        } else {
+                            if (sensor.triggerTimer) {
+                                clearTimeout(sensor.triggerTimer);
+                                sensor.triggerTimer = null;
+                                sensor.pendingAction = null;
+                            }
                         }
                     } else {
-                        if (Math.abs(sensor.z) < 2.0) sensor.resetState = true;
+                        if (Math.abs(diff) < 2.0) sensor.resetState = true;
                     }
                 }
             },
-            pause: () => { sensor.wait = true; setTimeout(() => sensor.wait = false, 1500); }
+            pause: () => {
+                sensor.wait = true;
+                if (sensor.triggerTimer) { clearTimeout(sensor.triggerTimer); sensor.triggerTimer = null; sensor.pendingAction = null; }
+                setTimeout(() => sensor.wait = false, 1500);
+            }
         };
         sensor.init();
 
@@ -2096,6 +2132,7 @@
                     document.getElementById('timer-num').innerText = st.cfg.t;
                     st.rd = 1; st.trn = 0; st.pts = 0; st.t[0].s = 0; st.t[1].s = 0;
                     st.logs = [];
+                    st.usedWords = {}; st.playedCats = [];
                 } else {
                     homeBtn.style.display = 'block';
                 }
@@ -2513,8 +2550,18 @@
                         winnerIdx = cheats[Math.floor(Math.random() * cheats.length)].index;
                     }
                 } else {
-                    // No cheats, random normal
-                    winnerIdx = Math.floor(Math.random() * CURRENT_ROUND_CATS.length);
+                    // No cheats, random normal with repetition check
+                    // Filter out played categories
+                    let available = CURRENT_ROUND_CATS.map((c, i) => ({ c, i })).filter(item => !st.playedCats.includes(item.c.n));
+
+                    // If all categories played, reset list (fallback)
+                    if (available.length === 0) {
+                        st.playedCats = [];
+                        available = CURRENT_ROUND_CATS.map((c, i) => ({ c, i }));
+                    }
+
+                    const picked = available[Math.floor(Math.random() * available.length)];
+                    winnerIdx = picked.i;
                 }
                 const duration = 3;
                 if (wheel.mode === 'wheel') {
@@ -2562,6 +2609,11 @@
                 if (st.cfg.tts) tts.speak("Categoria sorteada: " + cat.n.replace(/\*+$/, ''), onTTSFinish);
 
                 ui.showResult(cat.n.replace(/\*+$/, ''), color, () => game.pre()); wheel.spin = false;
+
+                // Add to played categories if not cheat (cheats can repeat)
+                if (!cat.n.includes('*')) {
+                    if (!st.playedCats.includes(cat.n)) st.playedCats.push(cat.n);
+                }
             }
         };
 
@@ -2577,6 +2629,11 @@
             stopAll: () => { if (game.tmr) clearInterval(game.tmr); if (game.preTmr) clearInterval(game.preTmr); st.on = false; },
             pre: () => {
                 app.to('game'); st.on = false;
+
+                // START CALIBRATION
+                sensor.calibrating = true;
+                sensor.samples = [];
+
                 const isSurv = st.roundMode === 'survival'; game.maxTime = isSurv ? st.cfg.survTime : st.cfg.t; game.curTime = game.maxTime;
                 document.getElementById('timer-num').innerText = game.curTime;
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(var(--secondary) 0deg, var(--secondary) 360deg)`;
@@ -2604,7 +2661,32 @@
                 }, 1000);
             },
             run: () => {
-                game.stop(); st.on = true; st.pts = 0; st.h = []; st.skp = []; st.q = [...st.cat.w].sort(() => Math.random() - 0.5); game.next();
+                // STOP CALIBRATION & CALCULATE RESTING Z
+                sensor.calibrating = false;
+                if (sensor.samples.length > 0) {
+                    const sum = sensor.samples.reduce((a, b) => a + b, 0);
+                    sensor.restingZ = sum / sensor.samples.length;
+                } else {
+                    sensor.restingZ = 0;
+                }
+                // console.log("Resting Z:", sensor.restingZ);
+
+                game.stop(); st.on = true; st.pts = 0; st.h = []; st.skp = [];
+
+                // Filter words
+                const allWords = [...st.cat.w];
+                const used = st.usedWords[st.cat.n] || [];
+                let availableWords = allWords.filter(w => !used.includes(w));
+
+                if (availableWords.length === 0) {
+                    // Reset if all words used
+                    st.usedWords[st.cat.n] = [];
+                    availableWords = allWords;
+                }
+
+                st.q = availableWords.sort(() => Math.random() - 0.5);
+
+                game.next();
                 const tn = document.getElementById('timer-num'); const tw = document.querySelector('.timer-wrapper');
                 const root = getComputedStyle(document.documentElement); const sec = root.getPropertyValue('--secondary').trim();
                 game.tmr = setInterval(() => {
@@ -2672,6 +2754,14 @@
                 try {
                     st.on = false; game.stop(); st.pts = st.h.filter(x => x.ok).length;
                     st.logs = st.logs.filter(l => !(l.r === st.rd && l.t === st.trn)); st.logs.push({ r: st.rd, t: st.trn, s: st.pts });
+
+                    // Save used words
+                    if (!st.usedWords[st.cat.n]) st.usedWords[st.cat.n] = [];
+                    st.h.forEach(item => {
+                        if (item.ok && !st.usedWords[st.cat.n].includes(item.w)) {
+                            st.usedWords[st.cat.n].push(item.w);
+                        }
+                    });
 
                     // TTS: FIM RODADA COM PLURAL CORRIGIDO
                     if (st.cfg.tts) {
