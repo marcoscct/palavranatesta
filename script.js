@@ -1,5 +1,5 @@
 // === VERSÃO DO SISTEMA ===
-const APP_VERSION = "v31.21";
+const APP_VERSION = "v31.22";
 
 // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
 const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -1384,7 +1384,7 @@ const game = {
 };
 
 const paywall = {
-    isPro: false,
+    isPro: true, // BYPASS FOR TESTING
     init: async () => {
         if (!window.Capacitor) return;
         const { Purchases } = Capacitor.Plugins;
@@ -1398,12 +1398,16 @@ const paywall = {
         } catch (e) { console.error("Paywall Error", e); }
     },
     check: (info) => {
+        // FORCE PRO
+        paywall.isPro = true;
+        /*
         if (info.entitlements.active['pro']) {
             paywall.isPro = true;
             // ui.alert("Bem-vindo PRO!");
         } else {
             paywall.isPro = false;
         }
+        */
     },
     purchase: async () => {
         if (!window.Capacitor) return;
