@@ -1,5 +1,5 @@
 // === VERSÃO DO SISTEMA ===
-const APP_VERSION = "v31.20";
+const APP_VERSION = "v31.21";
 
 // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
 const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -388,6 +388,13 @@ const dataMgr = {
         });
     },
     addTableRow: () => {
+        // PAYWALL CHECK: MAX 10 CATEGORIES
+        const currentRows = document.querySelectorAll('.table-row').length;
+        if (!paywall.isPro && currentRows >= 10) {
+            paywall.show();
+            return;
+        }
+
         const container = document.getElementById('table-rows');
         const row = document.createElement('div');
         row.className = 'table-row';
@@ -416,6 +423,12 @@ const dataMgr = {
         dataMgr.loadSheet();
     },
     loadSheet: async () => {
+        // PAYWALL CHECK: GOOGLE SHEETS IMPORT
+        if (!paywall.isPro) {
+            paywall.show();
+            return;
+        }
+
         const url = document.getElementById('sheet-input').value;
         if (!url) return;
 
@@ -1178,17 +1191,74 @@ const game = {
         game.stop(); st.on = true; st.pts = 0; st.h = []; st.skp = [];
 
         // Filter words
-        const allWords = [...st.cat.w];
+        // === WORD ORDER CHEAT LOGIC ===
+        const clean = (w) => w.replace(/\*+$/, '');
         const used = st.usedWords[st.cat.n] || [];
-        let availableWords = allWords.filter(w => !used.includes(w));
 
-        if (availableWords.length === 0) {
-            // Reset if all words used
+        // 1. Separate Cheats vs Normal
+        // We only consider words NOT in used list (comparing clean versions)
+        const available = allWords.filter(w => !used.includes(clean(w)));
+
+        // Reset if empty
+        if (available.length === 0) {
             st.usedWords[st.cat.n] = [];
-            availableWords = allWords;
+            // Recalculate available from full list
+            available.push(...allWords);
         }
 
-        st.q = availableWords.sort(() => Math.random() - 0.5);
+        const cheatMap = {}; // { 1: [w1, w2], 2: [w3] ... }
+        const normalWords = [];
+
+        available.forEach(w => {
+            const match = w.match(/(\*+)$/);
+            if (match) {
+                const level = match[1].length;
+                if (!cheatMap[level]) cheatMap[level] = [];
+                cheatMap[level].push(w);
+            } else {
+                normalWords.push(w);
+            }
+        });
+
+        // Shuffle normal words
+        normalWords.sort(() => Math.random() - 0.5);
+
+        // 2. Build the Ordered List
+        const finalQueue = [];
+        // Determine max slots needed (either max cheat level or total words)
+        // We'll just iterate enough to cover potential cheats
+        const maxCheat = Math.max(...Object.keys(cheatMap).map(Number), 0);
+        const totalNeeded = available.length;
+
+        // We build the list from position 1 onwards
+        // If a position has a cheat, use it. If not, use a normal word.
+        // Any remaining normal words are appended at the end.
+
+        let normalIdx = 0;
+
+        // Phase 1: Fill slots up to maxCheat (or until we run out of words)
+        for (let i = 1; i <= Math.max(maxCheat, totalNeeded); i++) {
+            if (cheatMap[i] && cheatMap[i].length > 0) {
+                // Pick random cheat for this level
+                const picked = cheatMap[i][Math.floor(Math.random() * cheatMap[i].length)];
+                finalQueue.push(picked);
+            } else {
+                // No cheat for this slot, use normal word if available
+                if (normalIdx < normalWords.length) {
+                    finalQueue.push(normalWords[normalIdx]);
+                    normalIdx++;
+                }
+            }
+        }
+
+        // If we still have normal words left (e.g. maxCheat was small), add them
+        while (normalIdx < normalWords.length) {
+            finalQueue.push(normalWords[normalIdx]);
+            normalIdx++;
+        }
+
+        // 3. Set Queue (Reverse for pop())
+        st.q = finalQueue.reverse();
 
         game.next();
         const tn = document.getElementById('timer-num'); const tw = document.querySelector('.timer-wrapper');
@@ -1207,7 +1277,9 @@ const game = {
     next: () => {
         if (st.q.length === 0) { if (st.skp.length > 0) { st.q = [...st.skp].sort(() => Math.random() - 0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
         st.cw = st.q.pop();
-        document.getElementById('word-disp').innerText = st.cw;
+        // STRIP ASTERISKS FOR DISPLAY
+        const displayWord = st.cw.replace(/\*+$/, '');
+        document.getElementById('word-disp').innerText = displayWord;
 
         // CORREÇÃO DO BUG "LER PALAVRA"
         const currentWordSnapshot = st.cw;
@@ -1216,7 +1288,7 @@ const game = {
             setTimeout(() => {
                 // Comparamos a variável de snapshot com a variável de estado
                 if (st.on && st.cw === currentWordSnapshot) {
-                    tts.speak(st.cw);
+                    tts.speak(displayWord);
                 }
             }, 800);
         }
@@ -1224,7 +1296,9 @@ const game = {
     act: (win) => {
         if (!st.on) return;
         if (win) {
-            aud.p('ok'); st.pts++; st.h.push({ w: st.cw, ok: true }); game.flash('fb-ok');
+            // Save CLEAN word to history
+            const cleanWord = st.cw.replace(/\*+$/, '');
+            aud.p('ok'); st.pts++; st.h.push({ w: cleanWord, ok: true }); game.flash('fb-ok');
 
             // TTS: ACERTOU
             if (st.cfg.tts) tts.speak("Acertou!");
@@ -1238,7 +1312,8 @@ const game = {
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
             }
         } else {
-            aud.p('pass'); st.h.push({ w: st.cw, ok: false }); game.flash('fb-no'); st.skp.push(st.cw);
+            const cleanWord = st.cw.replace(/\*+$/, '');
+            aud.p('pass'); st.h.push({ w: cleanWord, ok: false }); game.flash('fb-no'); st.skp.push(st.cw);
 
             // TTS: PULOU
             if (st.cfg.tts) tts.speak("Pulou!");
