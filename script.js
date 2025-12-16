@@ -1191,6 +1191,7 @@ const game = {
         game.stop(); st.on = true; st.pts = 0; st.h = []; st.skp = [];
 
         // Filter words
+        const allWords = [...st.cat.w];
         // === WORD ORDER CHEAT LOGIC ===
         const clean = (w) => w.replace(/\*+$/, '');
         const used = st.usedWords[st.cat.n] || [];
