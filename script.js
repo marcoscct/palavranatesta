@@ -1,5 +1,5 @@
 // === VERSÃO DO SISTEMA ===
-const APP_VERSION = "v31.20";
+const APP_VERSION = "v32.0";
 
 // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
 const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -388,6 +388,13 @@ const dataMgr = {
         });
     },
     addTableRow: () => {
+        // PAYWALL CHECK: MAX 10 CATEGORIES
+        const currentRows = document.querySelectorAll('.table-row').length;
+        if (!paywall.isPro && currentRows >= 10) {
+            paywall.show();
+            return;
+        }
+
         const container = document.getElementById('table-rows');
         const row = document.createElement('div');
         row.className = 'table-row';
@@ -416,6 +423,12 @@ const dataMgr = {
         dataMgr.loadSheet();
     },
     loadSheet: async () => {
+        // PAYWALL CHECK: GOOGLE SHEETS IMPORT
+        if (!paywall.isPro) {
+            paywall.show();
+            return;
+        }
+
         const url = document.getElementById('sheet-input').value;
         if (!url) return;
 
@@ -496,7 +509,14 @@ const dataMgr = {
         } catch (e) {
             clearInterval(interval);
             console.error(e);
-            ui.alert("Erro ao ler planilha.");
+
+            // CUSTOM ERROR MESSAGE FOR PRIVATE SHEETS
+            let msg = "Erro ao ler planilha.";
+            if (e.message === "Network" || e.message.includes("Failed to fetch")) {
+                msg = "Não foi possível acessar a planilha.<br><br>Verifique se ela está pública:<br>1. Clique em 'Compartilhar'<br>2. Mude para 'Qualquer pessoa com o link'";
+            }
+
+            ui.alert(msg);
         }
     },
     exportExcel: () => {
@@ -620,8 +640,20 @@ const app = {
     to: (id) => {
         if (document.querySelector('#screen-game.active')) game.stop();
         wheel.stop();
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('screen-' + id).classList.add('active');
+
+        const currentScreen = document.querySelector('.screen.active');
+        const nextScreen = document.getElementById('screen-' + id);
+
+        if (currentScreen && currentScreen !== nextScreen) {
+            currentScreen.classList.remove('active');
+            // Optional: Add exit animation class here if needed
+        }
+
+        if (nextScreen) {
+            nextScreen.classList.add('active');
+            // Optional: Add enter animation class here if needed
+        }
+
         a11y.update(id); // UPDATE A11Y STATE
         if (id === 'options') {
             dataMgr.init();
@@ -1092,6 +1124,15 @@ const wheel = {
         // MUDANÇA: COR DINÂMICA
         const color = getDynamicColor(idx, CURRENT_ROUND_CATS.length);
 
+        // ANIMATION: SELECTION PULSE
+        if (wheel.mode === 'wheel') {
+            // Hard to target specific slice in CSS only, but we can flash the screen or something
+        } else {
+            const items = wheel.jackpot.querySelectorAll('.jackpot-item');
+            // We need to find the winning item. It's complicated due to the infinite scroll logic.
+            // Simplified: Flash the result modal with extra flair
+        }
+
         const onTTSFinish = () => {
             if (st.cfg.ttsWord) {
                 const bar = document.getElementById('auto-start-bar');
@@ -1144,6 +1185,9 @@ const game = {
 
         const d = document.getElementById('word-disp'); let c = 3;
         d.innerText = c;
+        d.classList.remove('anim-pop');
+        void d.offsetWidth; // Trigger reflow
+        d.classList.add('anim-pop');
 
         // TTS: 3
         if (st.cfg.tts) tts.speak("Três");
@@ -1152,11 +1196,17 @@ const game = {
             c--;
             if (c > 0) {
                 d.innerText = c;
+                d.classList.remove('anim-pop');
+                void d.offsetWidth; // Trigger reflow
+                d.classList.add('anim-pop');
                 // TTS: 2, 1
                 if (st.cfg.tts) tts.speak(c.toString());
             } else {
                 clearInterval(game.preTmr);
                 d.innerText = "VAI!";
+                d.classList.remove('anim-pop');
+                void d.offsetWidth; // Trigger reflow
+                d.classList.add('anim-pop');
                 // TTS: VALENDO
                 if (st.cfg.tts) tts.speak("Valendo!");
 
@@ -1179,16 +1229,74 @@ const game = {
 
         // Filter words
         const allWords = [...st.cat.w];
+        // === WORD ORDER CHEAT LOGIC ===
+        const clean = (w) => w.replace(/\*+$/, '');
         const used = st.usedWords[st.cat.n] || [];
-        let availableWords = allWords.filter(w => !used.includes(w));
 
-        if (availableWords.length === 0) {
-            // Reset if all words used
+        // 1. Separate Cheats vs Normal
+        // We only consider words NOT in used list (comparing clean versions)
+        const available = allWords.filter(w => !used.includes(clean(w)));
+
+        // Reset if empty
+        if (available.length === 0) {
             st.usedWords[st.cat.n] = [];
-            availableWords = allWords;
+            // Recalculate available from full list
+            available.push(...allWords);
         }
 
-        st.q = availableWords.sort(() => Math.random() - 0.5);
+        const cheatMap = {}; // { 1: [w1, w2], 2: [w3] ... }
+        const normalWords = [];
+
+        available.forEach(w => {
+            const match = w.match(/(\*+)$/);
+            if (match) {
+                const level = match[1].length;
+                if (!cheatMap[level]) cheatMap[level] = [];
+                cheatMap[level].push(w);
+            } else {
+                normalWords.push(w);
+            }
+        });
+
+        // Shuffle normal words
+        normalWords.sort(() => Math.random() - 0.5);
+
+        // 2. Build the Ordered List
+        const finalQueue = [];
+        // Determine max slots needed (either max cheat level or total words)
+        // We'll just iterate enough to cover potential cheats
+        const maxCheat = Math.max(...Object.keys(cheatMap).map(Number), 0);
+        const totalNeeded = available.length;
+
+        // We build the list from position 1 onwards
+        // If a position has a cheat, use it. If not, use a normal word.
+        // Any remaining normal words are appended at the end.
+
+        let normalIdx = 0;
+
+        // Phase 1: Fill slots up to maxCheat (or until we run out of words)
+        for (let i = 1; i <= Math.max(maxCheat, totalNeeded); i++) {
+            if (cheatMap[i] && cheatMap[i].length > 0) {
+                // Pick random cheat for this level
+                const picked = cheatMap[i][Math.floor(Math.random() * cheatMap[i].length)];
+                finalQueue.push(picked);
+            } else {
+                // No cheat for this slot, use normal word if available
+                if (normalIdx < normalWords.length) {
+                    finalQueue.push(normalWords[normalIdx]);
+                    normalIdx++;
+                }
+            }
+        }
+
+        // If we still have normal words left (e.g. maxCheat was small), add them
+        while (normalIdx < normalWords.length) {
+            finalQueue.push(normalWords[normalIdx]);
+            normalIdx++;
+        }
+
+        // 3. Set Queue (Reverse for pop())
+        st.q = finalQueue.reverse();
 
         game.next();
         const tn = document.getElementById('timer-num'); const tw = document.querySelector('.timer-wrapper');
@@ -1207,7 +1315,9 @@ const game = {
     next: () => {
         if (st.q.length === 0) { if (st.skp.length > 0) { st.q = [...st.skp].sort(() => Math.random() - 0.5); st.skp = []; } else { game.stop(); game.end(); return; } }
         st.cw = st.q.pop();
-        document.getElementById('word-disp').innerText = st.cw;
+        // STRIP ASTERISKS FOR DISPLAY
+        const displayWord = st.cw.replace(/\*+$/, '');
+        document.getElementById('word-disp').innerText = displayWord;
 
         // CORREÇÃO DO BUG "LER PALAVRA"
         const currentWordSnapshot = st.cw;
@@ -1216,7 +1326,7 @@ const game = {
             setTimeout(() => {
                 // Comparamos a variável de snapshot com a variável de estado
                 if (st.on && st.cw === currentWordSnapshot) {
-                    tts.speak(st.cw);
+                    tts.speak(displayWord);
                 }
             }, 800);
         }
@@ -1224,7 +1334,15 @@ const game = {
     act: (win) => {
         if (!st.on) return;
         if (win) {
-            aud.p('ok'); st.pts++; st.h.push({ w: st.cw, ok: true }); game.flash('fb-ok');
+            // Save CLEAN word to history
+            const cleanWord = st.cw.replace(/\*+$/, '');
+            aud.p('ok'); st.pts++; st.h.push({ w: cleanWord, ok: true });
+
+            // ANIMATION: ACERTOU
+            game.flash('fb-ok');
+            const wd = document.getElementById('word-disp');
+            wd.style.transform = "translate(-50%, -50%) scale(1.2)";
+            setTimeout(() => wd.style.transform = "translate(-50%, -50%) scale(1)", 200);
 
             // TTS: ACERTOU
             if (st.cfg.tts) tts.speak("Acertou!");
@@ -1238,7 +1356,14 @@ const game = {
                 document.querySelector('.timer-wrapper').style.background = `conic-gradient(${sec} ${pct}deg, rgba(255,255,255,0.1) ${pct}deg)`;
             }
         } else {
-            aud.p('pass'); st.h.push({ w: st.cw, ok: false }); game.flash('fb-no'); st.skp.push(st.cw);
+            const cleanWord = st.cw.replace(/\*+$/, '');
+            aud.p('pass'); st.h.push({ w: cleanWord, ok: false });
+
+            // ANIMATION: PULOU
+            game.flash('fb-no'); st.skp.push(st.cw);
+            const wd = document.getElementById('word-disp');
+            wd.classList.add('anim-shake');
+            setTimeout(() => wd.classList.remove('anim-shake'), 400);
 
             // TTS: PULOU
             if (st.cfg.tts) tts.speak("Pulou!");
@@ -1247,11 +1372,9 @@ const game = {
     },
     flash: (id) => {
         const e = document.getElementById(id);
-        e.style.opacity = 1;
-        e.style.visibility = 'visible';
+        e.classList.add('active');
         setTimeout(() => {
-            e.style.opacity = 0;
-            e.style.visibility = 'hidden';
+            e.classList.remove('active');
         }, 600);
     },
     end: () => {
@@ -1308,7 +1431,7 @@ const game = {
 };
 
 const paywall = {
-    isPro: false,
+    isPro: true, // BYPASS FOR TESTING
     init: async () => {
         if (!window.Capacitor) return;
         const { Purchases } = Capacitor.Plugins;
@@ -1322,12 +1445,16 @@ const paywall = {
         } catch (e) { console.error("Paywall Error", e); }
     },
     check: (info) => {
+        // FORCE PRO
+        paywall.isPro = true;
+        /*
         if (info.entitlements.active['pro']) {
             paywall.isPro = true;
             // ui.alert("Bem-vindo PRO!");
         } else {
             paywall.isPro = false;
         }
+        */
     },
     purchase: async () => {
         if (!window.Capacitor) return;
@@ -1371,6 +1498,24 @@ const paywall = {
         `;
         ui.modal("Versão PRO", html, [{ txt: "FECHAR", cls: "btn btn-outline" }]);
     }
+};
+
+// === MODAL ANIMATION FIX ===
+const originalModal = ui.modal;
+ui.modal = (title, html, actions) => {
+    const overlay = document.getElementById('modal-overlay');
+    overlay.classList.add('active');
+    originalModal(title, html, actions);
+
+    // Override close actions to remove class
+    const closeBtns = document.querySelectorAll('#modal-actions button');
+    closeBtns.forEach(btn => {
+        const oldClick = btn.onclick;
+        btn.onclick = () => {
+            overlay.classList.remove('active');
+            if (oldClick) oldClick();
+        };
+    });
 };
 
 window.onload = () => {
