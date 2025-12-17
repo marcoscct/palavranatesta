@@ -1336,7 +1336,6 @@ const game = {
         if (win) {
             // Save CLEAN word to history
             const cleanWord = st.cw.replace(/\*+$/, '');
-<<<<<<< HEAD
             aud.p('ok'); st.pts++; st.h.push({ w: cleanWord, ok: true });
 
             // ANIMATION: ACERTOU
@@ -1344,9 +1343,6 @@ const game = {
             const wd = document.getElementById('word-disp');
             wd.style.transform = "translate(-50%, -50%) scale(1.2)";
             setTimeout(() => wd.style.transform = "translate(-50%, -50%) scale(1)", 200);
-=======
-            aud.p('ok'); st.pts++; st.h.push({ w: cleanWord, ok: true }); game.flash('fb-ok');
->>>>>>> 2b678492f8fe4b07c2b243feed3ac3ce0c535360
 
             // TTS: ACERTOU
             if (st.cfg.tts) tts.speak("Acertou!");
@@ -1361,7 +1357,6 @@ const game = {
             }
         } else {
             const cleanWord = st.cw.replace(/\*+$/, '');
-<<<<<<< HEAD
             aud.p('pass'); st.h.push({ w: cleanWord, ok: false });
 
             // ANIMATION: PULOU
@@ -1369,9 +1364,6 @@ const game = {
             const wd = document.getElementById('word-disp');
             wd.classList.add('anim-shake');
             setTimeout(() => wd.classList.remove('anim-shake'), 400);
-=======
-            aud.p('pass'); st.h.push({ w: cleanWord, ok: false }); game.flash('fb-no'); st.skp.push(st.cw);
->>>>>>> 2b678492f8fe4b07c2b243feed3ac3ce0c535360
 
             // TTS: PULOU
             if (st.cfg.tts) tts.speak("Pulou!");
