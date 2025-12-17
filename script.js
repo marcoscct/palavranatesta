@@ -644,27 +644,12 @@ const app = {
         const nextScreen = document.getElementById('screen-' + id);
 
         if (currentScreen && currentScreen !== nextScreen) {
-            currentScreen.classList.add('exit');
             currentScreen.classList.remove('active');
-
-            // Cleanup after transition
-            setTimeout(() => {
-                currentScreen.classList.remove('exit');
-            }, 500);
         }
 
         if (nextScreen) {
-            // Prepare for entry
-            nextScreen.classList.remove('exit');
-            nextScreen.classList.add('enter');
-            nextScreen.scrollTop = 0; // SCROLL RESET
-
-            // Force reflow
-            void nextScreen.offsetWidth;
-
-            // Animate in
             nextScreen.classList.add('active');
-            nextScreen.classList.remove('enter');
+            nextScreen.scrollTop = 0; // SCROLL RESET
         }
 
         a11y.update(id); // UPDATE A11Y STATE
