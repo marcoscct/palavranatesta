@@ -651,6 +651,7 @@ const app = {
 
         if (nextScreen) {
             nextScreen.classList.add('active');
+            nextScreen.scrollTop = 0; // SCROLL RESET
             // Optional: Add enter animation class here if needed
         }
 
@@ -1155,6 +1156,15 @@ const wheel = {
 
         ui.showResult(cat.n.replace(/\*+$/, ''), color, () => game.pre()); wheel.spin = false;
 
+        // WHEEL PULSE EFFECT
+        if (wheel.mode === 'wheel') {
+            const slices = wheel.el.querySelectorAll('.slice-text');
+            if (slices[idx]) slices[idx].classList.add('anim-pulse');
+        } else {
+            document.getElementById('jackpot-container').classList.add('anim-pulse');
+            setTimeout(() => document.getElementById('jackpot-container').classList.remove('anim-pulse'), 1000);
+        }
+
         // Add to played categories if not cheat (cheats can repeat)
         if (!cat.n.includes('*')) {
             if (!st.playedCats.includes(cat.n)) st.playedCats.push(cat.n);
@@ -1368,7 +1378,11 @@ const game = {
             // TTS: PULOU
             if (st.cfg.tts) tts.speak("Pulou!");
         }
-        game.next();
+
+        // DELAY WORD CHANGE
+        setTimeout(() => {
+            game.next();
+        }, 600);
     },
     flash: (id) => {
         const e = document.getElementById(id);
