@@ -1646,6 +1646,8 @@ window.onload = () => {
     if (verTag) verTag.innerText = APP_VERSION;
 
     storage.load();
+    aud.init();
+    musicMgr.init();
     themeMgr.init(); // Initialize themes
     sensor.init();
 
