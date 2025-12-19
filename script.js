@@ -142,55 +142,108 @@ let SOURCE_TYPE = 'default';
 let CURRENT_ROUND_CATS = [];
 let DATA_DIRTY = false;
 
-/* BACKGROUND MUSIC MANAGER */
+/* BACKGROUND MUSIC MANAGER (WEB AUDIO API FOR GAPLESS LOOPING) */
 const musicMgr = {
+    ctx: null,
+    source: null,
+    buffer: null,
+    gainNode: null,
     loopStart: 8,
     loopEnd: 32,
     enabled: false,
-    init: () => {
-        const audio = document.getElementById('snd-bgm');
-        if (!audio) return;
-        audio.addEventListener('timeupdate', () => {
-            if (musicMgr.loopEnd > 0 && audio.currentTime >= musicMgr.loopEnd) {
-                audio.currentTime = musicMgr.loopStart;
-                audio.play();
-            } else if (musicMgr.loopEnd === 0 && audio.currentTime >= audio.duration - 0.2) {
-                audio.currentTime = musicMgr.loopStart;
-                audio.play();
-            }
-        });
+    isPlaying: false,
+
+    init: async () => {
         if (localStorage.getItem('pnt_bgm') === 'true') musicMgr.enabled = true;
+
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            musicMgr.ctx = new AudioContext();
+
+            // Unlock AudioContext on user interaction
+            const unlock = () => {
+                if (musicMgr.ctx.state === 'suspended') musicMgr.ctx.resume();
+                document.removeEventListener('click', unlock);
+                document.removeEventListener('touchstart', unlock);
+            };
+            document.addEventListener('click', unlock);
+            document.addEventListener('touchstart', unlock);
+
+            const response = await fetch('assets/musica.mp3');
+            const arrayBuffer = await response.arrayBuffer();
+            musicMgr.buffer = await musicMgr.ctx.decodeAudioData(arrayBuffer);
+
+            // Sync UI if on options screen
+            const chk = document.getElementById('chk-bgm-opt');
+            if (chk) chk.checked = musicMgr.enabled;
+
+        } catch (e) {
+            console.error("Audio Init Error:", e);
+        }
     },
+
     play: () => {
-        if (!musicMgr.enabled) return;
-        const audio = document.getElementById('snd-bgm');
-        audio.volume = 0.3;
-        audio.play().catch(() => { });
+        if (!musicMgr.enabled || !musicMgr.buffer || musicMgr.isPlaying) return;
+
+        try {
+            if (musicMgr.ctx.state === 'suspended') musicMgr.ctx.resume();
+
+            musicMgr.source = musicMgr.ctx.createBufferSource();
+            musicMgr.source.buffer = musicMgr.buffer;
+            musicMgr.source.loop = true;
+            musicMgr.source.loopStart = musicMgr.loopStart;
+            musicMgr.source.loopEnd = musicMgr.loopEnd;
+
+            musicMgr.gainNode = musicMgr.ctx.createGain();
+            musicMgr.gainNode.gain.value = 0.3;
+
+            musicMgr.source.connect(musicMgr.gainNode);
+            musicMgr.gainNode.connect(musicMgr.ctx.destination);
+
+            musicMgr.source.start(0); // Starts at 0, loops 8-32 automatically
+            musicMgr.isPlaying = true;
+        } catch (e) {
+            console.error("Playback Error:", e);
+        }
     },
+
     stop: () => {
-        const audio = document.getElementById('snd-bgm');
-        audio.pause();
-        audio.currentTime = 0;
+        if (musicMgr.source) {
+            try { musicMgr.source.stop(); } catch (e) { }
+            musicMgr.source = null;
+        }
+        musicMgr.isPlaying = false;
     },
+
     toggle: () => {
         musicMgr.enabled = !musicMgr.enabled;
         localStorage.setItem('pnt_bgm', musicMgr.enabled);
+
+        // Sync Main UI Checkbox if exists
+        const chk = document.getElementById('chk-bgm-opt');
+        if (chk) chk.checked = musicMgr.enabled;
+
         if (musicMgr.enabled) musicMgr.play();
         else musicMgr.stop();
-        return musicMgr.enabled;
     }
 };
-musicMgr.init();
+// Initialized call at bottom or explicitly called
 
 /* AUDIO SFX MANAGER */
 const aud = {
     sfxEnabled: true,
     init: () => {
         if (localStorage.getItem('pnt_sfx') === 'false') aud.sfxEnabled = false;
+        const chk = document.getElementById('chk-sfx-opt');
+        if (chk) chk.checked = aud.sfxEnabled;
     },
     p: (i) => {
         if (!aud.sfxEnabled) return;
-        document.getElementById('snd-' + i).play().catch(() => { });
+        const sound = document.getElementById('snd-' + i);
+        if (sound) {
+            sound.currentTime = 0;
+            sound.play().catch(() => { });
+        }
     },
     l: (i, o) => {
         const a = document.getElementById('snd-' + i);
@@ -203,10 +256,11 @@ const aud = {
     toggle: () => {
         aud.sfxEnabled = !aud.sfxEnabled;
         localStorage.setItem('pnt_sfx', aud.sfxEnabled);
+        const chk = document.getElementById('chk-sfx-opt');
+        if (chk) chk.checked = aud.sfxEnabled;
         return aud.sfxEnabled;
     }
 };
-aud.init();
 
 const st = {
     t: [{ n: "Time A", s: 0 }, { n: "Time B", s: 0 }],
@@ -786,20 +840,6 @@ const app = {
                         <div style="font-size:0.8em; opacity:0.7;">Fala a palavra da tela</div>
                     </div>
                 </label>
-                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-size: 1.1rem; width: 100%; text-align: left; color: white;">
-                    <input type="checkbox" id="chk-bgm" ${musicMgr.enabled ? 'checked' : ''} style="width: 25px; height: 25px; accent-color: var(--success);">
-                    <div>
-                        <div style="font-weight:bold;">Música de Fundo</div>
-                        <div style="font-size:0.8em; opacity:0.7;">Ambiente do jogo</div>
-                    </div>
-                </label>
-                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-size: 1.1rem; width: 100%; text-align: left; color: white;">
-                    <input type="checkbox" id="chk-sfx" ${aud.sfxEnabled ? 'checked' : ''} style="width: 25px; height: 25px; accent-color: var(--success);">
-                    <div>
-                        <div style="font-weight:bold;">Efeitos Sonoros</div>
-                        <div style="font-size:0.8em; opacity:0.7;">Sons de acerto/erro</div>
-                    </div>
-                </label>
                 
                 <div style="width:100%;">
                     <div style="display:flex; justify-content:space-between; color:white; margin-bottom:5px;">
@@ -819,12 +859,6 @@ const app = {
                 fn: () => {
                     st.cfg.tts = document.getElementById('chk-tts-narrator').checked;
                     st.cfg.ttsWord = document.getElementById('chk-tts-word').checked;
-
-                    const musicState = document.getElementById('chk-bgm').checked;
-                    if (musicState !== musicMgr.enabled) musicMgr.toggle();
-
-                    const sfxState = document.getElementById('chk-sfx').checked;
-                    if (sfxState !== aud.sfxEnabled) aud.toggle();
 
                     st.cfg.ttsRate = parseFloat(document.getElementById('rng-tts-rate').value);
                     storage.save();
