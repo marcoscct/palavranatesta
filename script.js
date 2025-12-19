@@ -142,7 +142,71 @@ let SOURCE_TYPE = 'default';
 let CURRENT_ROUND_CATS = [];
 let DATA_DIRTY = false;
 
-const aud = { p: (i) => { document.getElementById('snd-' + i).play().catch(() => { }) }, l: (i, o) => { const a = document.getElementById('snd-' + i); o ? a.play().catch(() => { }) : a.pause() } };
+/* BACKGROUND MUSIC MANAGER */
+const musicMgr = {
+    loopStart: 8,
+    loopEnd: 32,
+    enabled: false,
+    init: () => {
+        const audio = document.getElementById('snd-bgm');
+        if (!audio) return;
+        audio.addEventListener('timeupdate', () => {
+            if (musicMgr.loopEnd > 0 && audio.currentTime >= musicMgr.loopEnd) {
+                audio.currentTime = musicMgr.loopStart;
+                audio.play();
+            } else if (musicMgr.loopEnd === 0 && audio.currentTime >= audio.duration - 0.2) {
+                audio.currentTime = musicMgr.loopStart;
+                audio.play();
+            }
+        });
+        if (localStorage.getItem('pnt_bgm') === 'true') musicMgr.enabled = true;
+    },
+    play: () => {
+        if (!musicMgr.enabled) return;
+        const audio = document.getElementById('snd-bgm');
+        audio.volume = 0.3;
+        audio.play().catch(() => { });
+    },
+    stop: () => {
+        const audio = document.getElementById('snd-bgm');
+        audio.pause();
+        audio.currentTime = 0;
+    },
+    toggle: () => {
+        musicMgr.enabled = !musicMgr.enabled;
+        localStorage.setItem('pnt_bgm', musicMgr.enabled);
+        if (musicMgr.enabled) musicMgr.play();
+        else musicMgr.stop();
+        return musicMgr.enabled;
+    }
+};
+musicMgr.init();
+
+/* AUDIO SFX MANAGER */
+const aud = {
+    sfxEnabled: true,
+    init: () => {
+        if (localStorage.getItem('pnt_sfx') === 'false') aud.sfxEnabled = false;
+    },
+    p: (i) => {
+        if (!aud.sfxEnabled) return;
+        document.getElementById('snd-' + i).play().catch(() => { });
+    },
+    l: (i, o) => {
+        const a = document.getElementById('snd-' + i);
+        if (o) {
+            if (aud.sfxEnabled) a.play().catch(() => { });
+        } else {
+            a.pause();
+        }
+    },
+    toggle: () => {
+        aud.sfxEnabled = !aud.sfxEnabled;
+        localStorage.setItem('pnt_sfx', aud.sfxEnabled);
+        return aud.sfxEnabled;
+    }
+};
+aud.init();
 
 const st = {
     t: [{ n: "Time A", s: 0 }, { n: "Time B", s: 0 }],
@@ -722,6 +786,20 @@ const app = {
                         <div style="font-size:0.8em; opacity:0.7;">Fala a palavra da tela</div>
                     </div>
                 </label>
+                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-size: 1.1rem; width: 100%; text-align: left; color: white;">
+                    <input type="checkbox" id="chk-bgm" ${musicMgr.enabled ? 'checked' : ''} style="width: 25px; height: 25px; accent-color: var(--success);">
+                    <div>
+                        <div style="font-weight:bold;">Música de Fundo</div>
+                        <div style="font-size:0.8em; opacity:0.7;">Ambiente do jogo</div>
+                    </div>
+                </label>
+                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-size: 1.1rem; width: 100%; text-align: left; color: white;">
+                    <input type="checkbox" id="chk-sfx" ${aud.sfxEnabled ? 'checked' : ''} style="width: 25px; height: 25px; accent-color: var(--success);">
+                    <div>
+                        <div style="font-weight:bold;">Efeitos Sonoros</div>
+                        <div style="font-size:0.8em; opacity:0.7;">Sons de acerto/erro</div>
+                    </div>
+                </label>
                 
                 <div style="width:100%;">
                     <div style="display:flex; justify-content:space-between; color:white; margin-bottom:5px;">
@@ -741,6 +819,13 @@ const app = {
                 fn: () => {
                     st.cfg.tts = document.getElementById('chk-tts-narrator').checked;
                     st.cfg.ttsWord = document.getElementById('chk-tts-word').checked;
+
+                    const musicState = document.getElementById('chk-bgm').checked;
+                    if (musicState !== musicMgr.enabled) musicMgr.toggle();
+
+                    const sfxState = document.getElementById('chk-sfx').checked;
+                    if (sfxState !== aud.sfxEnabled) aud.toggle();
+
                     st.cfg.ttsRate = parseFloat(document.getElementById('rng-tts-rate').value);
                     storage.save();
                     if (st.cfg.tts) tts.speak("Configurações salvas");
@@ -770,6 +855,7 @@ const app = {
     },
     start: () => {
         aud.p('click');
+        musicMgr.play(); // START MUSIC
         wakeLockMgr.request();
         if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
             DeviceMotionEvent.requestPermission().then(response => { }).catch(console.error);
