@@ -70,13 +70,10 @@
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
         <div class="options-container">
+            <!-- SEÇÃO 1: REGRAS DO JOGO -->
             <div class="section-box">
-                <h2>Visual & Times</h2>
-                <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label>
-                    <div class="theme-grid" id="theme-selector"></div>
-                </div>
+                <h2>Regras do Jogo</h2>
 
-                <!-- RESTORED DROPDOWN -->
                 <div class="input-group">
                     <label>Estrutura</label>
                     <select id="opt-players" onchange="app.toggleSolo(); storage.save()">
@@ -93,11 +90,8 @@
                             type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)"
                             onchange="storage.save()"></div>
                 </div>
-            </div>
 
-            <div class="section-box">
-                <h2>Regras do Jogo</h2>
-                <div class="input-row">
+                <div class="input-row" style="margin-top:15px">
                     <div class="input-group" style="flex:1; width: 0;"><label>Tempo (em segundos)</label><input
                             type="number" id="opt-time" value="60" onchange="storage.save()"></div>
                     <div class="input-group" style="flex:1; width: 0;"><label>Rodadas</label><input type="number"
@@ -114,9 +108,26 @@
                         Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()">
                 </div>
 
-                <!-- AUDIO OPTIONS -->
+                <!-- SURVIVAL OPTIONS -->
                 <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
-                <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Áudio</h2>
+                <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Modo Sobrevivente</h2>
+                <div class="input-row">
+                    <div class="input-group" style="flex:1; width: 0;"><label>Início (em segundos)</label><input
+                            type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div>
+                    <div class="input-group" style="flex:1; width: 0;"><label>Bônus (em segundos)</label><input
+                            type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: GRÁFICOS E ÁUDIO -->
+            <div class="section-box">
+                <h2>Gráficos e Áudio</h2>
+                <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label>
+                    <div class="theme-grid" id="theme-selector"></div>
+                </div>
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
+
                 <div class="input-row">
                     <div class="input-group"
                         style="flex:1; width:0; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
@@ -141,16 +152,6 @@
                         <input type="range" id="rng-vol-sfx" min="0" max="1" step="0.1" value="1"
                             style="width:100%; accent-color:var(--success);" oninput="aud.setVolume(this.value)">
                     </div>
-                </div>
-
-                <!-- SURVIVAL OPTIONS -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
-                <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Modo Sobrevivente</h2>
-                <div class="input-row">
-                    <div class="input-group" style="flex:1; width: 0;"><label>Início (em segundos)</label><input
-                            type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div>
-                    <div class="input-group" style="flex:1; width: 0;"><label>Bônus (em segundos)</label><input
-                            type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div>
                 </div>
             </div>
 
@@ -363,7 +364,7 @@
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-    <script src="script.js?v=32.3"></script>
+    <script src="script.js?v=32.4"></script>
 </body>
 
 </html>
