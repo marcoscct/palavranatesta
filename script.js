@@ -24,6 +24,126 @@ function getDynamicColor(index, total) {
     return `rgb(${r},${g},${b})`;
 }
 
+// === STATE MANAGER ===
+const st = {
+    cfg: { t: 60, r: 3, survTime: 30, survBonus: 5, solo: false, tts: false, ttsWord: false, ttsRate: 1.1 },
+    t: [{ n: "Time A", s: 0 }, { n: "Time B", s: 0 }],
+    rd: 1, trn: 0, cat: null, q: [], skp: [], h: [], pts: 0, on: false, logs: [],
+    roundMode: 'normal', usedWords: {}, playedCats: [], cw: ""
+};
+
+// === AUDIO MANAGER (SFX) ===
+const aud = {
+    sfxEnabled: true, volume: 1.0,
+    init: () => {
+        const saved = localStorage.getItem('pnt_sfx');
+        if (saved !== null) aud.sfxEnabled = (saved === 'true');
+        const savedVol = localStorage.getItem('pnt_vol_sfx');
+        if (savedVol !== null) aud.volume = parseFloat(savedVol);
+        aud.syncUI();
+    },
+    p: (i) => {
+        if (!aud.sfxEnabled) return;
+        const a = document.getElementById('snd-' + i);
+        if (a) {
+            a.volume = aud.volume;
+            a.currentTime = 0; a.play().catch(() => { });
+        }
+    },
+    l: (i, o) => {
+        if (!aud.sfxEnabled) { if (!o) { const a = document.getElementById('snd-' + i); if (a) a.pause(); } return; }
+        const a = document.getElementById('snd-' + i);
+        if (a) {
+            a.volume = aud.volume;
+            if (o) { a.currentTime = 0; a.loop = true; a.play().catch(() => { }); }
+            else { a.pause(); a.loop = false; }
+        }
+    },
+    toggle: () => {
+        aud.sfxEnabled = !aud.sfxEnabled;
+        localStorage.setItem('pnt_sfx', aud.sfxEnabled);
+        aud.syncUI();
+    },
+    setVolume: (v) => {
+        aud.volume = parseFloat(v);
+        localStorage.setItem('pnt_vol_sfx', aud.volume);
+    },
+    syncUI: () => {
+        const chk = document.getElementById('chk-sfx-opt');
+        if (chk) chk.checked = aud.sfxEnabled;
+        const rng = document.getElementById('rng-vol-sfx');
+        if (rng) rng.value = aud.volume;
+    }
+};
+
+// === BACKGROUND MUSIC MANAGER (WEB AUDIO API) ===
+const musicMgr = {
+    ctx: null, source: null, gainNode: null, buffer: null,
+    enabled: false, volume: 0.3,
+    init: () => {
+        const saved = localStorage.getItem('pnt_bgm');
+        musicMgr.enabled = (saved === 'true');
+        const savedVol = localStorage.getItem('pnt_vol_bgm');
+        if (savedVol !== null) musicMgr.volume = parseFloat(savedVol);
+
+        window.addEventListener('click', () => {
+            if (!musicMgr.ctx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                musicMgr.ctx = new AudioContext();
+                fetch('assets/musica.mp3')
+                    .then(r => r.arrayBuffer())
+                    .then(d => musicMgr.ctx.decodeAudioData(d))
+                    .then(b => {
+                        musicMgr.buffer = b;
+                        if (musicMgr.enabled) musicMgr.play();
+                    }).catch(e => console.log('Audio init err:', e));
+            } else if (musicMgr.ctx.state === 'suspended') {
+                musicMgr.ctx.resume();
+            }
+        }, { once: true });
+        musicMgr.syncUI();
+    },
+    play: () => {
+        if (!musicMgr.ctx || !musicMgr.buffer || !musicMgr.enabled) return;
+        if (musicMgr.source) musicMgr.stop();
+        musicMgr.source = musicMgr.ctx.createBufferSource();
+        musicMgr.source.buffer = musicMgr.buffer;
+        musicMgr.source.loop = true;
+        musicMgr.source.loopStart = 8;
+        musicMgr.source.loopEnd = 32;
+
+        musicMgr.gainNode = musicMgr.ctx.createGain();
+        musicMgr.gainNode.gain.value = musicMgr.volume;
+
+        musicMgr.source.connect(musicMgr.gainNode);
+        musicMgr.gainNode.connect(musicMgr.ctx.destination);
+        musicMgr.source.start(0, 8);
+    },
+    stop: () => {
+        if (musicMgr.source) {
+            try { musicMgr.source.stop(); } catch (e) { }
+            musicMgr.source = null;
+        }
+    },
+    toggle: () => {
+        musicMgr.enabled = !musicMgr.enabled;
+        localStorage.setItem('pnt_bgm', musicMgr.enabled);
+        if (musicMgr.enabled) musicMgr.play(); else musicMgr.stop();
+        musicMgr.syncUI();
+    },
+    setVolume: (v) => {
+        musicMgr.volume = parseFloat(v);
+        localStorage.setItem('pnt_vol_bgm', musicMgr.volume);
+        if (musicMgr.gainNode) musicMgr.gainNode.gain.value = musicMgr.volume;
+    },
+    syncUI: () => {
+        const chk = document.getElementById('chk-bgm-opt');
+        if (chk) chk.checked = musicMgr.enabled;
+        const rng = document.getElementById('rng-vol-bgm');
+        if (rng) rng.value = musicMgr.volume;
+    }
+};
+
 // === ACESSIBILIDADE (TTS) ===
 const tts = {
     speak: (text, callback) => {
@@ -142,21 +262,7 @@ let SOURCE_TYPE = 'default';
 let CURRENT_ROUND_CATS = [];
 let DATA_DIRTY = false;
 
-/* BACKGROUND MUSIC MANAGER (WEB AUDIO API FOR GAPLESS LOOPING) */
-const musicMgr = {
-    ctx: null,
-    source: null,
-    t: [{ n: "Time A", s: 0 }, { n: "Time B", s: 0 }],
-    cfg: {
-        t: 60, r: 3, survTime: 30, survBonus: 5, solo: false,
-        tts: false,    // Narrador Geral
-        ttsWord: false, // Ler Palavra
-        ttsRate: 1.1   // Velocidade da Fala
-    },
-    rd: 1, trn: 0, cat: null, q: [], skp: [], h: [], pts: 0, on: false, logs: [],
-    roundMode: 'normal',
-    usedWords: {}, playedCats: []
-};
+
 
 const ui = {
     modal: (title, html, actions) => {
