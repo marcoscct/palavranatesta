@@ -119,16 +119,27 @@
                 <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Áudio</h2>
                 <div class="input-row">
                     <div class="input-group"
-                        style="flex:1; width:0; flex-direction:row; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
-                        <label style="margin:0; font-size:1rem;">Música</label>
-                        <input type="checkbox" id="chk-bgm-opt"
-                            style="width:25px; height:25px; accent-color:var(--success);" onchange="musicMgr.toggle()">
+                        style="flex:1; width:0; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
+                        <div
+                            style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:5px;">
+                            <label style="margin:0; font-size:1rem;">Música</label>
+                            <input type="checkbox" id="chk-bgm-opt"
+                                style="width:20px; height:20px; accent-color:var(--success);"
+                                onchange="musicMgr.toggle()">
+                        </div>
+                        <input type="range" id="rng-vol-bgm" min="0" max="1" step="0.1" value="0.3"
+                            style="width:100%; accent-color:var(--success);" oninput="musicMgr.setVolume(this.value)">
                     </div>
                     <div class="input-group"
-                        style="flex:1; width:0; flex-direction:row; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
-                        <label style="margin:0; font-size:1rem;">Efeitos</label>
-                        <input type="checkbox" id="chk-sfx-opt"
-                            style="width:25px; height:25px; accent-color:var(--success);" onchange="aud.toggle()">
+                        style="flex:1; width:0; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
+                        <div
+                            style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:5px;">
+                            <label style="margin:0; font-size:1rem;">Efeitos</label>
+                            <input type="checkbox" id="chk-sfx-opt"
+                                style="width:20px; height:20px; accent-color:var(--success);" onchange="aud.toggle()">
+                        </div>
+                        <input type="range" id="rng-vol-sfx" min="0" max="1" step="0.1" value="1"
+                            style="width:100%; accent-color:var(--success);" oninput="aud.setVolume(this.value)">
                     </div>
                 </div>
 

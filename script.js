@@ -146,123 +146,6 @@ let DATA_DIRTY = false;
 const musicMgr = {
     ctx: null,
     source: null,
-    buffer: null,
-    gainNode: null,
-    loopStart: 8,
-    loopEnd: 32,
-    enabled: false,
-    isPlaying: false,
-
-    init: async () => {
-        if (localStorage.getItem('pnt_bgm') === 'true') musicMgr.enabled = true;
-
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            musicMgr.ctx = new AudioContext();
-
-            // Unlock AudioContext on user interaction
-            const unlock = () => {
-                if (musicMgr.ctx.state === 'suspended') musicMgr.ctx.resume();
-                document.removeEventListener('click', unlock);
-                document.removeEventListener('touchstart', unlock);
-            };
-            document.addEventListener('click', unlock);
-            document.addEventListener('touchstart', unlock);
-
-            const response = await fetch('assets/musica.mp3');
-            const arrayBuffer = await response.arrayBuffer();
-            musicMgr.buffer = await musicMgr.ctx.decodeAudioData(arrayBuffer);
-
-            // Sync UI if on options screen
-            const chk = document.getElementById('chk-bgm-opt');
-            if (chk) chk.checked = musicMgr.enabled;
-
-        } catch (e) {
-            console.error("Audio Init Error:", e);
-        }
-    },
-
-    play: () => {
-        if (!musicMgr.enabled || !musicMgr.buffer || musicMgr.isPlaying) return;
-
-        try {
-            if (musicMgr.ctx.state === 'suspended') musicMgr.ctx.resume();
-
-            musicMgr.source = musicMgr.ctx.createBufferSource();
-            musicMgr.source.buffer = musicMgr.buffer;
-            musicMgr.source.loop = true;
-            musicMgr.source.loopStart = musicMgr.loopStart;
-            musicMgr.source.loopEnd = musicMgr.loopEnd;
-
-            musicMgr.gainNode = musicMgr.ctx.createGain();
-            musicMgr.gainNode.gain.value = 0.3;
-
-            musicMgr.source.connect(musicMgr.gainNode);
-            musicMgr.gainNode.connect(musicMgr.ctx.destination);
-
-            musicMgr.source.start(0); // Starts at 0, loops 8-32 automatically
-            musicMgr.isPlaying = true;
-        } catch (e) {
-            console.error("Playback Error:", e);
-        }
-    },
-
-    stop: () => {
-        if (musicMgr.source) {
-            try { musicMgr.source.stop(); } catch (e) { }
-            musicMgr.source = null;
-        }
-        musicMgr.isPlaying = false;
-    },
-
-    toggle: () => {
-        musicMgr.enabled = !musicMgr.enabled;
-        localStorage.setItem('pnt_bgm', musicMgr.enabled);
-
-        // Sync Main UI Checkbox if exists
-        const chk = document.getElementById('chk-bgm-opt');
-        if (chk) chk.checked = musicMgr.enabled;
-
-        if (musicMgr.enabled) musicMgr.play();
-        else musicMgr.stop();
-    }
-};
-// Initialized call at bottom or explicitly called
-
-/* AUDIO SFX MANAGER */
-const aud = {
-    sfxEnabled: true,
-    init: () => {
-        if (localStorage.getItem('pnt_sfx') === 'false') aud.sfxEnabled = false;
-        const chk = document.getElementById('chk-sfx-opt');
-        if (chk) chk.checked = aud.sfxEnabled;
-    },
-    p: (i) => {
-        if (!aud.sfxEnabled) return;
-        const sound = document.getElementById('snd-' + i);
-        if (sound) {
-            sound.currentTime = 0;
-            sound.play().catch(() => { });
-        }
-    },
-    l: (i, o) => {
-        const a = document.getElementById('snd-' + i);
-        if (o) {
-            if (aud.sfxEnabled) a.play().catch(() => { });
-        } else {
-            a.pause();
-        }
-    },
-    toggle: () => {
-        aud.sfxEnabled = !aud.sfxEnabled;
-        localStorage.setItem('pnt_sfx', aud.sfxEnabled);
-        const chk = document.getElementById('chk-sfx-opt');
-        if (chk) chk.checked = aud.sfxEnabled;
-        return aud.sfxEnabled;
-    }
-};
-
-const st = {
     t: [{ n: "Time A", s: 0 }, { n: "Time B", s: 0 }],
     cfg: {
         t: 60, r: 3, survTime: 30, survBonus: 5, solo: false,
@@ -774,6 +657,8 @@ const app = {
         if (id === 'options') {
             dataMgr.init();
             themeMgr.init(); // FORCE THEME RENDER
+            musicMgr.syncUI();
+            aud.syncUI();
         }
         const homeBtn = document.getElementById('home-btn');
 
