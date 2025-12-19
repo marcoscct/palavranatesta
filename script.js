@@ -86,21 +86,30 @@ const musicMgr = {
         const savedVol = localStorage.getItem('pnt_vol_bgm');
         if (savedVol !== null) musicMgr.volume = parseFloat(savedVol);
 
-        window.addEventListener('click', () => {
-            if (!musicMgr.ctx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                musicMgr.ctx = new AudioContext();
-                fetch('assets/musica.mp3')
-                    .then(r => r.arrayBuffer())
-                    .then(d => musicMgr.ctx.decodeAudioData(d))
-                    .then(b => {
-                        musicMgr.buffer = b;
-                        if (musicMgr.enabled) musicMgr.play();
-                    }).catch(e => console.log('Audio init err:', e));
-            } else if (musicMgr.ctx.state === 'suspended') {
-                musicMgr.ctx.resume();
+        // PRELOAD AUDIO IMMEDIATELY
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        musicMgr.ctx = new AudioContext();
+        fetch('assets/musica.mp3')
+            .then(r => r.arrayBuffer())
+            .then(d => musicMgr.ctx.decodeAudioData(d))
+            .then(b => {
+                musicMgr.buffer = b;
+                if (musicMgr.enabled && musicMgr.ctx.state === 'running') musicMgr.play();
+            }).catch(e => console.log('Audio init err:', e));
+
+        // UNLOCK AUDIO CONTEXT ON FIRST INTERACTION
+        const unlock = () => {
+            if (musicMgr.ctx && musicMgr.ctx.state !== 'running') {
+                musicMgr.ctx.resume().then(() => {
+                    if (musicMgr.enabled) musicMgr.play();
+                });
             }
-        }, { once: true });
+            window.removeEventListener('click', unlock);
+            window.removeEventListener('touchstart', unlock);
+        };
+        window.addEventListener('click', unlock);
+        window.addEventListener('touchstart', unlock);
+
         musicMgr.syncUI();
     },
     play: () => {
