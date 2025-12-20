@@ -1562,30 +1562,49 @@ const game = {
 };
 
 const paywall = {
-    isPro: true, // BYPASS FOR TESTING
+    isPro: false,
     init: async () => {
-        if (!window.Capacitor) return;
+        if (!window.Capacitor) { console.log('Paywall: Non-Capacitor env'); return; }
         const { Purchases } = Capacitor.Plugins;
-        // REPLACE WITH YOUR KEYS
-        // Using provided TEST KEY for both platforms for testing purposes
-        const key = 'test_BJxvxLZMffqJMAMAUHPtAVolsqz';
+
+        // TODO: SUBSTITUA ESTAS CHAVES PELAS REAIS DO REVENUECAT
+        const API_KEYS = {
+            ios: 'appl_PLACEHOLDER_KEY',
+            android: 'goog_PLACEHOLDER_KEY'
+        };
+
+        const platform = Capacitor.getPlatform();
+        const key = platform === 'ios' ? API_KEYS.ios : API_KEYS.android;
+
+        if (key.includes('PLACEHOLDER')) {
+            console.warn('Paywall: Keys not configured.');
+            // BYPASS TEMPORÁRIO PARA NÃO TRAVAR O APP ENQUANTO VOCÊ NÃO CONFIGURA
+            paywall.isPro = true;
+            return;
+        }
+
         try {
             await Purchases.configure({ apiKey: key });
             const info = await Purchases.getCustomerInfo();
             paywall.check(info);
-        } catch (e) { console.error("Paywall Error", e); }
+
+            // LISTENER PARA MUDANÇAS (Ex: renovação, cancelamento)
+            Purchases.addCustomerInfoUpdateListener((info) => {
+                paywall.check(info);
+            });
+        } catch (e) {
+            console.error("Paywall Init Error", e);
+            // Fallback ou retry poderia ser implementado aqui
+        }
     },
     check: (info) => {
-        // FORCE PRO
-        paywall.isPro = true;
-        /*
         if (info.entitlements.active['pro']) {
             paywall.isPro = true;
-            // ui.alert("Bem-vindo PRO!");
+            console.log('Paywall: User is PRO');
         } else {
             paywall.isPro = false;
+            console.log('Paywall: User is FREE');
         }
-        */
     },
     purchase: async () => {
         if (!window.Capacitor) return;
