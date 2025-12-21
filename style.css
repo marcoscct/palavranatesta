@@ -15,6 +15,15 @@
     --border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+/* CLASSE PARA DEIXAR O FUNDO TRANSPARENTE NA CÂMERA */
+body.transparent-bg {
+    background: transparent !important;
+}
+
+body.transparent-bg #screen-game {
+    background: transparent !important;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -402,7 +411,6 @@ option {
 
     .table-input-words {
         flex: 1;
-        /* Ocupa o espaço restante ao lado do botão */
     }
 }
 

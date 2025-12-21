@@ -114,7 +114,9 @@ const musicMgr = {
     },
     play: () => {
         if (!musicMgr.ctx || !musicMgr.buffer || !musicMgr.enabled) return;
-        if (musicMgr.source) musicMgr.stop();
+        // SE JÁ ESTIVER TOCANDO (source existe), NÃO REINICIA
+        if (musicMgr.source) return;
+
         musicMgr.source = musicMgr.ctx.createBufferSource();
         musicMgr.source.buffer = musicMgr.buffer;
         musicMgr.source.loop = true;
@@ -675,7 +677,6 @@ const dataMgr = {
 };
 
 /* SENSOR & NAV LOGIC */
-/* SENSOR & NAV LOGIC */
 const sensor = {
     z: 0, wait: false,
     resetState: true,
@@ -767,6 +768,10 @@ const app = {
             nextScreen.classList.add('active');
             nextScreen.scrollTop = 0; // SCROLL RESET
         }
+
+        // TRANSPARENCY FOR CAMERA (GAME SCREEN)
+        if (id === 'game') document.body.classList.add('transparent-bg');
+        else document.body.classList.remove('transparent-bg');
 
         a11y.update(id); // UPDATE A11Y STATE
         if (id === 'options') {
@@ -967,32 +972,6 @@ const app = {
         } else {
             st.trn++;
             if (st.trn > 1) { st.trn = 0; st.rd++; }
-        }
-        app.prep();
-    },
-    end: () => {
-        const t1 = st.t[0], t2 = st.t[1];
-        const root = getComputedStyle(document.documentElement);
-        const c1 = root.getPropertyValue('--primary');
-        const c2 = root.getPropertyValue('--secondary');
-
-        document.getElementById('fn-1').innerText = t1.n; document.getElementById('fs-1').innerText = t1.s;
-        document.getElementById('fn-1').style.color = c1;
-
-        // TTS: FIM DE JOGO
-        if (st.cfg.tts) {
-            let msg = "";
-            if (st.cfg.solo) {
-                msg = `Fim de jogo. Pontuação final: ${t1.s} pontos.`;
-            } else {
-                let winText = "";
-                if (t1.s > t2.s) winText = `${t1.n} venceu`;
-                else if (t2.s > t1.s) winText = `${t2.n} venceu`;
-                else winText = "Houve um empate";
-
-                msg = `Fim de jogo. ${winText}. Placar: ${t1.n}, ${t1.s}. ${t2.n}, ${t2.s}.`;
-            }
-            setTimeout(() => tts.speak(msg), 1500);
         }
 
         if (st.cfg.solo) {
