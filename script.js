@@ -830,26 +830,31 @@ const app = {
     },
     openAccessModal: () => {
         const html = `
-            <div style="display: flex; flex-direction: column; gap: 20px; align-items: flex-start; width: 100%; padding: 10px;">
-                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-size: 1.1rem; width: 100%; text-align: left; color: white;">
-                    <input type="checkbox" id="chk-tts-narrator" ${st.cfg.tts ? 'checked' : ''} style="width: 25px; height: 25px; accent-color: var(--success);">
-                    <div>
-                        <div style="font-weight:bold;">Narrador</div>
-                        <div style="font-size:0.8em; opacity:0.7;">Voz do jogo e contagem</div>
-                    </div>
-                </label>
-                <label style="display: flex; align-items: center; gap: 15px; cursor: pointer; font-size: 1.1rem; width: 100%; text-align: left; color: white;">
-                    <input type="checkbox" id="chk-tts-word" ${st.cfg.ttsWord ? 'checked' : ''} style="width: 25px; height: 25px; accent-color: var(--success);">
-                    <div>
-                        <div style="font-weight:bold;">Ler Palavra</div>
-                        <div style="font-size:0.8em; opacity:0.7;">Fala a palavra da tela</div>
-                    </div>
-                </label>
+            <div style="display: flex; flex-direction: column; gap: 15px; align-items: flex-start; width: 100%; padding: 10px;">
+                <div style="display: flex; width: 100%; gap: 10px; justify-content: space-between;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1rem; flex: 1; color: white; background:rgba(255,255,255,0.1); padding:10px; border-radius:10px;">
+                        <input type="checkbox" id="chk-tts-narrator" ${st.cfg.tts ? 'checked' : ''} style="width: 20px; height: 20px; accent-color: var(--success);">
+                        <div style="line-height:1.1;">
+                            <div style="font-weight:bold; font-size:0.9em; text-transform:uppercase;">Narrador</div>
+                            <div style="font-size:0.75em; opacity:0.7; margin-top:2px;">Voz do jogo</div>
+                        </div>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1rem; flex: 1; color: white; background:rgba(255,255,255,0.1); padding:10px; border-radius:10px;">
+                        <input type="checkbox" id="chk-tts-word" ${st.cfg.ttsWord ? 'checked' : ''} style="width: 20px; height: 20px; accent-color: var(--success);">
+                        <div style="line-height:1.1;">
+                            <div style="font-weight:bold; font-size:0.9em; text-transform:uppercase;">Ler Palavra</div>
+                            <div style="font-size:0.75em; opacity:0.7; margin-top:2px;">Fala a carta</div>
+                        </div>
+                    </label>
+                </div>
                 
-                <div style="width:100%;">
-                    <div style="display:flex; justify-content:space-between; color:white; margin-bottom:5px;">
-                        <span style="font-weight:bold;">Velocidade da Voz</span>
-                        <span id="lbl-tts-rate" style="opacity:0.8;">${(st.cfg.ttsRate || 1.1).toFixed(1)}x</span>
+                <div style="width:100%; background:rgba(255,255,255,0.05); padding:12px; border-radius:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-bottom:8px;">
+                        <div style="line-height:1.1;">
+                            <div style="font-weight:bold; font-size:0.9em; text-transform:uppercase;">Velocidade da Voz</div>
+                            <div style="font-size:0.75em; opacity:0.7; margin-top:2px;">Ajuste o ritmo</div>
+                        </div>
+                        <span id="lbl-tts-rate" style="opacity:0.9; font-weight:bold; font-size:1.1em; background:rgba(0,0,0,0.3); padding:2px 8px; border-radius:5px;">${(st.cfg.ttsRate || 1.1).toFixed(1)}x</span>
                     </div>
                     <input type="range" id="rng-tts-rate" min="0.5" max="2.5" step="0.1" value="${st.cfg.ttsRate || 1.1}" style="width:100%; accent-color:var(--success);" oninput="document.getElementById('lbl-tts-rate').innerText = parseFloat(this.value).toFixed(1) + 'x'">
                 </div>
@@ -1617,12 +1622,16 @@ const paywall = {
     },
     show: () => {
         const html = `
-            <div style="text-align:center; padding:10px;">
-                <div style="font-size:3rem; margin-bottom:10px;">💎</div>
-                <h3 style="color:var(--accent); margin-bottom:10px;">Seja Premium</h3>
-                <p style="opacity:0.8; margin-bottom:20px;">Desbloqueie categorias ilimitadas e apoie o desenvolvimento!</p>
-                <button class="btn" style="background:var(--success); width:100%; margin-bottom:10px;" onclick="paywall.purchase()">DESBLOQUEAR AGORA</button>
-                <button class="btn btn-outline" style="width:100%;" onclick="paywall.restore()">Restaurar Compra</button>
+            <div class="pay-container" style="display:flex; flex-direction:column; gap:10px;">
+                <div class="pay-left" style="text-align:center;">
+                    <div style="font-size:3rem; margin-bottom:5px;">💎</div>
+                    <h3 style="color:var(--accent); margin-bottom:5px;">Seja Premium</h3>
+                    <p style="opacity:0.8; margin-bottom:10px;">Desbloqueie categorias ilimitadas e apoie o desenvolvimento!</p>
+                </div>
+                <div class="pay-right" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    <button class="btn" style="background:var(--success); width:100%;" onclick="paywall.purchase()">DESBLOQUEAR AGORA</button>
+                    <button class="btn btn-outline" style="width:100%;" onclick="paywall.restore()">Restaurar Compra</button>
+                </div>
             </div>
         `;
         ui.modal("Versão PRO", html, [{ txt: "FECHAR", cls: "btn btn-outline" }]);
@@ -1660,6 +1669,19 @@ window.onload = () => {
 
     // INIT PAYWALL
     paywall.init();
+
+    // PAUSE MUSIC ON BACKGROUND
+    if (window.Capacitor) {
+        const { App } = Capacitor.Plugins;
+        App.addListener('appStateChange', ({ isActive }) => {
+            if (!isActive) {
+                if (musicMgr.ctx && musicMgr.ctx.state === 'running') musicMgr.ctx.suspend();
+                sensor.pause(); // Also pause sensor
+            } else {
+                if (musicMgr.enabled && musicMgr.ctx && musicMgr.ctx.state === 'suspended') musicMgr.ctx.resume();
+            }
+        });
+    }
 
     // REMOVE LOADING SCREEN
     setTimeout(() => {
