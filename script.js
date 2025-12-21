@@ -1570,7 +1570,7 @@ const paywall = {
         // TODO: SUBSTITUA ESTAS CHAVES PELAS REAIS DO REVENUECAT
         const API_KEYS = {
             ios: 'appl_PLACEHOLDER_KEY',
-            android: 'goog_PLACEHOLDER_KEY'
+            android: 'goog_HsNdwovArTjAZJSyFtdYmWhpprs'
         };
 
         const platform = Capacitor.getPlatform();
