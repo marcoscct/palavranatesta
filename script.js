@@ -848,15 +848,18 @@ const app = {
                     </label>
                 </div>
                 
-                <div style="width:100%; background:rgba(255,255,255,0.05); padding:12px; border-radius:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-bottom:8px;">
-                        <div style="line-height:1.1;">
-                            <div style="font-weight:bold; font-size:0.9em; text-transform:uppercase;">Velocidade da Voz</div>
-                            <div style="font-size:0.75em; opacity:0.7; margin-top:2px;">Ajuste o ritmo</div>
-                        </div>
-                        <span id="lbl-tts-rate" style="opacity:0.9; font-weight:bold; font-size:1.1em; background:rgba(0,0,0,0.3); padding:2px 8px; border-radius:5px;">${(st.cfg.ttsRate || 1.1).toFixed(1)}x</span>
+                <div style="width:100%; background:rgba(255,255,255,0.05); padding:12px; border-radius:10px; display:flex; align-items:center; gap:15px;">
+                    <!-- LABEL BLOCO -->
+                    <div style="line-height:1.1; flex-shrink:0;">
+                        <div style="font-weight:bold; font-size:0.9em; text-transform:uppercase;">Velocidade da Voz</div>
+                        <div style="font-size:0.75em; opacity:0.7; margin-top:2px;">Ajuste o ritmo</div>
                     </div>
-                    <input type="range" id="rng-tts-rate" min="0.5" max="2.5" step="0.1" value="${st.cfg.ttsRate || 1.1}" style="width:100%; accent-color:var(--success);" oninput="document.getElementById('lbl-tts-rate').innerText = parseFloat(this.value).toFixed(1) + 'x'">
+                    
+                    <!-- SLIDER NO MEIO -->
+                    <input type="range" id="rng-tts-rate" min="0.5" max="2.5" step="0.1" value="${st.cfg.ttsRate || 1.1}" style="flex:1; accent-color:var(--success);" oninput="document.getElementById('lbl-tts-rate').innerText = parseFloat(this.value).toFixed(1) + 'x'">
+                    
+                    <!-- VALOR NA PONTA -->
+                    <span id="lbl-tts-rate" style="opacity:0.9; font-weight:bold; font-size:1.1em; background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:5px; min-width:50px; text-align:center;">${(st.cfg.ttsRate || 1.1).toFixed(1)}x</span>
                 </div>
             </div>
         `;
@@ -1624,9 +1627,7 @@ const paywall = {
         const html = `
             <div class="pay-container" style="display:flex; flex-direction:column; gap:10px;">
                 <div class="pay-left" style="text-align:center;">
-                    <div style="font-size:3rem; margin-bottom:5px;">💎</div>
-                    <h3 style="color:var(--accent); margin-bottom:5px;">Seja Premium</h3>
-                    <p style="opacity:0.8; margin-bottom:10px;">Desbloqueie categorias ilimitadas e apoie o desenvolvimento!</p>
+                    <p style="opacity:0.8; font-size:1.1rem; margin-top:5px;">Desbloqueie categorias ilimitadas e apoie o desenvolvimento!</p>
                 </div>
                 <div class="pay-right" style="display:flex; flex-direction:column; gap:10px; width:100%;">
                     <button class="btn" style="background:var(--success); width:100%;" onclick="paywall.purchase()">DESBLOQUEAR AGORA</button>
@@ -1634,7 +1635,7 @@ const paywall = {
                 </div>
             </div>
         `;
-        ui.modal("Versão PRO", html, [{ txt: "FECHAR", cls: "btn btn-outline" }]);
+        ui.modal("💎 Versão PRO", html, [{ txt: "FECHAR", cls: "btn btn-outline" }]);
     }
 };
 
