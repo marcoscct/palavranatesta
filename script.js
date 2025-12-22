@@ -1682,6 +1682,24 @@ window.onload = () => {
                 if (musicMgr.enabled && musicMgr.ctx && musicMgr.ctx.state === 'suspended') musicMgr.ctx.resume();
             }
         });
+
+        // RESTORE BACK BUTTON LOGIC
+        App.addListener('backButton', () => {
+            const modal = document.getElementById('modal-overlay');
+            if (modal.style.display !== 'none') {
+                modal.style.display = 'none';
+                a11y.trapModal(false);
+                return;
+            }
+
+            const active = document.querySelector('.screen.active');
+            if (active && active.id === 'screen-home') {
+                App.exitApp();
+            } else {
+                // Uses app.tryHome() for safe exit (confirm if game running or data dirty)
+                app.tryHome();
+            }
+        });
     }
 
     // REMOVE LOADING SCREEN
