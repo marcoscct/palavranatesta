@@ -975,17 +975,35 @@ const app = {
     next: () => {
         aud.p('click');
 
+        if (st.cfg.solo) {
+            st.rd++; // Solo just increments round
+        } else {
+            st.trn++;
+            if (st.trn > 1) { st.trn = 0; st.rd++; }
+        }
+        app.prep();
+    },
+    end: () => {
         const t1 = st.t[0];
         const t2 = st.t[1];
         const root = getComputedStyle(document.documentElement);
         const c1 = root.getPropertyValue('--primary');
         const c2 = root.getPropertyValue('--secondary');
 
-        if (st.cfg.solo) {
-            st.rd++; // Solo just increments round
-        } else {
-            st.trn++;
-            if (st.trn > 1) { st.trn = 0; st.rd++; }
+        // TTS: FIM DE JOGO
+        if (st.cfg.tts) {
+            let msg = "";
+            if (st.cfg.solo) {
+                msg = `Fim de jogo. Pontuação final: ${t1.s} pontos.`;
+            } else {
+                let winText = "";
+                if (t1.s > t2.s) winText = `${t1.n} venceu`;
+                else if (t2.s > t1.s) winText = `${t2.n} venceu`;
+                else winText = "Houve um empate";
+
+                msg = `Fim de jogo. ${winText}. Placar: ${t1.n}, ${t1.s}. ${t2.n}, ${t2.s}.`;
+            }
+            setTimeout(() => tts.speak(msg), 1500);
         }
 
         if (st.cfg.solo) {
