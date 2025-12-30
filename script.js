@@ -975,6 +975,12 @@ const app = {
     next: () => {
         aud.p('click');
 
+        const t1 = st.t[0];
+        const t2 = st.t[1];
+        const root = getComputedStyle(document.documentElement);
+        const c1 = root.getPropertyValue('--primary');
+        const c2 = root.getPropertyValue('--secondary');
+
         if (st.cfg.solo) {
             st.rd++; // Solo just increments round
         } else {
@@ -1585,6 +1591,14 @@ const paywall = {
         }
     },
     check: (info) => {
+        paywall.lastInfo = info; // Save for dev mode toggle re-check
+        // BYPASS SE O MODO DESENVOLVEDOR ESTIVER ATIVO
+        if (st.devMode) {
+            paywall.isPro = true;
+            console.log('Paywall: Dev Mode BYPASS');
+            return;
+        }
+
         if (info.entitlements.active['pro']) {
             paywall.isPro = true;
             console.log('Paywall: User is PRO');
@@ -1660,7 +1674,29 @@ ui.modal = (title, html, actions) => {
 window.onload = () => {
     // ATUALIZA A VERSÃO NA TELA AUTOMATICAMENTE
     const verTag = document.querySelector('.version-tag');
-    if (verTag) verTag.innerText = APP_VERSION;
+    if (verTag) {
+        verTag.innerText = APP_VERSION;
+
+        // === DEVELOPER MODE TRIGGER (7 Taps) ===
+        let devTapCount = 0;
+        let devTapTimer = null;
+        verTag.addEventListener('click', () => {
+            devTapCount++;
+            if (devTapTimer) clearTimeout(devTapTimer);
+            devTapTimer = setTimeout(() => { devTapCount = 0; }, 2000);
+
+            if (devTapCount >= 7) {
+                devTapCount = 0;
+                st.devMode = !st.devMode;
+                localStorage.setItem('pnt_dev_mode', st.devMode);
+                paywall.check(paywall.lastInfo || { entitlements: { active: {} } }); // Re-check
+                ui.alert(`MODO DESENVOLVEDOR: ${st.devMode ? 'ATIVADO 🔓' : 'DESATIVADO 🔒'}`);
+            }
+        });
+    }
+
+    // LOAD DEV MODE STATE
+    st.devMode = (localStorage.getItem('pnt_dev_mode') === 'true');
 
     storage.load();
     aud.init();
