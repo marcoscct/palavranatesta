@@ -990,6 +990,11 @@ const app = {
         const c1 = root.getPropertyValue('--primary');
         const c2 = root.getPropertyValue('--secondary');
 
+        // UPDATE TIME 1 DISPLAY (MISSING FIX)
+        document.getElementById('fn-1').innerText = t1.n;
+        document.getElementById('fs-1').innerText = t1.s;
+        document.getElementById('fn-1').style.color = c1;
+
         // TTS: FIM DE JOGO
         if (st.cfg.tts) {
             let msg = "";
