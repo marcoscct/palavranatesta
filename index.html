@@ -66,169 +66,141 @@
         </div>
     </div>
 
-    <!-- TELA 0.5: OPÇÕES -->
+    <!-- TELA 0.5: OPÇÕES (TABS) -->
     <div id="screen-options" class="screen scrollable allow-portrait">
         <h1>OPÇÕES</h1>
-        <div class="options-container">
-            <!-- SEÇÃO 1: REGRAS DO JOGO -->
-            <div class="section-box">
-                <h2>Regras do Jogo</h2>
 
-                <div class="input-group">
-                    <label>Estrutura</label>
-                    <select id="opt-players" onchange="app.toggleSolo(); storage.save()">
-                        <option value="2">Versus (2 Times)</option>
-                        <option value="1">Solo (1 Time)</option>
-                    </select>
-                </div>
-
-                <div class="teams-container" style="margin-top:15px">
-                    <div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text"
-                            id="t1" value="Time A" style="border-left: 6px solid var(--primary)"
-                            onchange="storage.save()"></div>
-                    <div class="input-group" id="group-t2"><label style="color: var(--secondary);">Time B</label><input
-                            type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)"
-                            onchange="storage.save()"></div>
-                </div>
-
-                <div class="input-row" style="margin-top:15px">
-                    <div class="input-group" style="flex:1; width: 0;"><label>Tempo (em segundos)</label><input
-                            type="number" id="opt-time" value="60" onchange="storage.save()"></div>
-                    <div class="input-group" style="flex:1; width: 0;"><label>Rodadas</label><input type="number"
-                            id="opt-rounds" value="3" onchange="storage.save()"></div>
-                </div>
-
-                <div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode"
-                        onchange="app.toggleThresholdVisibility(); storage.save()">
-                        <option value="auto">Automático (Misto)</option>
-                        <option value="wheel">Sempre Roleta</option>
-                        <option value="jackpot">Sempre Jackpot</option>
-                    </select></div>
-                <div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para
-                        Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()">
-                </div>
-
-                <!-- SURVIVAL OPTIONS -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
-                <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Modo Sobrevivente</h2>
-                <div class="input-row">
-                    <div class="input-group" style="flex:1; width: 0;"><label>Início (em segundos)</label><input
-                            type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div>
-                    <div class="input-group" style="flex:1; width: 0;"><label>Bônus (em segundos)</label><input
-                            type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div>
-                </div>
-            </div>
-
-            <!-- SEÇÃO 2: GRÁFICOS E ÁUDIO -->
-            <div class="section-box">
-                <h2>Gráficos e Áudio</h2>
-                <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label>
-                    <div class="theme-grid" id="theme-selector"></div>
-                </div>
-
-                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
-
-                <div class="input-row">
-                    <div class="input-group"
-                        style="flex:1; width:0; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
-                        <div
-                            style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:5px;">
-                            <label style="margin:0; font-size:1rem;">Música</label>
-                            <input type="checkbox" id="chk-bgm-opt"
-                                style="width:20px; height:20px; accent-color:var(--success);"
-                                onchange="musicMgr.toggle()">
-                        </div>
-                        <input type="range" id="rng-vol-bgm" min="0" max="1" step="0.1" value="0.3"
-                            style="width:100%; accent-color:var(--success);" oninput="musicMgr.setVolume(this.value)">
-                    </div>
-                    <div class="input-group"
-                        style="flex:1; width:0; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
-                        <div
-                            style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:5px;">
-                            <label style="margin:0; font-size:1rem;">Efeitos</label>
-                            <input type="checkbox" id="chk-sfx-opt"
-                                style="width:20px; height:20px; accent-color:var(--success);" onchange="aud.toggle()">
-                        </div>
-                        <input type="range" id="rng-vol-sfx" min="0" max="1" step="0.1" value="1"
-                            style="width:100%; accent-color:var(--success);" oninput="aud.setVolume(this.value)">
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-box">
-                <h2>Conteúdo</h2>
-                <div class="input-group"><label>Carregar do Google Sheets</label>
-                    <div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button
-                            class="btn btn-small" style="background: var(--success); width: auto;"
-                            onclick="dataMgr.loadSheet()">OK</button></div><button class="btn btn-small btn-outline"
-                        style="width:100%;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button>
-                </div>
-
-                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                    <h2 style="border:none; margin:0; font-size:1.1rem">Editor Manual</h2>
-                </div>
-
-                <div class="input-group" style="margin-bottom: 10px;">
-                    <label>Selecionar Aba</label>
-                    <select id="sheet-selector" style="width: 100%; margin-bottom: 10px;"
-                        onchange="dataMgr.switchSheet(this.value)"></select>
-
-                    <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
-                        <button class="btn btn-square" style="background:var(--success); flex:1;"
-                            onclick="dataMgr.addSheet()" title="Nova Aba">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                            </svg>
-                        </button>
-                        <button class="btn btn-square" style="background:var(--danger); flex:1;"
-                            onclick="dataMgr.removeSheet()" title="Excluir Aba">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                                <path d="M19 13H5v-2h14v2z" />
-                            </svg>
-                        </button>
-                        <button class="btn btn-square" style="background:var(--secondary); flex:1;"
-                            onclick="dataMgr.renameSheet()" title="Renomear Aba">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                                <path
-                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                            </svg>
-                        </button>
-                        <button class="btn btn-square" style="background:rgba(255,255,255,0.2); flex:1;"
-                            onclick="dataMgr.moveSheet(-1)" title="Mover para Cima">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                                <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
-                            </svg>
-                        </button>
-                        <button class="btn btn-square" style="background:rgba(255,255,255,0.2); flex:1;"
-                            onclick="dataMgr.moveSheet(1)" title="Mover para Baixo">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="editor-container">
-                    <div id="view-table" class="editor-view active">
-                        <div id="table-rows"></div>
-                        <button class="btn btn-small btn-outline" style="width:100%; margin-top:10px"
-                            onclick="dataMgr.addTableRow()">+ Categoria</button>
-                    </div>
-                </div>
-
-                <div style="display:flex; gap:10px; margin-top:20px; width: 100%;">
-                    <button class="btn btn-small" style="flex:1; margin:0;" onclick="dataMgr.save()">💾 Salvar</button>
-                    <button class="btn btn-small btn-outline" style="flex:1; margin:0;"
-                        onclick="dataMgr.reset()">Restaurar</button>
-                </div>
-            </div>
-
-            <button class="btn" style="margin: 20px auto 0 auto; display: block;"
-                onclick="app.to('home')">VOLTAR</button>
+        <!-- TABS -->
+        <div class="opt-tabs">
+            <button class="opt-tab active" id="tab-config" onclick="app.switchOptTab('config')">⚙️ Configurações</button>
+            <button class="opt-tab" id="tab-cats" onclick="app.switchOptTab('cats')">📦 Categorias</button>
         </div>
+
+        <!-- TAB 1: CONFIGURAÇÕES -->
+        <div class="opt-tab-content active" id="tab-content-config">
+            <div class="options-container">
+                <!-- SEÇÃO 1: REGRAS DO JOGO -->
+                <div class="section-box">
+                    <h2>Regras do Jogo</h2>
+
+                    <div class="input-group">
+                        <label>Estrutura</label>
+                        <select id="opt-players" onchange="app.toggleSolo(); storage.save()">
+                            <option value="2">Versus (2 Times)</option>
+                            <option value="1">Solo (1 Time)</option>
+                        </select>
+                    </div>
+
+                    <div class="teams-container" style="margin-top:15px">
+                        <div class="input-group"><label style="color: var(--primary);">Time A</label><input type="text"
+                                id="t1" value="Time A" style="border-left: 6px solid var(--primary)"
+                                onchange="storage.save()"></div>
+                        <div class="input-group" id="group-t2"><label style="color: var(--secondary);">Time B</label><input
+                                type="text" id="t2" value="Time B" style="border-left: 6px solid var(--secondary)"
+                                onchange="storage.save()"></div>
+                    </div>
+
+                    <div class="input-row" style="margin-top:15px">
+                        <div class="input-group" style="flex:1; width: 0;"><label>Tempo (em segundos)</label><input
+                                type="number" id="opt-time" value="60" onchange="storage.save()"></div>
+                        <div class="input-group" style="flex:1; width: 0;"><label>Rodadas</label><input type="number"
+                                id="opt-rounds" value="3" onchange="storage.save()"></div>
+                    </div>
+
+                    <div class="input-group" style="margin-top:15px"><label>Modo de Sorteio</label><select id="opt-mode"
+                            onchange="app.toggleThresholdVisibility(); storage.save()">
+                            <option value="auto">Automático (Misto)</option>
+                            <option value="wheel">Sempre Roleta</option>
+                            <option value="jackpot">Sempre Jackpot</option>
+                        </select></div>
+                    <div class="input-group" id="group-threshold" style="margin-top:10px"><label>Limite para
+                            Jackpot</label><input type="number" id="opt-threshold" value="12" onchange="storage.save()">
+                    </div>
+
+                    <!-- SURVIVAL OPTIONS -->
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
+                    <h2 style="border:none; margin-bottom: 5px; font-size: 1.1rem;">Modo Sobrevivente</h2>
+                    <div class="input-row">
+                        <div class="input-group" style="flex:1; width: 0;"><label>Início (em segundos)</label><input
+                                type="number" id="opt-surv-time" value="30" onchange="storage.save()"></div>
+                        <div class="input-group" style="flex:1; width: 0;"><label>Bônus (em segundos)</label><input
+                                type="number" id="opt-surv-bonus" value="5" onchange="storage.save()"></div>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO 2: GRÁFICOS E ÁUDIO -->
+                <div class="section-box">
+                    <h2>Gráficos e Áudio</h2>
+                    <div style="margin-bottom: 15px;"><label style="margin-bottom:10px">Tema do Jogo</label>
+                        <div class="theme-grid" id="theme-selector"></div>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;"></div>
+
+                    <div class="input-row">
+                        <div class="input-group"
+                            style="flex:1; width:0; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
+                            <div
+                                style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:5px;">
+                                <label style="margin:0; font-size:1rem;">Música</label>
+                                <input type="checkbox" id="chk-bgm-opt"
+                                    style="width:20px; height:20px; accent-color:var(--success);"
+                                    onchange="musicMgr.toggle()">
+                            </div>
+                            <input type="range" id="rng-vol-bgm" min="0" max="1" step="0.1" value="0.3"
+                                style="width:100%; accent-color:var(--success);" oninput="musicMgr.setVolume(this.value)">
+                        </div>
+                        <div class="input-group"
+                            style="flex:1; width:0; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;">
+                            <div
+                                style="display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:5px;">
+                                <label style="margin:0; font-size:1rem;">Efeitos</label>
+                                <input type="checkbox" id="chk-sfx-opt"
+                                    style="width:20px; height:20px; accent-color:var(--success);" onchange="aud.toggle()">
+                            </div>
+                            <input type="range" id="rng-vol-sfx" min="0" max="1" step="0.1" value="1"
+                                style="width:100%; accent-color:var(--success);" oninput="aud.setVolume(this.value)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: CATEGORIAS -->
+        <div class="opt-tab-content" id="tab-content-cats">
+            <div class="options-container">
+
+                <!-- CARDS CONTAINER -->
+                <div id="cat-cards-container"></div>
+
+                <!-- BOTÕES DE AÇÃO -->
+                <div class="cat-actions">
+                    <button class="btn btn-small" style="flex:1; background:var(--success); margin:0;" onclick="catMgr.openCreateModal()">✏️ Criar Categoria</button>
+                    <button class="btn btn-small" style="flex:1; background:var(--primary); margin:0;" onclick="catMgr.openPackageModal()">📦 Pacotes</button>
+                </div>
+
+                <!-- IMPORTAR GOOGLE SHEETS -->
+                <div class="section-box" style="margin-top:15px;">
+                    <h2>Importar do Google Sheets</h2>
+                    <div class="input-group">
+                        <div class="input-row"><input type="text" id="sheet-input" placeholder="Link da planilha..."><button
+                                class="btn btn-small" style="background: var(--success); width: auto;"
+                                onclick="dataMgr.loadSheet()">OK</button></div>
+                        <button class="btn btn-small btn-outline" style="width:100;" onclick="dataMgr.loadDefault()">Carregar Planilha Padrão</button>
+                    </div>
+                </div>
+
+                <!-- RESTAURAR -->
+                <div style="display:flex; gap:10px; margin-top:15px; width:100%;">
+                    <button class="btn btn-small btn-outline" style="flex:1; margin:0;" onclick="dataMgr.reset()">🔄 Restaurar Padrão</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" style="margin: 20px auto 0 auto; display: block;"
+            onclick="app.to('home')">VOLTAR</button>
     </div>
+
 
     <!-- TELA 1: TIMES -->
     <div id="screen-teams" class="screen">

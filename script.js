@@ -1,4 +1,4 @@
-const APP_VERSION = "v32.4";
+const APP_VERSION = "v33.0";
 
 // === NOVA LÓGICA DE CORES (DEGRADÊ DINÂMICO) ===
 const GRADIENT_KEYS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
@@ -228,6 +228,7 @@ const wakeLockMgr = {
 const themeMgr = {
     init: () => {
         const container = document.getElementById('theme-selector');
+        if (!container) return;
         container.innerHTML = '';
         THEMES.forEach(t => {
             const div = document.createElement('div');
@@ -257,19 +258,535 @@ const themeMgr = {
 };
 
 const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
-const DEFAULT_CATS = [
-    { n: "ANIMAIS", w: ["Gato", "Cachorro", "Elefante", "Girafa", "Leão", "Tubarão", "Panda", "Zebra", "Macaco"] },
-    { n: "FILMES", w: ["Titanic", "Avatar", "Matrix", "Shrek", "Barbie", "Batman", "Frozen", "Vingadores", "Coringa"] },
-    { n: "OBJETOS", w: ["Mesa", "Cadeira", "Celular", "Espelho", "Sofá", "Copo", "Relógio", "Sapato", "Computador"] },
-    { n: "AÇÕES", w: ["Correr", "Dançar", "Nadar", "Dormir", "Comer", "Beijar", "Gritar", "Chorar", "Pular"] },
-    { n: "FAMOSOS", w: ["Neymar", "Anitta", "Messi", "Beyoncé", "Xuxa", "Pelé", "Madonna", "Silvio Santos"] },
-    { n: "LUGARES", w: ["Praia", "Escola", "Shopping", "Cinema", "Hospital", "Igreja", "Parque", "Banco"] }
+
+// === CATEGORIAS PADRÃO (NORMAIS + EXTRAS) ===
+const DEFAULT_CATS_NORMAL = [
+    { n: "ANIMAIS", w: ["Gato", "Cachorro", "Elefante", "Girafa", "Leão", "Tubarão", "Panda", "Zebra", "Macaco", "Cavalo", "Águia", "Cobra", "Golfinho", "Urso", "Coelho"] },
+    { n: "FILMES", w: ["Titanic", "Avatar", "Matrix", "Shrek", "Barbie", "Batman", "Frozen", "Vingadores", "Coringa", "Homem-Aranha", "Rei Leão", "Star Wars", "Harry Potter", "Jurassic Park", "Procurando Nemo"] },
+    { n: "OBJETOS", w: ["Mesa", "Cadeira", "Celular", "Espelho", "Sofá", "Copo", "Relógio", "Sapato", "Computador", "Travesseiro", "Guarda-chuva", "Chave", "Óculos", "Mochila", "Panela"] },
+    { n: "AÇÕES", w: ["Correr", "Dançar", "Nadar", "Dormir", "Comer", "Beijar", "Gritar", "Chorar", "Pular", "Cantar", "Dirigir", "Cozinhar", "Surfar", "Escalar", "Meditar"] },
+    { n: "FAMOSOS", w: ["Neymar", "Anitta", "Messi", "Beyoncé", "Xuxa", "Pelé", "Madonna", "Silvio Santos", "Taylor Swift", "Ronaldinho", "Gal Gadot", "Will Smith", "Ivete Sangalo", "Elton John"] },
+    { n: "LUGARES", w: ["Praia", "Escola", "Shopping", "Cinema", "Hospital", "Igreja", "Parque", "Banco", "Restaurante", "Estádio", "Aeroporto", "Museu", "Fazenda", "Biblioteca"] },
+    { n: "ESPORTES", w: ["Futebol", "Basquete", "Vôlei", "Natação", "Tênis", "Surfe", "Skate", "Boxe", "Judô", "Ciclismo", "Corrida", "Ginástica", "Handebol", "Golfe"] },
+    { n: "COMIDAS", w: ["Pizza", "Hambúrguer", "Sushi", "Lasanha", "Açaí", "Feijoada", "Brigadeiro", "Coxinha", "Churrasco", "Sorvete", "Pastel", "Tapioca", "Pão de Queijo", "Strogonoff"] },
+    { n: "PROFISSÕES", w: ["Médico", "Professor", "Bombeiro", "Astronauta", "Policial", "Cozinheiro", "Dentista", "Piloto", "Veterinário", "Engenheiro", "Advogado", "Jornalista", "Eletricista", "Arquiteto"] },
+    { n: "MARCAS", w: ["Nike", "Apple", "Coca-Cola", "Google", "Netflix", "Disney", "Samsung", "McDonald's", "Adidas", "Amazon", "YouTube", "Spotify", "PlayStation", "Havaianas"] }
 ];
 
-// DATA STRUCTURE: [{ name: "Name", data: [cats] }]
-let GLOBAL_SHEETS_DATA = [{ name: "Padrão", data: JSON.parse(JSON.stringify(DEFAULT_CATS)) }];
-let CURRENT_SHEET_IDX = 0;
-let SOURCE_TYPE = 'default';
+const DEFAULT_CATS_EXTRA = [
+    { n: "DANCINHAS DO TIKTOK", w: ["Raca Negra", "Dança da Mãozinha", "Tchuco Tchuco", "Dança do Pombo", "Hit do Verão", "Passinho do Romano", "Sarrada no Ar", "Dança da Motinha", "Vai no Chão", "Rebolation"] },
+    { n: "FOBIAS", w: ["Aracnofobia", "Claustrofobia", "Acrofobia", "Tripofobia", "Coulrofobia", "Agorafobia", "Nictofobia", "Glossofobia", "Cinofobia", "Hemofobia"] },
+    { n: "MEMES BRASILEIROS", w: ["Nazaré Confusa", "Faustão", "É o Tchan", "Que Isso Véi", "Eita Giovana", "Cala Boca Galvão", "Aí Você Me Quebra", "Tá Serto", "Chaves Pistola", "Stonks"] },
+    { n: "PERSONAGENS DE DESENHO", w: ["Bob Esponja", "Mickey Mouse", "Pikachu", "Goku", "Naruto", "Pica-Pau", "Tom e Jerry", "Scooby-Doo", "Pernalonga", "Homem-Aranha", "Batman", "Super-Homem", "Sonic", "Mario"] },
+    { n: "APPS E REDES SOCIAIS", w: ["WhatsApp", "Instagram", "TikTok", "YouTube", "Twitter", "Spotify", "Uber", "iFood", "Netflix", "Tinder", "Pinterest", "Snapchat", "Telegram", "Discord"] },
+    { n: "EMOJIS (IMITE!)", w: ["😂 Chorando de rir", "😱 Chocado", "🤡 Palhaço", "💀 Caveira", "🥶 Congelado", "🤑 Dinheiro", "😴 Dormindo", "🤮 Vomitando", "🥳 Festejando", "😈 Diabinho", "🤯 Mente Explodindo", "🫣 Espiando"] }
+];
+
+// === CATEGORY MANAGER (catMgr) ===
+// Estrutura de cada categoria:
+// { n: "NOME", w: [...], type: "normal"|"extra"|"custom", source: "default"|"user"|"sheets", enabled: true|false }
+
+const catMgr = {
+    cats: [],
+
+    // Inicializa com as categorias padrão
+    init: () => {
+        // Se já existem categorias salvas, não sobrescrever
+        if (catMgr.cats.length > 0) return;
+        catMgr.loadDefaults();
+    },
+
+    loadDefaults: () => {
+        catMgr.cats = [];
+        DEFAULT_CATS_NORMAL.forEach(c => {
+            catMgr.cats.push({ n: c.n, w: [...c.w], type: 'normal', source: 'default', enabled: true });
+        });
+        DEFAULT_CATS_EXTRA.forEach(c => {
+            catMgr.cats.push({ n: c.n, w: [...c.w], type: 'extra', source: 'default', enabled: false });
+        });
+    },
+
+    getAll: () => catMgr.cats,
+
+    getByType: (type) => catMgr.cats.filter(c => c.type === type),
+
+    getEnabled: () => catMgr.cats.filter(c => c.enabled),
+
+    getEnabledData: () => catMgr.getEnabled().map(c => ({ n: c.n, w: c.w })),
+
+    toggle: (name) => {
+        const cat = catMgr.cats.find(c => c.n === name);
+        if (cat) {
+            cat.enabled = !cat.enabled;
+            catMgr.save();
+            catMgr.renderCards();
+        }
+    },
+
+    add: (cat) => {
+        catMgr.cats.push({
+            n: cat.n,
+            w: cat.w || [],
+            type: 'custom',
+            source: cat.source || 'user',
+            enabled: true
+        });
+        catMgr.save();
+    },
+
+    remove: (name) => {
+        const cat = catMgr.cats.find(c => c.n === name);
+        if (!cat || cat.source === 'default') return; // Só remove custom
+        catMgr.cats = catMgr.cats.filter(c => c.n !== name);
+        catMgr.save();
+        catMgr.renderCards();
+    },
+
+    editWords: (name, words) => {
+        const cat = catMgr.cats.find(c => c.n === name);
+        if (!cat || cat.source === 'default') return; // Só edita custom
+        cat.w = words;
+        catMgr.save();
+    },
+
+    renameCat: (oldName, newName) => {
+        const cat = catMgr.cats.find(c => c.n === oldName);
+        if (!cat || cat.source === 'default') return;
+        cat.n = newName;
+        catMgr.save();
+    },
+
+    // Importação inteligente do Google Sheets (merge)
+    importFromSheets: (newCats) => {
+        const duplicates = [];
+        const toAdd = [];
+
+        newCats.forEach(nc => {
+            const existing = catMgr.cats.find(c => c.n.toUpperCase() === nc.n.toUpperCase());
+            if (existing) {
+                duplicates.push({ existing, incoming: nc });
+            } else {
+                toAdd.push(nc);
+            }
+        });
+
+        // Adiciona as novas sem conflito
+        toAdd.forEach(nc => {
+            catMgr.add({ n: nc.n, w: nc.w, source: 'sheets' });
+        });
+
+        // Se houver duplicatas, mostra o alert
+        if (duplicates.length > 0) {
+            catMgr._showConflictDialog(duplicates);
+        } else {
+            catMgr.save();
+            catMgr.renderCards();
+            ui.alert(`✅ ${toAdd.length} categorias importadas com sucesso!`);
+        }
+    },
+
+    _showConflictDialog: (duplicates) => {
+        const names = duplicates.map(d => `<b>${d.incoming.n}</b>`).join(', ');
+        const html = `
+            <div style="text-align:left; margin-bottom:10px;">
+                <p>As seguintes categorias já existem:</p>
+                <p style="color:var(--accent); margin:10px 0;">${names}</p>
+                <p>O que deseja fazer?</p>
+            </div>
+        `;
+        ui.modal("Categorias Duplicadas", html, [
+            {
+                txt: "SUBSTITUIR TODAS", cls: "btn btn-small",
+                style: "background:var(--danger); flex:1;",
+                fn: () => {
+                    duplicates.forEach(d => {
+                        const cat = catMgr.cats.find(c => c.n.toUpperCase() === d.incoming.n.toUpperCase());
+                        if (cat) {
+                            cat.w = d.incoming.w;
+                            if (cat.source !== 'default') cat.source = 'sheets';
+                        }
+                    });
+                    catMgr.save();
+                    catMgr.renderCards();
+                    ui.alert(`✅ Categorias atualizadas!`);
+                }
+            },
+            {
+                txt: "MANTER ANTERIORES", cls: "btn btn-small btn-outline",
+                style: "flex:1;",
+                fn: () => {
+                    catMgr.save();
+                    catMgr.renderCards();
+                    ui.alert(`✅ Categorias importadas (duplicatas ignoradas).`);
+                }
+            }
+        ]);
+    },
+
+    // Pacotes de categorias
+    getPackages: () => {
+        try {
+            return JSON.parse(localStorage.getItem('pnt_cat_packages') || '[]');
+        } catch (e) { return []; }
+    },
+
+    savePackage: (name) => {
+        const pkgs = catMgr.getPackages();
+        const enabledNames = catMgr.cats.filter(c => c.enabled).map(c => c.n);
+        const existing = pkgs.findIndex(p => p.name === name);
+        if (existing >= 0) {
+            pkgs[existing].enabledCats = enabledNames;
+        } else {
+            pkgs.push({ name, enabledCats: enabledNames });
+        }
+        localStorage.setItem('pnt_cat_packages', JSON.stringify(pkgs));
+    },
+
+    loadPackage: (name) => {
+        const pkgs = catMgr.getPackages();
+        const pkg = pkgs.find(p => p.name === name);
+        if (!pkg) return;
+        catMgr.cats.forEach(c => {
+            c.enabled = pkg.enabledCats.includes(c.n);
+        });
+        catMgr.save();
+        catMgr.renderCards();
+    },
+
+    deletePackage: (name) => {
+        let pkgs = catMgr.getPackages();
+        pkgs = pkgs.filter(p => p.name !== name);
+        localStorage.setItem('pnt_cat_packages', JSON.stringify(pkgs));
+    },
+
+    // Persistência
+    save: () => {
+        localStorage.setItem('pnt_cats_v33', JSON.stringify(catMgr.cats));
+    },
+
+    load: () => {
+        try {
+            const saved = localStorage.getItem('pnt_cats_v33');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].type) {
+                    catMgr.cats = parsed;
+
+                    // Sincronizar com novas categorias padrão que possam ter sido adicionadas
+                    DEFAULT_CATS_NORMAL.forEach(dc => {
+                        if (!catMgr.cats.find(c => c.n === dc.n && c.source === 'default')) {
+                            catMgr.cats.push({ n: dc.n, w: [...dc.w], type: 'normal', source: 'default', enabled: true });
+                        }
+                    });
+                    DEFAULT_CATS_EXTRA.forEach(dc => {
+                        if (!catMgr.cats.find(c => c.n === dc.n && c.source === 'default')) {
+                            catMgr.cats.push({ n: dc.n, w: [...dc.w], type: 'extra', source: 'default', enabled: false });
+                        }
+                    });
+                    return;
+                }
+            }
+
+            // Migração do formato antigo (v22)
+            const oldData = localStorage.getItem('pnt_data_v22');
+            if (oldData) {
+                const data = JSON.parse(oldData);
+                if (data && data.cats) {
+                    let oldCats = [];
+                    if (Array.isArray(data.cats) && data.cats.length > 0) {
+                        if (data.cats[0].data) {
+                            // Format: [{ name, data: [cats] }]
+                            data.cats.forEach(sheet => {
+                                if (sheet.data) oldCats.push(...sheet.data);
+                            });
+                        } else if (data.cats[0].n) {
+                            oldCats = data.cats;
+                        }
+                    }
+
+                    if (oldCats.length > 0) {
+                        catMgr.loadDefaults();
+                        // Importa categorias antigas que não são padrão
+                        oldCats.forEach(oc => {
+                            const existing = catMgr.cats.find(c => c.n === oc.n);
+                            if (!existing) {
+                                catMgr.cats.push({
+                                    n: oc.n, w: oc.w,
+                                    type: 'custom', source: 'user', enabled: true
+                                });
+                            }
+                        });
+                        catMgr.save();
+                        return;
+                    }
+                }
+            }
+
+            // Nenhum dado salvo, carrega padrão
+            catMgr.loadDefaults();
+        } catch (e) {
+            console.error('catMgr load error:', e);
+            catMgr.loadDefaults();
+        }
+    },
+
+    // Renderização dos cards
+    renderCards: () => {
+        const container = document.getElementById('cat-cards-container');
+        if (!container) return;
+
+        const normalCats = catMgr.getByType('normal');
+        const extraCats = catMgr.getByType('extra');
+        const customCats = catMgr.cats.filter(c => c.type === 'custom');
+
+        let html = '';
+
+        // Categorias Normais
+        if (normalCats.length > 0) {
+            html += `<div class="cat-section-title">📋 Categorias Normais</div>`;
+            html += `<div class="cat-grid">`;
+            normalCats.forEach((c, i) => {
+                const color = getDynamicColor(i, normalCats.length);
+                html += catMgr._cardHTML(c, color, false);
+            });
+            html += `</div>`;
+        }
+
+        // Categorias Extras
+        if (extraCats.length > 0) {
+            html += `<div class="cat-section-title">🎭 Categorias Extras</div>`;
+            html += `<div class="cat-grid">`;
+            extraCats.forEach((c, i) => {
+                const color = getDynamicColor(i, extraCats.length);
+                html += catMgr._cardHTML(c, color, false);
+            });
+            html += `</div>`;
+        }
+
+        // Minhas Categorias
+        html += `<div class="cat-section-title">✏️ Minhas Categorias</div>`;
+        if (customCats.length > 0) {
+            html += `<div class="cat-grid">`;
+            customCats.forEach((c, i) => {
+                const color = getDynamicColor(i, customCats.length);
+                html += catMgr._cardHTML(c, color, true);
+            });
+            html += `</div>`;
+        } else {
+            html += `<div style="text-align:center; opacity:0.5; padding:20px; font-size:0.9rem;">Nenhuma categoria criada.<br>Importe do Google Sheets ou crie a sua!</div>`;
+        }
+
+        container.innerHTML = html;
+    },
+
+    _cardHTML: (cat, color, isCustom) => {
+        const enabledClass = cat.enabled ? '' : 'disabled';
+        const customClass = isCustom ? 'custom' : '';
+        const checkIcon = cat.enabled ? '✔' : '';
+        const wordCount = cat.w.length;
+        const escapedName = cat.n.replace(/'/g, "\\'");
+
+        let clickAction;
+        if (isCustom) {
+            clickAction = `catMgr.openEditModal('${escapedName}')`;
+        } else {
+            clickAction = `catMgr.toggle('${escapedName}')`;
+        }
+
+        return `
+            <div class="cat-card ${enabledClass} ${customClass}" onclick="${clickAction}" style="--card-color: ${color}">
+                <div class="cat-card-check">${checkIcon}</div>
+                ${isCustom ? '<div class="cat-card-badge">MINHA</div>' : ''}
+                <div class="cat-card-name">${cat.n.replace(/\*+$/, '')}</div>
+                <div class="cat-card-count">${wordCount} palavras</div>
+                ${isCustom ? `<button class="cat-card-delete" onclick="event.stopPropagation(); catMgr.confirmRemove('${escapedName}')">🗑</button>` : ''}
+            </div>
+        `;
+    },
+
+    confirmRemove: (name) => {
+        ui.confirm(`Apagar a categoria "${name}"?`, () => {
+            catMgr.remove(name);
+        });
+    },
+
+    openEditModal: (name) => {
+        const cat = catMgr.cats.find(c => c.n === name);
+        if (!cat) return;
+
+        // Toggle se clicar
+        if (cat.source === 'default') {
+            catMgr.toggle(name);
+            return;
+        }
+
+        // Modal de edição para custom
+        let wordsList = cat.w.map((w, i) =>
+            `<div class="edit-word-item">
+                <span>${w}</span>
+                <button class="btn-del" onclick="catMgr._removeWordFromModal(${i})" style="width:30px;height:30px;font-size:0.9rem;">✕</button>
+            </div>`
+        ).join('');
+
+        const html = `
+            <div style="width:100%;">
+                <div class="input-group" style="margin-bottom:10px;">
+                    <label>Nome da Categoria</label>
+                    <input type="text" id="edit-cat-name" value="${cat.n}" style="font-weight:bold; color:var(--accent);">
+                </div>
+
+                <div class="input-group">
+                    <label>Ativar/Desativar</label>
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                        <input type="checkbox" id="edit-cat-enabled" ${cat.enabled ? 'checked' : ''} style="width:20px; height:20px; accent-color:var(--success);">
+                        <span style="font-size:0.9rem; opacity:0.7;">Categoria ativa no jogo</span>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;"></div>
+
+                <div id="edit-words-list" style="max-height:200px; overflow-y:auto; margin-bottom:10px;">
+                    ${wordsList}
+                </div>
+
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="edit-new-word" placeholder="Nova palavra..." style="flex:1; font-size:0.9rem;">
+                    <button class="btn btn-small" style="background:var(--success); margin:0;" onclick="catMgr._addWordToModal()">+</button>
+                </div>
+            </div>
+        `;
+
+        // Store ref for edit operations
+        catMgr._editingCat = name;
+        catMgr._editingWords = [...cat.w];
+
+        ui.modal("Editar Categoria", html, [
+            {
+                txt: "SALVAR", cls: "btn btn-small",
+                style: "background:var(--success); flex:1;",
+                fn: () => {
+                    const newName = document.getElementById('edit-cat-name').value.trim();
+                    const isEnabled = document.getElementById('edit-cat-enabled').checked;
+                    if (newName && newName !== name) {
+                        catMgr.renameCat(name, newName);
+                    }
+                    const c = catMgr.cats.find(x => x.n === (newName || name));
+                    if (c) {
+                        c.w = [...catMgr._editingWords];
+                        c.enabled = isEnabled;
+                    }
+                    catMgr.save();
+                    catMgr.renderCards();
+                }
+            },
+            {
+                txt: "CANCELAR", cls: "btn btn-small btn-outline",
+                style: "flex:1;"
+            }
+        ]);
+    },
+
+    _editingCat: null,
+    _editingWords: [],
+
+    _addWordToModal: () => {
+        const input = document.getElementById('edit-new-word');
+        const word = input.value.trim();
+        if (!word) return;
+        catMgr._editingWords.push(word);
+        input.value = '';
+        catMgr._refreshWordsList();
+    },
+
+    _removeWordFromModal: (idx) => {
+        catMgr._editingWords.splice(idx, 1);
+        catMgr._refreshWordsList();
+    },
+
+    _refreshWordsList: () => {
+        const list = document.getElementById('edit-words-list');
+        if (!list) return;
+        list.innerHTML = catMgr._editingWords.map((w, i) =>
+            `<div class="edit-word-item">
+                <span>${w}</span>
+                <button class="btn-del" onclick="catMgr._removeWordFromModal(${i})" style="width:30px;height:30px;font-size:0.9rem;">✕</button>
+            </div>`
+        ).join('');
+    },
+
+    // Criar nova categoria custom
+    openCreateModal: () => {
+        catMgr._editingWords = [];
+        const html = `
+            <div style="width:100%;">
+                <div class="input-group" style="margin-bottom:10px;">
+                    <label>Nome da Categoria</label>
+                    <input type="text" id="create-cat-name" placeholder="Ex: SUPER-HERÓIS" style="font-weight:bold; color:var(--accent);">
+                </div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;"></div>
+                <div id="edit-words-list" style="max-height:200px; overflow-y:auto; margin-bottom:10px;"></div>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="edit-new-word" placeholder="Nova palavra..." style="flex:1; font-size:0.9rem;">
+                    <button class="btn btn-small" style="background:var(--success); margin:0;" onclick="catMgr._addWordToModal()">+</button>
+                </div>
+            </div>
+        `;
+        ui.modal("Nova Categoria", html, [
+            {
+                txt: "CRIAR", cls: "btn btn-small",
+                style: "background:var(--success); flex:1;",
+                fn: () => {
+                    const name = document.getElementById('create-cat-name').value.trim().toUpperCase();
+                    if (!name) { ui.alert("Digite um nome para a categoria."); return; }
+                    if (catMgr.cats.find(c => c.n === name)) { ui.alert("Já existe uma categoria com esse nome."); return; }
+                    if (catMgr._editingWords.length === 0) { ui.alert("Adicione pelo menos uma palavra."); return; }
+                    catMgr.add({ n: name, w: [...catMgr._editingWords], source: 'user' });
+                    catMgr.renderCards();
+                }
+            },
+            {
+                txt: "CANCELAR", cls: "btn btn-small btn-outline",
+                style: "flex:1;"
+            }
+        ]);
+    },
+
+    // Pacotes UI
+    openPackageModal: () => {
+        const pkgs = catMgr.getPackages();
+        let pkgList = '';
+        if (pkgs.length > 0) {
+            pkgList = pkgs.map(p => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:rgba(255,255,255,0.05); border-radius:10px; margin-bottom:8px;">
+                    <span style="font-weight:bold;">${p.name}</span>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn btn-small" style="background:var(--success); margin:0; padding:5px 10px; font-size:0.8rem;" onclick="catMgr.loadPackage('${p.name.replace(/'/g, "\\'")}'); document.getElementById('modal-overlay').style.display='none';">Carregar</button>
+                        <button class="btn btn-small" style="background:var(--danger); margin:0; padding:5px 10px; font-size:0.8rem;" onclick="catMgr.deletePackage('${p.name.replace(/'/g, "\\'")}'); catMgr.openPackageModal();">🗑</button>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            pkgList = '<div style="text-align:center; opacity:0.5; padding:20px;">Nenhum pacote salvo.</div>';
+        }
+
+        const html = `
+            <div style="width:100%;">
+                <div style="margin-bottom:15px;">${pkgList}</div>
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;"></div>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="pkg-name-input" placeholder="Nome do pacote..." style="flex:1; font-size:0.9rem;">
+                    <button class="btn btn-small" style="background:var(--success); margin:0;" onclick="
+                        const n = document.getElementById('pkg-name-input').value.trim();
+                        if(n){ catMgr.savePackage(n); catMgr.openPackageModal(); }
+                    ">SALVAR</button>
+                </div>
+            </div>
+        `;
+        ui.modal("📦 Pacotes de Categorias", html, [{ txt: "FECHAR", cls: "btn btn-small btn-outline" }]);
+    }
+};
+
+// === LEGACY COMPAT ===
 let CURRENT_ROUND_CATS = [];
 let DATA_DIRTY = false;
 
@@ -338,7 +855,6 @@ function smartSplit(text) {
 const storage = {
     save: () => {
         const data = {
-            cats: GLOBAL_SHEETS_DATA, source: SOURCE_TYPE,
             t1: document.getElementById('t1').value, t2: document.getElementById('t2').value,
             time: document.getElementById('opt-time').value, rounds: document.getElementById('opt-rounds').value,
             mode: document.getElementById('opt-mode').value,
@@ -347,31 +863,25 @@ const storage = {
             survTime: document.getElementById('opt-surv-time').value,
             survBonus: document.getElementById('opt-surv-bonus').value,
             solo: document.getElementById('opt-players').value,
-            solo: document.getElementById('opt-players').value,
             tts: st.cfg.tts, ttsWord: st.cfg.ttsWord, ttsRate: st.cfg.ttsRate
         };
-        localStorage.setItem('pnt_data_v22', JSON.stringify(data));
+        localStorage.setItem('pnt_settings_v33', JSON.stringify(data));
+        catMgr.save();
     },
     load: () => {
         try {
-            const data = JSON.parse(localStorage.getItem('pnt_data_v22'));
-            if (data) {
-                if (data.cats && Array.isArray(data.cats)) {
-                    if (data.cats.length > 0) {
-                        // MIGRATION CHECK: If old format (array of arrays), convert to objects
-                        if (Array.isArray(data.cats[0])) {
-                            GLOBAL_SHEETS_DATA = data.cats.map((d, i) => ({ name: `Aba ${i + 1}`, data: d }));
-                        } else if (data.cats[0].data) {
-                            // New format
-                            GLOBAL_SHEETS_DATA = data.cats;
-                        } else {
-                            // Fallback for single sheet old format wrapped oddly
-                            GLOBAL_SHEETS_DATA = [{ name: "Padrão", data: data.cats }];
-                        }
-                    }
-                }
+            // Load categories via catMgr
+            catMgr.load();
 
-                if (data.source) SOURCE_TYPE = data.source;
+            // Try new settings format first
+            let data = JSON.parse(localStorage.getItem('pnt_settings_v33'));
+
+            // Fallback to old format for migration
+            if (!data) {
+                data = JSON.parse(localStorage.getItem('pnt_data_v22'));
+            }
+
+            if (data) {
                 if (data.t1) document.getElementById('t1').value = data.t1;
                 if (data.t2) document.getElementById('t2').value = data.t2;
                 if (data.time) document.getElementById('opt-time').value = data.time;
@@ -386,155 +896,17 @@ const storage = {
                     st.cfg.solo = data.solo == '1';
                 }
                 if (data.tts !== undefined) st.cfg.tts = data.tts;
-                if (data.tts !== undefined) st.cfg.tts = data.tts;
                 if (data.ttsWord !== undefined) st.cfg.ttsWord = data.ttsWord;
                 if (data.ttsRate !== undefined) st.cfg.ttsRate = parseFloat(data.ttsRate);
 
                 app.toggleThresholdVisibility();
                 app.toggleSolo();
             }
-        } catch (e) { localStorage.removeItem('pnt_data_v22'); }
+        } catch (e) { console.error('Storage load error:', e); }
     }
 };
 
 const dataMgr = {
-    isTableMode: true,
-    init: () => {
-        if (CURRENT_SHEET_IDX >= GLOBAL_SHEETS_DATA.length) CURRENT_SHEET_IDX = 0;
-        dataMgr.updateSheetSelector();
-        dataMgr.renderTable();
-    },
-    updateSheetSelector: () => {
-        const sel = document.getElementById('sheet-selector');
-        sel.innerHTML = '';
-        GLOBAL_SHEETS_DATA.forEach((s, i) => {
-            const opt = document.createElement('option');
-            opt.value = i;
-            opt.text = `${s.name} (${s.data.length} cats)`;
-            if (i === parseInt(CURRENT_SHEET_IDX)) opt.selected = true;
-            sel.appendChild(opt);
-        });
-    },
-    switchSheet: (idx) => {
-        dataMgr.syncFromTable();
-        CURRENT_SHEET_IDX = parseInt(idx);
-        dataMgr.init();
-    },
-    toggleView: () => { },
-    addSheet: () => {
-        if (!paywall.isPro && GLOBAL_SHEETS_DATA.length >= 1) {
-            paywall.show();
-            return;
-        }
-        dataMgr.syncFromTable();
-        GLOBAL_SHEETS_DATA.push({ name: "Nova Aba", data: [{ n: "NOVA CAT", w: ["A", "B"] }] });
-        CURRENT_SHEET_IDX = GLOBAL_SHEETS_DATA.length - 1;
-        dataMgr.init();
-        storage.save();
-    },
-    removeSheet: () => {
-        if (GLOBAL_SHEETS_DATA.length <= 1) {
-            ui.alert("Você não pode apagar a única aba restante.");
-            return;
-        }
-        ui.confirm("Tem certeza que deseja apagar esta aba inteira?", () => {
-            GLOBAL_SHEETS_DATA.splice(CURRENT_SHEET_IDX, 1);
-            CURRENT_SHEET_IDX = 0;
-            dataMgr.init();
-            storage.save();
-        });
-    },
-    renameSheet: () => {
-        const currentName = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX].name;
-        const newName = prompt("Novo nome da aba:", currentName);
-        if (newName && newName.trim() !== "") {
-            GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX].name = newName.trim();
-            dataMgr.updateSheetSelector();
-            storage.save();
-        }
-    },
-    moveSheet: (dir) => {
-        const newIdx = CURRENT_SHEET_IDX + dir;
-        if (newIdx < 0 || newIdx >= GLOBAL_SHEETS_DATA.length) return;
-
-        dataMgr.syncFromTable(); // Save current state first
-
-        // Swap
-        const temp = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX];
-        GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] = GLOBAL_SHEETS_DATA[newIdx];
-        GLOBAL_SHEETS_DATA[newIdx] = temp;
-
-        CURRENT_SHEET_IDX = newIdx;
-        dataMgr.init();
-        storage.save();
-    },
-    markDirty: () => { DATA_DIRTY = true; },
-    syncFromJSON: () => { },
-    syncFromTable: () => {
-        const rows = document.querySelectorAll('.table-row');
-        if (rows.length === 0 && !document.getElementById('screen-options').classList.contains('active')) return;
-
-        const newCats = [];
-        rows.forEach(r => {
-            const n = r.querySelector('.table-input-cat').value;
-            const wStr = r.querySelector('.table-input-words').value;
-            if (n && wStr) {
-                // MUDANÇA: split por ;
-                const w = wStr.split(';').map(s => s.trim()).filter(s => s);
-                if (w.length) newCats.push({ n, w });
-            }
-        });
-
-        if (document.getElementById('view-table').classList.contains('active')) {
-            GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX].data = newCats;
-        }
-    },
-    renderTable: () => {
-        const container = document.getElementById('table-rows');
-        if (!container) return;
-        container.innerHTML = '';
-
-        const currentData = GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX] ? GLOBAL_SHEETS_DATA[CURRENT_SHEET_IDX].data : [];
-
-        currentData.forEach((cat, idx) => {
-            const row = document.createElement('div');
-            row.className = 'table-row';
-            // MUDANÇA: join com ;
-            row.innerHTML = `<input type="text" class="table-input-cat" value="${cat.n}" placeholder="Categoria" oninput="dataMgr.markDirty()"><input type="text" class="table-input-words" value="${cat.w.join('; ')}" placeholder="Palavras (use ; para separar)" oninput="dataMgr.markDirty()"><button class="btn btn-del" onclick="this.parentElement.remove(); dataMgr.markDirty()">×</button>`;
-            container.appendChild(row);
-        });
-    },
-    addTableRow: () => {
-        // PAYWALL CHECK: MAX 10 CATEGORIES
-        const currentRows = document.querySelectorAll('.table-row').length;
-        if (!paywall.isPro && currentRows >= 10) {
-            paywall.show();
-            return;
-        }
-
-        const container = document.getElementById('table-rows');
-        const row = document.createElement('div');
-        row.className = 'table-row';
-        // MUDANÇA: placeholder com ;
-        row.innerHTML = `<input type="text" class="table-input-cat" placeholder="NOVA" oninput="dataMgr.markDirty()"><input type="text" class="table-input-words" placeholder="A; B; C..." oninput="dataMgr.markDirty()"><button class="btn btn-del" onclick="this.parentElement.remove(); dataMgr.markDirty()">×</button>`;
-        container.appendChild(row);
-    },
-    save: () => {
-        dataMgr.syncFromTable();
-        SOURCE_TYPE = 'default';
-        storage.save();
-        DATA_DIRTY = false;
-        ui.alert("Salvo com sucesso!");
-    },
-    reset: () => {
-        ui.confirm("Resetar tudo para o padrão?", () => {
-            GLOBAL_SHEETS_DATA = [{ name: "Padrão", data: JSON.parse(JSON.stringify(DEFAULT_CATS)) }];
-            CURRENT_SHEET_IDX = 0; SOURCE_TYPE = 'default';
-            // REMOVIDO RESET DE TEMA
-            dataMgr.init(); storage.save();
-        });
-    },
-    copyPrompt: () => { navigator.clipboard.writeText("Gere JSON: [{\"n\":\"CAT\", \"w\":[\"A\",\"B\"]}]").then(() => ui.alert("Prompt copiado!")); },
     loadDefault: () => {
         document.getElementById('sheet-input').value = "https://docs.google.com/spreadsheets/d/1adTHnrCTt5bEmFowjqjFaPng04cWF0sY5Xn6YdGtLDo/edit?usp=drivesdk";
         dataMgr.loadSheet();
@@ -558,9 +930,8 @@ const dataMgr = {
                 <div style="text-align:center; margin-top:5px; font-size:0.8rem; opacity:0.7;">Baixando dados...</div>
             </div>
         `;
-        ui.modal("Carregando...", loadingHtml, []); // No actions to block close
+        ui.modal("Carregando...", loadingHtml, []);
 
-        // Simulate progress
         let progress = 0;
         const pBar = document.getElementById('load-progress');
         const interval = setInterval(() => {
@@ -570,7 +941,6 @@ const dataMgr = {
         }, 100);
 
         try {
-            // DELAY ARTIFICIAL
             await new Promise(r => setTimeout(r, 800));
 
             let exportUrl = url;
@@ -591,35 +961,30 @@ const dataMgr = {
 
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
-                const parsedSheets = [];
+                const allCats = [];
                 workbook.SheetNames.forEach(sheetName => {
-                    if (!paywall.isPro && parsedSheets.length >= 1) return;
                     const sheet = workbook.Sheets[sheetName];
                     const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    const cats = [];
                     if (json.length > 0) {
                         const headers = json[0];
                         for (let c = 0; c < headers.length; c++) {
                             const name = headers[c]; if (!name) continue;
                             const words = [];
-                            for (let r = 1; r < json.length; r++) { if (json[r] && json[r][c]) words.push(String(json[r][c]).trim()); }
-                            if (words.length > 0) cats.push({ n: name, w: words });
+                            for (let r = 1; r < json.length; r++) {
+                                if (json[r] && json[r][c]) words.push(String(json[r][c]).trim());
+                            }
+                            if (words.length > 0) allCats.push({ n: String(name).toUpperCase(), w: words });
                         }
                     }
-                    if (cats.length > 0) parsedSheets.push({ name: sheetName, data: cats });
                 });
 
                 setTimeout(() => {
-                    if (parsedSheets.length > 0) {
-                        GLOBAL_SHEETS_DATA = parsedSheets; SOURCE_TYPE = 'sheets';
-                        CURRENT_SHEET_IDX = 0;
-                        dataMgr.init(); storage.save();
-                        if (!paywall.isPro && workbook.SheetNames.length > 1) {
-                            ui.alert(`Sucesso! 1 aba carregada (Versão Grátis). Seja PRO para carregar todas.`);
-                        } else {
-                            ui.alert(`Sucesso! ${parsedSheets.length} abas carregadas.`);
-                        }
-                    } else { ui.alert("Nenhuma categoria encontrada."); }
+                    if (allCats.length > 0) {
+                        // Usa o merge inteligente do catMgr
+                        catMgr.importFromSheets(allCats);
+                    } else {
+                        ui.alert("Nenhuma categoria encontrada.");
+                    }
                 }, 500);
             };
             reader.readAsArrayBuffer(blob);
@@ -627,14 +992,20 @@ const dataMgr = {
             clearInterval(interval);
             console.error(e);
 
-            // CUSTOM ERROR MESSAGE FOR PRIVATE SHEETS
             let msg = "Erro ao ler planilha.";
             if (e.message === "Network" || e.message.includes("Failed to fetch")) {
                 msg = "Não foi possível acessar a planilha.<br><br>Verifique se ela está pública:<br>1. Clique em 'Compartilhar'<br>2. Mude para 'Qualquer pessoa com o link'";
             }
-
             ui.alert(msg);
         }
+    },
+    reset: () => {
+        ui.confirm("Resetar categorias para o padrão?", () => {
+            catMgr.loadDefaults();
+            catMgr.save();
+            catMgr.renderCards();
+            ui.alert("Categorias restauradas!");
+        });
     },
     exportExcel: () => {
         try {
@@ -775,10 +1146,10 @@ const app = {
 
         a11y.update(id); // UPDATE A11Y STATE
         if (id === 'options') {
-            dataMgr.init();
             themeMgr.init(); // FORCE THEME RENDER
             musicMgr.syncUI();
             aud.syncUI();
+            catMgr.renderCards();
         }
         const homeBtn = document.getElementById('home-btn');
 
@@ -885,6 +1256,13 @@ const app = {
             }
         ]);
     },
+    switchOptTab: (tab) => {
+        document.querySelectorAll('.opt-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.opt-tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById('tab-content-' + tab).classList.add('active');
+        if (tab === 'cats') catMgr.renderCards();
+    },
     tryHome: () => {
         if (DATA_DIRTY) {
             ui.confirm("Há alterações não salvas. Deseja sair e perder as mudanças?", () => {
@@ -935,34 +1313,19 @@ const app = {
     },
     prep: () => {
         if (st.rd > st.cfg.r) { app.end(); return; }
-        if (!GLOBAL_SHEETS_DATA || GLOBAL_SHEETS_DATA.length === 0 || !GLOBAL_SHEETS_DATA[0]) {
-            GLOBAL_SHEETS_DATA = [JSON.parse(JSON.stringify(DEFAULT_CATS))];
-        }
 
-        // Logic for rounds in Solo vs Versus
-        let turnIdx = 0;
-        let effectiveSheets = GLOBAL_SHEETS_DATA.length;
-
-        if (st.cfg.solo) {
-            // In solo, turn index is simply round index - 1
-            turnIdx = st.rd - 1;
-        } else {
-            // In versus, it calculates based on 2 turns per round
-            turnIdx = (st.rd - 1) * 2 + st.trn;
-            if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
-        }
-
-        const sheetIdx = turnIdx % effectiveSheets;
-        CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[sheetIdx].data;
+        // Usa catMgr para obter as categorias ativas
+        CURRENT_ROUND_CATS = catMgr.getEnabledData();
 
         if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) {
-            CURRENT_ROUND_CATS = GLOBAL_SHEETS_DATA[0].data;
+            // Fallback: ativa todas as normais
+            catMgr.getByType('normal').forEach(c => c.enabled = true);
+            CURRENT_ROUND_CATS = catMgr.getEnabledData();
         }
 
         const t = st.t[st.trn];
         const root = getComputedStyle(document.documentElement);
 
-        // Solo Mode always uses Primary Color
         const color = (st.cfg.solo) ? root.getPropertyValue('--primary') :
             (st.trn === 0 ? root.getPropertyValue('--primary') : root.getPropertyValue('--secondary'));
 
@@ -1047,7 +1410,7 @@ const wheel = {
     init: () => {
         const mode = document.getElementById('opt-mode').value;
         const thresh = parseInt(document.getElementById('opt-threshold').value) || 12;
-        if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) CURRENT_ROUND_CATS = DEFAULT_CATS;
+        if (!CURRENT_ROUND_CATS || CURRENT_ROUND_CATS.length === 0) CURRENT_ROUND_CATS = catMgr.getEnabledData();
         if (mode === 'wheel') wheel.mode = 'wheel';
         else if (mode === 'jackpot') wheel.mode = 'jackpot';
         else { wheel.mode = CURRENT_ROUND_CATS.length > thresh ? 'jackpot' : 'wheel'; }
@@ -1188,17 +1551,8 @@ const wheel = {
     },
     go: (velocity) => {
         if (wheel.spin) return; wheel.spin = true; aud.l('spin', true);
-        // === NOVA LÓGICA DE ASTERISCOS ===
-        let effectiveSheets = GLOBAL_SHEETS_DATA.length;
-        let turnIdx = 0;
-        if (st.cfg.solo) {
-            turnIdx = st.rd - 1;
-        } else {
-            turnIdx = (st.rd - 1) * 2 + st.trn;
-            if (effectiveSheets > 1 && effectiveSheets % 2 !== 0) effectiveSheets -= 1;
-        }
-        // Visit count for the current sheet (1-based)
-        const visitCount = Math.floor(turnIdx / effectiveSheets) + 1;
+        // === LÓGICA DE ASTERISCOS ===
+        const visitCount = 1;
 
         let winnerIdx = -1;
 
