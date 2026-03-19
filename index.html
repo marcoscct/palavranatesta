@@ -60,7 +60,8 @@
         <h1>PALAVRA NA TESTA</h1>
         <p class="app-subtitle">Desenvolvido por Marcos Castro</p>
         <button class="btn" onclick="app.start()">INICIAR JOGO</button>
-        <button class="btn btn-outline" onclick="app.to('options')">OPÇÕES / EDITOR</button>
+        <button class="btn btn-outline" onclick="app.to('options')">⚙️ CONFIGURAÇÕES</button>
+        <button class="btn btn-outline" onclick="app.to('options'); setTimeout(() => app.switchOptTab('cats'), 50)">📦 CATEGORIAS</button>
         <div class="version-tag"
             style="position:absolute; bottom:15px; left:20px; opacity:0.5; font-family:monospace; font-size:0.9rem;">-
         </div>
