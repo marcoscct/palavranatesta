@@ -912,12 +912,6 @@ const dataMgr = {
         dataMgr.loadSheet();
     },
     loadSheet: async () => {
-        // PAYWALL CHECK: GOOGLE SHEETS IMPORT
-        if (!paywall.isPro) {
-            paywall.show();
-            return;
-        }
-
         const url = document.getElementById('sheet-input').value;
         if (!url) return;
 
@@ -1931,105 +1925,6 @@ const game = {
     }
 };
 
-const paywall = {
-    isPro: false,
-    init: async () => {
-        if (!window.Capacitor) { console.log('Paywall: Non-Capacitor env'); return; }
-        const { Purchases } = Capacitor.Plugins;
-
-        // TODO: SUBSTITUA ESTAS CHAVES PELAS REAIS DO REVENUECAT
-        const API_KEYS = {
-            ios: 'appl_PLACEHOLDER_KEY',
-            android: 'goog_HsNdwovArTjAZJSyFtdYmWhpprs'
-        };
-
-        const platform = Capacitor.getPlatform();
-        const key = platform === 'ios' ? API_KEYS.ios : API_KEYS.android;
-
-        if (key.includes('PLACEHOLDER')) {
-            console.warn('Paywall: Keys not configured.');
-            // BYPASS TEMPORÁRIO PARA NÃO TRAVAR O APP ENQUANTO VOCÊ NÃO CONFIGURA
-            paywall.isPro = true;
-            return;
-        }
-
-        try {
-            await Purchases.configure({ apiKey: key });
-            const info = await Purchases.getCustomerInfo();
-            paywall.check(info);
-
-            // LISTENER PARA MUDANÇAS (Ex: renovação, cancelamento)
-            Purchases.addCustomerInfoUpdateListener((info) => {
-                paywall.check(info);
-            });
-        } catch (e) {
-            console.error("Paywall Init Error", e);
-            // Fallback ou retry poderia ser implementado aqui
-        }
-    },
-    check: (info) => {
-        paywall.lastInfo = info; // Save for dev mode toggle re-check
-        // BYPASS SE O MODO DESENVOLVEDOR ESTIVER ATIVO
-        if (st.devMode) {
-            paywall.isPro = true;
-            console.log('Paywall: Dev Mode BYPASS');
-            return;
-        }
-
-        if (info.entitlements.active['pro']) {
-            paywall.isPro = true;
-            console.log('Paywall: User is PRO');
-        } else {
-            paywall.isPro = false;
-            console.log('Paywall: User is FREE');
-        }
-    },
-    purchase: async () => {
-        if (!window.Capacitor) return;
-        const { Purchases } = Capacitor.Plugins;
-        try {
-            const offerings = await Purchases.getOfferings();
-            if (offerings.current && offerings.current.availablePackages.length > 0) {
-                const pkg = offerings.current.availablePackages[0];
-                const { customerInfo } = await Purchases.purchasePackage({ package: pkg });
-                paywall.check(customerInfo);
-                if (paywall.isPro) {
-                    ui.alert("Compra realizada com sucesso!");
-                    document.getElementById('modal-overlay').style.display = 'none';
-                }
-            } else {
-                ui.alert("Nenhuma oferta disponível no momento.");
-            }
-        } catch (e) {
-            if (e.code !== 1) ui.alert("Erro: " + e.message);
-        }
-    },
-    restore: async () => {
-        if (!window.Capacitor) return;
-        const { Purchases } = Capacitor.Plugins;
-        try {
-            const info = await Purchases.restorePurchases();
-            paywall.check(info);
-            if (paywall.isPro) ui.alert("Compras restauradas!");
-            else ui.alert("Nenhuma compra ativa encontrada.");
-        } catch (e) { ui.alert("Erro ao restaurar."); }
-    },
-    show: () => {
-        const html = `
-            <div class="pay-container" style="display:flex; flex-direction:column; gap:10px;">
-                <div class="pay-left" style="text-align:center;">
-                    <p style="opacity:0.8; font-size:1.1rem; margin-top:5px;">Desbloqueie categorias ilimitadas e apoie o desenvolvimento!</p>
-                </div>
-                <div class="pay-right" style="display:flex; flex-direction:column; gap:10px; width:100%;">
-                    <button class="btn" style="background:var(--success); width:100%;" onclick="paywall.purchase()">DESBLOQUEAR AGORA</button>
-                    <button class="btn btn-outline" style="width:100%;" onclick="paywall.restore()">Restaurar Compra</button>
-                </div>
-            </div>
-        `;
-        ui.modal("💎 Versão PRO", html, [{ txt: "FECHAR", cls: "btn btn-outline" }]);
-    }
-};
-
 // === MODAL ANIMATION FIX ===
 const originalModal = ui.modal;
 ui.modal = (title, html, actions) => {
@@ -2066,7 +1961,6 @@ window.onload = () => {
                 devTapCount = 0;
                 st.devMode = !st.devMode;
                 localStorage.setItem('pnt_dev_mode', st.devMode);
-                paywall.check(paywall.lastInfo || { entitlements: { active: {} } }); // Re-check
                 ui.alert(`MODO DESENVOLVEDOR: ${st.devMode ? 'ATIVADO 🔓' : 'DESATIVADO 🔒'}`);
             }
         });
@@ -2080,9 +1974,6 @@ window.onload = () => {
     musicMgr.init();
     themeMgr.init(); // Initialize themes
     sensor.init();
-
-    // INIT PAYWALL
-    paywall.init();
 
     // PAUSE MUSIC ON BACKGROUND
     if (window.Capacitor) {
