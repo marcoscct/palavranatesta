@@ -1501,6 +1501,29 @@ option {
     flex-shrink: 0;
 }
 
+/* === TELA DE LOGIN (WEB) === */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    text-align: center;
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+}
+
+.login-box {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px 20px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
 @media (max-width: 350px) {
     .cat-grid { grid-template-columns: repeat(2, 1fr); }
     .cat-card-name { font-size: 0.7rem; }
