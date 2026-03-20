@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - Palavra na Testa</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #38bdf8;
+        }
+        h1 {
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+        }
+        a {
+            color: #38bdf8;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            background: #334155;
+            color: #fff;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">⬅ Voltar para o jogo</a>
+
+    <div class="container">
+        <h1>Política de Privacidade</h1>
+        <p>Última atualização: Março de 2026</p>
+
+        <p>Esta Política de Privacidade descreve como o aplicativo web <strong>Palavra na Testa</strong> coleta, usa e protege as informações dos usuários.</p>
+
+        <h2>1. Objetivo da Coleta de Dados</h2>
+        <p>O aplicativo Palavra na Testa oferece acesso exclusivo a uma versão especial do jogo para membros pagantes do canal do YouTube "Castro Brothers". Para verificar se você é um membro elegível (nível <em>Brotherzaço</em> ou superior), utilizamos a integração com o Google / YouTube Data API.</p>
+
+        <h2>2. Dados Coletados</h2>
+        <p>Ao clicar em "Entrar com Google", solicitamos a permissão <code>youtube.readonly</code>. Nós <strong>apenas</strong> acessamos o seu <strong>ID de Canal do YouTube público</strong>. Esse ID é enviado diretamente para nosso servidor seguro para conferir sua assinatura na lista de membros do canal Castro Brothers usando a permissão do criador (<code>youtube.channel-memberships.creator</code>).</p>
+        <ul>
+            <li>Não temos acesso às suas senhas.</li>
+            <li>Não temos acesso ao seu histórico de vídeos, curtidas ou inscrições.</li>
+            <li>Não podemos fazer postagens, comentários ou edições no seu canal.</li>
+        </ul>
+
+        <h2>3. Armazenamento de Dados</h2>
+        <p><strong>Nós não armazenamos e não guardamos</strong> o seu ID do YouTube no nosso banco de dados. O ID é verificado em tempo real, os dados da sessão de login são mantidos apenas no seu navegador enquanto você joga, e quando você fecha o navegador ou clica em Sair, as credenciais de sessão expiram.</p>
+
+        <h2>4. Compartilhamento de Dados</h2>
+        <p>Não compartilhamos, não vendemos e não enviamos nenhuma informação obtida pela API do YouTube para terceiros (anunciantes, empresas de pesquisa, etc.). Os dados fluem apenas entre o seu navegador, nosso servidor de autenticação seguro (Supabase) e os servidores do Google.</p>
+
+        <h2>5. Consentimento e Exclusão</h2>
+        <p>Ao fazer o login pelo Google, você concorda com a verificação de membresia mencionada acima. Você pode revogar o acesso do Palavra na Testa à sua conta Google a qualquer momento nas <a href="https://myaccount.google.com/permissions" target="_blank">Configurações de Segurança da sua Conta Google</a>.</p>
+
+        <h2>6. Contato</h2>
+        <p>Se você tiver dúvidas ou preocupações sobre esta Política de Privacidade ou sobre o uso de seus dados, entre em contato através do e-mail: <a href="mailto:contato@castrobrothers.com.br">contato@castrobrothers.com.br</a>.</p>
+    </div>
+
+</body>
+</html>
