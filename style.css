@@ -145,7 +145,6 @@ h1 {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     font-size: clamp(2rem, 6vw, 4rem);
-    text-transform: uppercase;
     background: linear-gradient(to right, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     background-clip: text;
@@ -165,7 +164,6 @@ h2 {
     font-size: 1.3rem;
     margin-bottom: 15px;
     color: var(--accent);
-    text-transform: uppercase;
     letter-spacing: 1px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 5px;
@@ -180,7 +178,6 @@ h2 {
     margin-bottom: 4vh;
     font-weight: 700;
     letter-spacing: 2px;
-    text-transform: uppercase;
     text-align: center;
     width: 100%;
 }

@@ -1959,13 +1959,18 @@ const auth = {
         // Verifica se há sessão ativa
         const { data: { session } } = await auth.supabase.auth.getSession();
 
-        if (session) {
+        if (session && session.provider_token) {
             auth.user = session.user;
             await auth._verifyMembership(session);
         } else {
+            // Se houver sessão (ex: refresh) mas sem o token do Google, limpamos a sessão stale
+            if (session && !session.provider_token) {
+                await auth.supabase.auth.signOut();
+            }
+
             // Escuta callback de OAuth
             auth.supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' && session) {
+                if (event === 'SIGNED_IN' && session && session.provider_token) {
                     auth.user = session.user;
                     await auth._verifyMembership(session);
                 }
