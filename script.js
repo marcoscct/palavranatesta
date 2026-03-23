@@ -1098,6 +1098,12 @@ keyboard.init();
 
 const app = {
     to: (id) => {
+        // SEGURANÇA: Impede navegação se não estiver autorizado (exceto para própria home)
+        if (id !== 'home' && !auth.isAuthorized) {
+            ui.alert("Acesso Negado", "Você precisa fazer login com uma conta verificada para acessar o jogo.");
+            return;
+        }
+
         if (document.querySelector('#screen-game.active')) game.stop();
         wheel.stop();
 
@@ -1252,6 +1258,12 @@ const app = {
         if (mode === 'auto') el.style.display = 'block'; else el.style.display = 'none';
     },
     start: () => {
+        // SEGURANÇA: Impede iniciar o jogo se não estiver autorizado
+        if (!auth.isAuthorized) {
+            ui.alert("Acesso Negado", "Você precisa fazer login com uma conta verificada para jogar.");
+            return;
+        }
+
         aud.p('click');
         musicMgr.play(); // START MUSIC
         wakeLockMgr.request();
@@ -1930,12 +1942,14 @@ const auth = {
     supabase: null,
     isWeb: false,
     user: null,
+    isAuthorized: false,
 
     init: async () => {
         // Se é Capacitor (APK), pula auth completamente
         auth.isWeb = !window.Capacitor;
         if (!auth.isWeb) {
-            auth._showHome();
+            auth.isAuthorized = true;
+            auth._showMenuSection();
             return;
         }
 
@@ -1956,7 +1970,7 @@ const auth = {
                     await auth._verifyMembership(session);
                 }
             });
-            auth._showLogin();
+            auth._showAuthSection();
         }
     },
 
@@ -1996,44 +2010,55 @@ const auth = {
             const data = await res.json();
 
             if (data.authorized) {
-                auth._showHome();
+                auth.isAuthorized = true;
+                auth._showMenuSection();
             } else {
+                auth.isAuthorized = false;
                 auth._showBlocked(data.reason || 'Sua conta não é membro Brotherzaço ou superior.');
             }
         } catch (e) {
             console.error('Auth verify error:', e);
             // Em caso de erro na verificação, libera acesso (graceful degradation)
-            auth._showHome();
+            auth.isAuthorized = true;
+            auth._showMenuSection();
         }
     },
 
     logout: async () => {
         if (auth.supabase) await auth.supabase.auth.signOut();
         auth.user = null;
-        auth._showLogin();
+        auth.isAuthorized = false;
+        auth._showAuthSection();
     },
 
-    _showLogin: () => {
+    _showAuthSection: () => {
         document.getElementById('loading-screen').style.display = 'none';
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('screen-login').style.display = '';
-        document.getElementById('screen-login').classList.add('active');
+        document.getElementById('screen-home').classList.add('active');
+        
+        const authSec = document.getElementById('home-auth-section');
+        const menuSec = document.getElementById('home-menu-section');
+        if(authSec) authSec.style.display = 'flex';
+        if(menuSec) menuSec.style.display = 'none';
     },
 
-    _showHome: () => {
+    _showMenuSection: () => {
         document.getElementById('loading-screen').style.display = 'none';
-        document.querySelectorAll('.screen').forEach(s => {
-            s.classList.remove('active');
-            if (s.id === 'screen-login') s.style.display = 'none';
-        });
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('screen-home').classList.add('active');
+
+        const authSec = document.getElementById('home-auth-section');
+        const menuSec = document.getElementById('home-menu-section');
+        if(authSec) authSec.style.display = 'none';
+        if(menuSec) menuSec.style.display = 'block';
     },
 
     _showBlocked: (reason) => {
+        auth._showAuthSection();
         const statusEl = document.getElementById('login-status');
         if (statusEl) {
             statusEl.innerHTML = `<span style="color:var(--danger);">⛔ ${reason}</span><br><br>` +
-                `<button class="btn btn-small btn-outline" onclick="auth.logout()" style="width:auto;">Sair e tentar outra conta</button>`;
+                `<button class="btn btn-small btn-outline" onclick="auth.logout()" style="width:auto; margin-top:10px;">Sair e tentar outra conta</button>`;
         }
     }
 };
